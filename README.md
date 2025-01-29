@@ -1,10 +1,10 @@
-# CMPUT 301 W25 - Team [CtrlAltElite]
+# CMPUT 301 W25 - Team CtrlAltElite
 
 ## Team Members
 
 | Name        | CCID   | GitHub Username |
 | ----------- | ------ | --------------- |
-| [Pragya Das] | [pragya4] | [pragya444]     |
+| Pragya Das | pragya4 | pragya444     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
