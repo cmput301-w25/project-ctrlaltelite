@@ -1,10 +1,10 @@
-# CMPUT 301 W25 - Team [Team Name]
+# CMPUT 301 W25 - Team [CtrlAltElite]
 
 ## Team Members
 
 | Name        | CCID   | GitHub Username |
 | ----------- | ------ | --------------- |
-| [Full Name] | [CCID] | [@username]     |
+| [Pragya Das] | [pragya4] | [pragya444]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
