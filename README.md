@@ -5,7 +5,7 @@
 | Name        | CCID   | GitHub Username |
 | ----------- | ------ | --------------- |
 | Pragya Das | pragya4 | pragya444     |
-| [Full Name] | [CCID] | [@username]     |
+| Raiyana Rahman| raiyana2 | raiyana2     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
