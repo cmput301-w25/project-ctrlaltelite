@@ -6,7 +6,7 @@
 | ----------- | ------ | --------------- |
 | Pragya Das | pragya4 | pragya444     |
 | Raiyana Rahman| raiyana2 | raiyana2     |
-| [Full Name] | [CCID] | [@username]     |
+| Aari Vinayagasothy | avinayag | YoNoChill     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
