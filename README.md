@@ -9,7 +9,7 @@
 | Aari Vinayagasothy | avinayag | @YoNoChill     |
 | Ashbani Kaur | ashbani | @ashbk-uofa     |
 | Walton Colaco | wcolaco | @Walton-Colaco     |
-| [Full Name] | [CCID] | [@username]     |
+| Dhruv Bhatt | dhruvchi | @DhruvB100     |
 
 
 ## Project Description
