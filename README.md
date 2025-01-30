@@ -7,7 +7,7 @@
 | Pragya Das | pragya4 | pragya444     |
 | Raiyana Rahman| raiyana2 | raiyana2     |
 | Aari Vinayagasothy | avinayag | YoNoChill     |
-| [Full Name] | [CCID] | [@username]     |
+| Ashbani | ashbani | ashbk-uofa     |
 | [Full Name] | [CCID] | [@username]     |
 | [Full Name] | [CCID] | [@username]     |
 
