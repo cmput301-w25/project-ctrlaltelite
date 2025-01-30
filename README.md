@@ -4,11 +4,11 @@
 
 | Name        | CCID   | GitHub Username |
 | ----------- | ------ | --------------- |
-| Pragya Das | pragya4 | pragya444     |
-| Raiyana Rahman| raiyana2 | raiyana2     |
-| Aari Vinayagasothy | avinayag | YoNoChill     |
-| Ashbani Kaur | ashbani | ashbk-uofa     |
-| Walton Colaco | wcolaco | Walton-Colaco     |
+| Pragya Das | pragya4 | @pragya444     |
+| Raiyana Rahman| raiyana2 | @raiyana2     |
+| Aari Vinayagasothy | avinayag | @YoNoChill     |
+| Ashbani Kaur | ashbani | @ashbk-uofa     |
+| Walton Colaco | wcolaco | @Walton-Colaco     |
 | [Full Name] | [CCID] | [@username]     |
 
 
