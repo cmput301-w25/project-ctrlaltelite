@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#AEF8FB">
@@ -40,28 +41,29 @@
     <!-- Information Container -->
     <LinearLayout
         android:id="@+id/InformationBox"
-        android:layout_width="357dp"
-        android:layout_height="397dp"
-        android:layout_marginStart="32dp"
+        android:layout_width="342dp"
+        android:layout_height="422dp"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
         android:background="@android:color/white"
         android:orientation="vertical"
         android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/welcomeContainer"
-        app:layout_constraintVertical_bias="0.352">
+        app:layout_constraintVertical_bias="0.354">
 
         <!-- Username Field -->
         <EditText
             android:id="@+id/SUsername"
-            android:layout_width="match_parent"
+            android:layout_width="312dp"
             android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_baseline_user_42"
+            android:drawablePadding="5dp"
+            android:drawableTint="#3F51B5"
             android:hint="Username"
-            android:inputType="textPersonName" />
+            android:inputType="textPersonName"
+            android:textAlignment="viewStart" />
 
         <!-- Email Field -->
         <EditText
@@ -69,6 +71,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:drawableLeft="@android:drawable/ic_dialog_email"
+            android:drawablePadding="10dp"
+            android:drawableTint="#3F51B5"
             android:hint="Email"
             android:inputType="textEmailAddress" />
 
@@ -78,6 +83,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:drawableLeft="@android:drawable/stat_sys_phone_call"
+            android:drawablePadding="8dp"
+            android:drawableTint="#3F51B5"
             android:hint="Mobile Number"
             android:inputType="phone" />
 
@@ -87,6 +95,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:drawableLeft="@android:drawable/ic_lock_idle_lock"
+            android:drawablePadding="8dp"
+            android:drawableTint="#3F51B5"
             android:hint="Password"
             android:inputType="textPassword" />
 
