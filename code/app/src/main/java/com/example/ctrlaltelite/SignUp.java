@@ -1,7 +1,6 @@
 package com.example.ctrlaltelite;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -13,13 +12,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignUp extends AppCompatActivity {
 
     private EditText SUsername, SEmail, SMobile, SPassword;
     private Button btnCreateAccount;
     private TextView tvLoginPrompt;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +40,9 @@ public class SignUp extends AppCompatActivity {
         btnCreateAccount = findViewById(R.id.btnCreateAccount);
         tvLoginPrompt = findViewById(R.id.tvLoginPrompt);
 
+        // Initialize Firestore
+        db = FirebaseFirestore.getInstance();
+
         // Handle the Create Account button click
         btnCreateAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,35 +52,50 @@ public class SignUp extends AppCompatActivity {
                 String mobile = SMobile.getText().toString().trim();
                 String password = SPassword.getText().toString().trim();
 
-                // Simple validation check; replace with your actual account creation logic
+                // Validation Check
                 if (username.isEmpty() || email.isEmpty() || mobile.isEmpty() || password.isEmpty()) {
                     Toast.makeText(SignUp.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(SignUp.this, "Account created successfully", Toast.LENGTH_SHORT).show();
-                    // Navigate to Homepage
-                    Intent intent = new Intent(SignUp.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                    // Create a new user with the provided details
+                    Map<String, Object> user = new HashMap<>();
+                    user.put("username", username);
+                    user.put("email", email);
+                    user.put("mobile", mobile);
+                    user.put("password", password);
+
+                    // Save the user info to Firestore
+                    db.collection("users")
+                            .add(user)
+                            .addOnSuccessListener(documentReference -> {
+                                Toast.makeText(SignUp.this, "Account created successfully", Toast.LENGTH_SHORT).show();
+                                // Navigate to Login page
+                                Intent intent = new Intent(SignUp.this, Login.class);
+                                startActivity(intent);
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(SignUp.this, "Error creating account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            });
                 }
             }
         });
 
-        // Create a clickable "Login" text
+        // Create a clickable "Login" text with purple color
         String promptText = "Already have an account? Login";
         SpannableString spannableString = new SpannableString(promptText);
 
-        // Define clickable span
+        // Define clickable span for the "Login" word
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View view) {
                 // Navigate to the Login page when "Login" is clicked
                 Intent intent = new Intent(SignUp.this, Login.class);
                 startActivity(intent);
-                finish();
+                finish(); // Optionally close the SignUp activity
             }
         };
 
-        ForegroundColorSpan purpleSpan = new ForegroundColorSpan(Color.parseColor("#800080"));
+        ForegroundColorSpan purpleSpan = new ForegroundColorSpan(0xFF800080); // Purple color (#800080)
 
         int startIndex = promptText.indexOf("Login");
         int endIndex = startIndex + "Login".length();
