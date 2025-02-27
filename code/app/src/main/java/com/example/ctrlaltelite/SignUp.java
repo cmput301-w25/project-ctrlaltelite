@@ -55,7 +55,7 @@ public class SignUp extends AppCompatActivity {
             }
         });
 
-        // Create a clickable "Login" text within the prompt
+        // Create a clickable "Login" text
         String promptText = "Already have an account? Login";
         SpannableString spannableString = new SpannableString(promptText);
         ClickableSpan clickableSpan = new ClickableSpan() {
