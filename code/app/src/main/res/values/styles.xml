@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomActiveIndicatorStyle" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:colorBackground">@color/design_default_color_background</item>
+        <item name="android:color">@color/white</item>
+    </style>
+</resources>
