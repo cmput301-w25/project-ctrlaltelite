@@ -27,6 +27,9 @@
 **/*.jks
 **/*.keystore
 
+# Google Services
+**/google-services.json
+
 # Android Profiling
 **/*.hprof
 
