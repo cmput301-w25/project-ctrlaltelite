@@ -15,12 +15,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class Login extends AppCompatActivity {
 
     private EditText Username;
     private EditText Password;
     private Button btnLogin;
     private TextView tvSignUpPrompt;
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,22 +36,46 @@ public class Login extends AppCompatActivity {
         btnLogin = findViewById(R.id.button_login);
         tvSignUpPrompt = findViewById(R.id.tvSignUpPrompt);
 
+        db = FirebaseFirestore.getInstance();
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String username = Username.getText().toString().trim();
                 String password = Password.getText().toString().trim();
 
-                // Dummy check
-                if (username.equals("admin") && password.equals("password")) {
-                    Toast.makeText(com.example.ctrlaltelite.Login.this, "Login successful", Toast.LENGTH_SHORT).show();
-                    // Go to Homepage
-                    Intent intent = new Intent(com.example.ctrlaltelite.Login.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    Toast.makeText(com.example.ctrlaltelite.Login.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
+                if (username.isEmpty() || password.isEmpty()) {
+                    Toast.makeText(Login.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                // Verify Credentials
+                db.collection("users")
+                        .whereEqualTo("username", username)
+                        .get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            if (queryDocumentSnapshots.isEmpty()) {
+                                Toast.makeText(Login.this, "User not found", Toast.LENGTH_SHORT).show();
+                            } else {
+                                boolean valid = false;
+                                DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
+                                String storedPassword = document.getString("password");
+                                if (storedPassword != null && storedPassword.equals(password)) {
+                                    valid = true;
+                                }
+                                if (valid) {
+                                    Toast.makeText(Login.this, "Login successful", Toast.LENGTH_SHORT).show();
+                                    // Navigate to Homepage
+                                    Intent intent = new Intent(Login.this, MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    Toast.makeText(Login.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(Login.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
             }
         });
         // Create a clickable "SignUp" text
