@@ -43,7 +43,6 @@ public class SignUp extends AppCompatActivity {
         // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
-        // Handle the Create Account button click
         btnCreateAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,25 +55,39 @@ public class SignUp extends AppCompatActivity {
                 if (username.isEmpty() || email.isEmpty() || mobile.isEmpty() || password.isEmpty()) {
                     Toast.makeText(SignUp.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
                 } else {
-                    // Create a new user with the provided details
-                    Map<String, Object> user = new HashMap<>();
-                    user.put("username", username);
-                    user.put("email", email);
-                    user.put("mobile", mobile);
-                    user.put("password", password);
-
-                    // Save the user info to Firestore
+                    // Check if the username already exists in the "users" collection
                     db.collection("users")
-                            .add(user)
-                            .addOnSuccessListener(documentReference -> {
-                                Toast.makeText(SignUp.this, "Account created successfully", Toast.LENGTH_SHORT).show();
-                                // Navigate to Login page
-                                Intent intent = new Intent(SignUp.this, Login.class);
-                                startActivity(intent);
-                                finish();
+                            .whereEqualTo("username", username)
+                            .get()
+                            .addOnSuccessListener(queryDocumentSnapshots -> {
+                                if (!queryDocumentSnapshots.isEmpty()) {
+                                    // Username already exists
+                                    Toast.makeText(SignUp.this, "Username already exists.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    // Username is unique
+                                    Map<String, Object> user = new HashMap<>();
+                                    user.put("username", username);
+                                    user.put("email", email);
+                                    user.put("mobile", mobile);
+                                    user.put("password", password);
+
+                                    // Save the user info to Firestore
+                                    db.collection("users")
+                                            .add(user)
+                                            .addOnSuccessListener(documentReference -> {
+                                                Toast.makeText(SignUp.this, "Account created successfully", Toast.LENGTH_SHORT).show();
+                                                // Navigate to Login page
+                                                Intent intent = new Intent(SignUp.this, Login.class);
+                                                startActivity(intent);
+                                                finish();
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Toast.makeText(SignUp.this, "Error creating account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                            });
+                                }
                             })
                             .addOnFailureListener(e -> {
-                                Toast.makeText(SignUp.this, "Error creating account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SignUp.this, "Error checking username: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             });
                 }
             }
