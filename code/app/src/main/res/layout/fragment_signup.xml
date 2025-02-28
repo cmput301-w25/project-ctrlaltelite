@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#AEF8FB">
+    android:background="@drawable/bg1">
 
     <!-- Welcome Text Container -->
     <LinearLayout
@@ -44,7 +44,7 @@
         android:layout_width="342dp"
         android:layout_height="422dp"
         android:layout_marginTop="32dp"
-        android:background="@android:color/white"
+        android:background="@drawable/signup_bg"
         android:orientation="vertical"
         android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
