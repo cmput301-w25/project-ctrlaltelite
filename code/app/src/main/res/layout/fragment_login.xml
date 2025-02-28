@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#AEF8FB">
+    android:background="@drawable/bg1">
 
     <!-- Welcome Text Container -->
+
     <LinearLayout
         android:id="@+id/welcomeContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="55dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -38,19 +39,20 @@
     </LinearLayout>
 
     <!-- Login Box Container -->
+
     <LinearLayout
         android:id="@+id/LoginBox"
         android:layout_width="327dp"
         android:layout_height="291dp"
         android:layout_marginTop="32dp"
-        android:background="@android:color/white"
+        android:background="@drawable/login_bg"
         android:orientation="vertical"
         android:padding="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/welcomeContainer"
-        app:layout_constraintVertical_bias="0.348">
+        app:layout_constraintVertical_bias="0.419">
 
         <EditText
             android:id="@+id/username"
