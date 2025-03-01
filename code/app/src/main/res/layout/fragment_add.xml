@@ -1,13 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddFragment">
+    tools:context=".AddFragment"
+    android:background="@drawable/bg1">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:id="@+id/Title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Add Mood Event"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+
+
+    <TextView
+        android:id="@+id/Required"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="* Required"
+        android:textColor="#FF0000"
+        app:layout_constraintTop_toBottomOf="@id/Title"
+        app:layout_constraintBottom_toTopOf="@id/Input_text_layout"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="62dp" />
+
+    <!-- Mood Drop-down Menu -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/Input_text_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="409dp"
+        android:layout_height="59dp"
+        android:hint="Select an Emotional State"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/Title">
+
+        <AutoCompleteTextView
+            android:id="@+id/dropdown_mood"
+            android:layout_width="match_parent"
+            android:layout_height="64dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <EditText
+        android:id="@+id/edit_reason"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="60dp"
+        android:background="@android:drawable/editbox_background"
+        android:hint="Reason for mood"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/Input_text_layout" />
+
+    <EditText
+        android:id="@+id/edit_trigger"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:background="@android:drawable/editbox_background"
+        android:hint="Trigger"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edit_reason" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/Input_text_layout2"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="409dp"
+        android:layout_height="59dp"
+        android:hint="Select Social Situation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edit_trigger"
+        app:layout_constraintBottom_toTopOf="@id/button_upload">
+
+        <AutoCompleteTextView
+            android:id="@+id/dropdown_social_situation"
+            android:layout_width="match_parent"
+            android:layout_height="64dp" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/button_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Upload media"
+        app:layout_constraintTop_toBottomOf="@id/Input_text_layout2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <Switch
+        android:id="@+id/switch_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Keep track of users' geolocation"
+        app:layout_constraintTop_toBottomOf="@id/button_upload"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/switch_location"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/button_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancel" />
+
+        <Button
+            android:id="@+id/button_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Save" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
