@@ -115,9 +115,11 @@ public class AddFragment extends Fragment {
         moodEventData.put("socialSituation", moodEvent.getSocialSituation());
 
         // Save the mood event under the current user's moodEvents subcollection
-        db.collection("users")
-                .document(userId) // Get the current user's document
-                .collection("moodEvents")
+        db.collection("Users")
+                .document(userId); // Get the current user's document
+
+
+        db.collection("Mood Events")
                 .add(moodEventData)
                 .addOnSuccessListener(documentReference -> {
                     // Successfully added the document to Firestore
