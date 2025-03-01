@@ -64,8 +64,11 @@ public class Login extends AppCompatActivity {
                                 }
                                 if (valid) {
                                     Toast.makeText(Login.this, "Login successful", Toast.LENGTH_SHORT).show();
+                                    Bundle loginDetails = new Bundle();
+                                    loginDetails.putString("username", username);
                                     // Navigate to Homepage
                                     Intent intent = new Intent(Login.this, MainActivity.class);
+                                    intent.putExtras(loginDetails);
                                     startActivity(intent);
                                     finish();
                                 } else {
