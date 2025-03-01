@@ -1,23 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item
         android:icon="@drawable/home_3__streamline_core_svg"
         android:id="@+id/home"
-        android:title="History"/>
+        android:title="History"
+        />
+
     <item
         android:icon="@drawable/ic_baseline_map_45"
         android:id="@+id/map"
         android:title="Map"/>
+
     <item
         android:icon="@drawable/baseline_add_circle_outline_42"
         android:id="@+id/add"
         android:title="Add"/>
+
+
     <item
-        android:icon="@drawable/ic_baseline_users_42"
-        android:id="@+id/mood_follow"
-        android:title="Following" />
+        android:icon="@drawable/following"
+        android:id="@+id/following"
+        android:title="Following"/>
+
     <item
-        android:icon="@drawable/ic_baseline_user_42"
+        android:icon="@drawable/profile"
         android:id="@+id/profile"
         android:title="Profile"/>
+
+
 </menu>
