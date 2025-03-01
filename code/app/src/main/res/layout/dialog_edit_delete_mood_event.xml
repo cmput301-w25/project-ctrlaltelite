@@ -60,13 +60,22 @@
             android:layout_marginBottom="8dp" />
     </LinearLayout>
 
+    <!-- Reason why for mood -->
     <EditText
         android:id="@+id/edit_reason_edittext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Reason why for mood"
-        android:layout_marginBottom="16dp" />
+        android:hint="Reason why for mood" />
 
+    <!-- Trigger -->
+    <EditText
+        android:id="@+id/edit_trigger"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Trigger"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Select a social situation -->
     <Spinner
         android:id="@+id/edit_social_situation_spinner"
         android:layout_width="match_parent"
@@ -123,6 +132,4 @@
             android:backgroundTint="#FF8E6F"
             android:textColor="#FFFFFF" />
     </LinearLayout>
-
-
 </LinearLayout>
