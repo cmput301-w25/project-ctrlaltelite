@@ -62,7 +62,7 @@
             android:id="@+id/SUsername"
             android:layout_width="312dp"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_baseline_user_42"
+            android:drawableLeft="@drawable/profile"
             android:drawablePadding="5dp"
             android:drawableTint="#3F51B5"
             android:hint="Username"
