@@ -1,5 +1,6 @@
 package com.example.ctrlaltelite;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -24,7 +25,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db;
-
+    private String username;
     BottomNavigationView bottomNavigationView;
 
     @Override
@@ -35,7 +36,14 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         bottomNavigationView = findViewById(R.id.btnNav);
 
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            // Get username and password from the Bundle
+            username = bundle.getString("username");
+        }
+
         fragmentRepl(new HomeFragment());
+
 
 
 
@@ -44,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
                 int itemId = item.getItemId();
+                Fragment selectedFragment = null;
+
                 if (itemId == R.id.home) {
                     fragmentRepl(new HomeFragment());
                 }
@@ -56,7 +66,13 @@ public class MainActivity extends AppCompatActivity {
 
 
                 else if (itemId == R.id.add) {
-                    fragmentRepl(new AddFragment());
+
+                    AddFragment addFragment = new AddFragment();
+                    Bundle fragmentBundle = new Bundle();
+                    fragmentBundle.putString("username", username);  // Pass the username
+                    addFragment.setArguments(fragmentBundle);
+                    selectedFragment = addFragment;
+
                 }
 
 
@@ -70,12 +86,9 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-
-
-
-
-
-
+                if (selectedFragment != null) {
+                    fragmentRepl(selectedFragment);
+                }
 
 
 
