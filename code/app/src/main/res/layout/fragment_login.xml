@@ -60,7 +60,7 @@
             android:id="@+id/username"
             android:layout_width="308dp"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/profile"
+            android:drawableLeft="@drawable/union"
             android:drawablePadding="5dp"
             android:drawableTint="#3F51B5"
             android:hint="Username" />
@@ -70,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:drawableLeft="@android:drawable/ic_lock_idle_lock"
+            android:drawableLeft="@drawable/password"
             android:drawablePadding="8dp"
             android:drawableTint="#3F51B5"
             android:hint="Password"
