@@ -32,7 +32,7 @@ import com.example.ctrlaltelite.MoodEvent;
 
 public class AddFragment extends Fragment {
 
-    private AutoCompleteTextView dropdownMood;
+    private AutoCompleteTextView dropdownMood, dropdownSocialSituation;
     private EditText editReason, editTrigger;
     private Switch switchLocation;
     private Button buttonSave, buttonCancel;
@@ -60,12 +60,14 @@ public class AddFragment extends Fragment {
         dropdownMood = view.findViewById(R.id.dropdown_mood);
         editReason = view.findViewById(R.id.edit_reason);
         editTrigger = view.findViewById(R.id.edit_trigger);
+        dropdownSocialSituation = view.findViewById(R.id.dropdown_social_situation);
         switchLocation = view.findViewById(R.id.switch_location);
         buttonSave = view.findViewById(R.id.button_save);
         buttonCancel = view.findViewById(R.id.button_cancel);
 
         setupDropdown();
         setupButtons();
+        setupDropdownSocialSituation();
 
         return view;
     }
@@ -82,6 +84,18 @@ public class AddFragment extends Fragment {
         dropdownMood.setKeyListener(null); // Disables typing
     }
 
+    private void setupDropdownSocialSituation() {
+        // Define Mood Options
+        List<String> socialSituations = Arrays.asList("Alone", "With one person", "With two or several people", "With a crowd");
+
+        // Set up Adapter for Drop-down Menu
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, socialSituations);
+        dropdownSocialSituation.setAdapter(adapter);
+
+        // Disable typing but allow dropdown selection
+        dropdownSocialSituation.setKeyListener(null); // Disables typing
+    }
+
     private void setupButtons() {
         buttonSave.setOnClickListener(v -> saveMoodEvent());
         buttonCancel.setOnClickListener(v -> requireActivity().onBackPressed());
@@ -89,8 +103,9 @@ public class AddFragment extends Fragment {
 
     private void saveMoodEvent() {
         String selectedEmotion = dropdownMood.getText().toString();
-        String socialSituation = editReason.getText().toString();
+        String reason = editReason.getText().toString();
         String trigger = editTrigger.getText().toString();
+        String socialSituation = dropdownSocialSituation.getText().toString();
         GeoPoint location = null; // needs to be implemented later
         String timeStamp = String.valueOf(new Date());
         boolean isLocationEnabled = switchLocation.isChecked();
@@ -104,11 +119,12 @@ public class AddFragment extends Fragment {
         }
 
         // Create a new MoodEvent object
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, trigger,socialSituation, timeStamp, location);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location);
 
         // Build a map to save to Firestore
         Map<String, Object> moodEventData = new HashMap<>();
         moodEventData.put("mood", moodEvent.getEmotionalState());
+        moodEventData.put("reason", moodEvent.getReason());
         moodEventData.put("timestamp", moodEvent.getTimestamp());
         moodEventData.put("location", isLocationEnabled ? getUserLocation() : null);
         moodEventData.put("trigger", moodEvent.getTrigger());
