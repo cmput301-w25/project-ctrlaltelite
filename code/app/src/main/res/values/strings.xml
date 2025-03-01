@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">CtrlAltElite</string>
+    <string name="camera_permission">Allow Sentio to take pictures on your device?</string>
+    <string name="location_permission">Allow Sentio to access this device’s location while using the app?</string>
 </resources>
