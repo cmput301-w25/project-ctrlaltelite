@@ -2,6 +2,7 @@ package com.example.ctrlaltelite;
 
 import android.os.Bundle;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,10 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -37,11 +42,25 @@ public class AddFragment extends Fragment {
     private Spinner socialSituation;
     private EditText editReason, editTrigger;
     private Switch switchLocation;
-    private Button buttonSave, buttonCancel;
+    private Button buttonSave, buttonCancel, buttonUpload;
     private  String username;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+
+        pickMedia =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    if (uri == null) {
+                        Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
     @Nullable
     @Override
@@ -66,6 +85,7 @@ public class AddFragment extends Fragment {
         switchLocation = view.findViewById(R.id.switch_location);
         buttonSave = view.findViewById(R.id.button_save);
         buttonCancel = view.findViewById(R.id.button_cancel);
+        buttonUpload = view.findViewById(R.id.button_upload);
 
         setupDropdown();
         setupButtons();
@@ -95,6 +115,14 @@ public class AddFragment extends Fragment {
     private void setupButtons() {
         buttonSave.setOnClickListener(v -> saveMoodEvent());
         buttonCancel.setOnClickListener(v -> requireActivity().onBackPressed());
+        buttonUpload.setOnClickListener(v -> uploadPhoto());
+    }
+
+    private void uploadPhoto() {
+        // Start the photo picker (only images).
+        pickMedia.launch(new PickVisualMediaRequest.Builder()
+                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                .build());
     }
 
     private void saveMoodEvent() {
