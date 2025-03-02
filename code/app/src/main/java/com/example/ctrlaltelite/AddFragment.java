@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -32,7 +33,8 @@ import com.example.ctrlaltelite.MoodEvent;
 
 public class AddFragment extends Fragment {
 
-    private AutoCompleteTextView dropdownMood;
+    private Spinner dropdownMood;
+    private Spinner socialSituation;
     private EditText editReason, editTrigger;
     private Switch switchLocation;
     private Button buttonSave, buttonCancel;
@@ -58,6 +60,7 @@ public class AddFragment extends Fragment {
 
         // Initialize UI elements
         dropdownMood = view.findViewById(R.id.dropdown_mood);
+        socialSituation = view.findViewById(R.id.social_situation_spinner);
         editReason = view.findViewById(R.id.edit_reason);
         editTrigger = view.findViewById(R.id.edit_trigger);
         switchLocation = view.findViewById(R.id.switch_location);
@@ -71,15 +74,22 @@ public class AddFragment extends Fragment {
     }
 
     private void setupDropdown() {
-        // Define Mood Options
-        List<String> emotionalStates = Arrays.asList("Anger", "Disgust", "Fear", "Happy", "Sad", "Shame", "Surprised", "Confused");
-
-        // Set up Adapter for Drop-down Menu
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, emotionalStates);
+        // Selecting Mood Spinner setup
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.mood_options,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dropdownMood.setAdapter(adapter);
-
-        // Disable typing but allow dropdown selection
-        dropdownMood.setKeyListener(null); // Disables typing
+        // Social Situation Spinner setup
+        ArrayAdapter<CharSequence> socialAdapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.social_situation_options,
+                android.R.layout.simple_spinner_item
+        );
+        socialAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        socialSituation.setAdapter(socialAdapter);
     }
 
     private void setupButtons() {
@@ -88,7 +98,18 @@ public class AddFragment extends Fragment {
     }
 
     private void saveMoodEvent() {
-        String selectedEmotion = dropdownMood.getText().toString();
+        // Check if mood is at default position (0)
+        if (dropdownMood.getSelectedItemPosition() == 0) {
+            Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check if social situation is at default position (0)
+        if (socialSituation.getSelectedItemPosition() == 0) {
+            Toast.makeText(getContext(), "Social situation cannot be the default option", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String selectedEmotion = dropdownMood.getSelectedItem().toString();
         String socialSituation = editReason.getText().toString();
         String trigger = editTrigger.getText().toString();
         GeoPoint location = null; // needs to be implemented later
