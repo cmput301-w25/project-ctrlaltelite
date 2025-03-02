@@ -138,11 +138,6 @@ public class AddFragment extends Fragment {
         moodEventData.put("socialSituation", moodEvent.getSocialSituation());
         moodEventData.put("Username", userId);
 
-        /*
-        // Save the mood event under the current user's moodEvents subcollection
-        db.collection("Users")
-                .document(userId); // Get the current user's document
-        */
 
         db.collection("Mood Events")
                 .add(moodEventData)
