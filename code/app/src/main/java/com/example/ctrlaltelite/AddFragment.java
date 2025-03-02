@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -32,7 +33,8 @@ import com.example.ctrlaltelite.MoodEvent;
 
 public class AddFragment extends Fragment {
 
-    private AutoCompleteTextView dropdownMood, dropdownSocialSituation;
+    private Spinner dropdownMood;
+    private Spinner socialSituation;
     private EditText editReason, editTrigger;
     private Switch switchLocation;
     private Button buttonSave, buttonCancel;
@@ -58,42 +60,36 @@ public class AddFragment extends Fragment {
 
         // Initialize UI elements
         dropdownMood = view.findViewById(R.id.dropdown_mood);
+        socialSituation = view.findViewById(R.id.social_situation_spinner);
         editReason = view.findViewById(R.id.edit_reason);
         editTrigger = view.findViewById(R.id.edit_trigger);
-        dropdownSocialSituation = view.findViewById(R.id.dropdown_social_situation);
         switchLocation = view.findViewById(R.id.switch_location);
         buttonSave = view.findViewById(R.id.button_save);
         buttonCancel = view.findViewById(R.id.button_cancel);
 
         setupDropdown();
         setupButtons();
-        setupDropdownSocialSituation();
 
         return view;
     }
 
     private void setupDropdown() {
-        // Define Mood Options
-        List<String> emotionalStates = Arrays.asList("Anger", "Disgust", "Fear", "Happy", "Sad", "Shame", "Surprised", "Confused");
-
-        // Set up Adapter for Drop-down Menu
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, emotionalStates);
+        // Selecting Mood Spinner setup
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.mood_options,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dropdownMood.setAdapter(adapter);
-
-        // Disable typing but allow dropdown selection
-        dropdownMood.setKeyListener(null); // Disables typing
-    }
-
-    private void setupDropdownSocialSituation() {
-        // Define Mood Options
-        List<String> socialSituations = Arrays.asList("Alone", "With one person", "With two or several people", "With a crowd");
-
-        // Set up Adapter for Drop-down Menu
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, socialSituations);
-        dropdownSocialSituation.setAdapter(adapter);
-
-        // Disable typing but allow dropdown selection
-        dropdownSocialSituation.setKeyListener(null); // Disables typing
+        // Social Situation Spinner setup
+        ArrayAdapter<CharSequence> socialAdapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.social_situation_options,
+                android.R.layout.simple_spinner_item
+        );
+        socialAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        socialSituation.setAdapter(socialAdapter);
     }
 
     private void setupButtons() {
@@ -102,10 +98,20 @@ public class AddFragment extends Fragment {
     }
 
     private void saveMoodEvent() {
-        String selectedEmotion = dropdownMood.getText().toString();
-        String reason = editReason.getText().toString();
+        // Check if mood is at default position (0)
+        if (dropdownMood.getSelectedItemPosition() == 0) {
+            Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check if social situation is at default position (0)
+        if (socialSituation.getSelectedItemPosition() == 0) {
+            Toast.makeText(getContext(), "Social situation cannot be the default option", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String selectedEmotion = dropdownMood.getSelectedItem().toString();
+        String socialSituation = editReason.getText().toString();
         String trigger = editTrigger.getText().toString();
-        String socialSituation = dropdownSocialSituation.getText().toString();
         GeoPoint location = null; // needs to be implemented later
         String timeStamp = String.valueOf(new Date());
         boolean isLocationEnabled = switchLocation.isChecked();
@@ -119,21 +125,22 @@ public class AddFragment extends Fragment {
         }
 
         // Create a new MoodEvent object
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, trigger,socialSituation, timeStamp, location);
 
         // Build a map to save to Firestore
         Map<String, Object> moodEventData = new HashMap<>();
         moodEventData.put("mood", moodEvent.getEmotionalState());
-        moodEventData.put("reason", moodEvent.getReason());
         moodEventData.put("timestamp", moodEvent.getTimestamp());
         moodEventData.put("location", isLocationEnabled ? getUserLocation() : null);
         moodEventData.put("trigger", moodEvent.getTrigger());
         moodEventData.put("socialSituation", moodEvent.getSocialSituation());
 
         // Save the mood event under the current user's moodEvents subcollection
-        db.collection("users")
-                .document(userId) // Get the current user's document
-                .collection("moodEvents")
+        db.collection("Users")
+                .document(userId); // Get the current user's document
+
+
+        db.collection("Mood Events")
                 .add(moodEventData)
                 .addOnSuccessListener(documentReference -> {
                     // Successfully added the document to Firestore
