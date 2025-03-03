@@ -20,7 +20,9 @@ public class MoodEvent {
 
     private GeoPoint location;
 
-
+    public MoodEvent() {
+        // Empty constructor
+    }
 
     // Constructor to initialize the required fields (emotional state and timestamp)
     public MoodEvent(String emotionalState) {

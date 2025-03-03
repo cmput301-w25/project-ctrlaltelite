@@ -170,11 +170,11 @@ public class AddFragment extends Fragment {
                 });
     }
 
-    private Map<String, Double> getUserLocation() {
-        // Placeholder: Get the user's location if location tracking is enabled
-        Map<String, Double> location = new HashMap<>();
-        location.put("latitude", 53.5);  // Example latitude
-        location.put("longitude", -113.5); // Example longitude
-        return location;
+    private GeoPoint getUserLocation() {
+        // Example latitude and longitude values
+        double latitude = 53.5;
+        double longitude = -113.5;
+
+        return new GeoPoint(latitude, longitude);
     }
 }

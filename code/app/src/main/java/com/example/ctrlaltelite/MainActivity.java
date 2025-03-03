@@ -100,6 +100,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void fragmentRepl(Fragment fragment){
+        Bundle bundle = new Bundle();
+        bundle.putString("username", username);
+        fragment.setArguments(bundle);
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout,fragment);
