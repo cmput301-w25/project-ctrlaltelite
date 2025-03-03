@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -92,7 +94,23 @@ public class AddFragment extends Fragment {
     }
     private void setupButtons() {
         buttonSave.setOnClickListener(v -> saveMoodEvent(username));
-        buttonCancel.setOnClickListener(v -> requireActivity().onBackPressed());
+        buttonCancel.setOnClickListener(v -> {
+            // Navigate to the home screen fragment using the parent activity's method
+            navigateToHome();
+        });
+    }
+
+    private void navigateToHome() {
+        if (getActivity() instanceof MainActivity) {
+            // First, change the fragment
+            ((MainActivity) getActivity()).fragmentRepl(new HomeFragment());
+
+            // Then, update the bottom navigation to select the home item
+            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.btnNav);
+            if (bottomNavigationView != null) {
+                bottomNavigationView.setSelectedItemId(R.id.home);
+            }
+        }
     }
 
     private void saveMoodEvent(String uName) {
@@ -144,6 +162,7 @@ public class AddFragment extends Fragment {
                 .addOnSuccessListener(documentReference -> {
                     // Successfully added the document to Firestore
                     Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
+                    navigateToHome();
                 })
                 .addOnFailureListener(e -> {
                     // Failed to add the document
