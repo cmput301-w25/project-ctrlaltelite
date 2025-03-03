@@ -1,5 +1,6 @@
 package com.example.ctrlaltelite;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.content.Intent;
 import android.util.Log;
@@ -19,6 +20,8 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -48,6 +51,7 @@ public class AddFragment extends Fragment {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,6 +62,21 @@ public class AddFragment extends Fragment {
                 registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                     if (uri == null) {
                         Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        requestPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        // Start the photo picker (only images).
+                        pickMedia.launch(new PickVisualMediaRequest.Builder()
+                                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                                .build());
+                        buttonUpload.setEnabled(false);
+                    } else {
+                        Toast.makeText(getContext(), "No access to device images", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -119,10 +138,19 @@ public class AddFragment extends Fragment {
     }
 
     private void uploadPhoto() {
-        // Start the photo picker (only images).
-        pickMedia.launch(new PickVisualMediaRequest.Builder()
-                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                .build());
+        //If app has permission
+        if (ContextCompat.checkSelfPermission(
+                getContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
+                PackageManager.PERMISSION_GRANTED) {
+            // Start the photo picker (only images).
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+            buttonUpload.setEnabled(false);
+        } else {
+            // Ask for the permission
+            requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES);
+        }
     }
 
     private void saveMoodEvent() {
