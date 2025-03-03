@@ -1,5 +1,7 @@
 package com.example.ctrlaltelite;
 
+import android.graphics.Picture;
+
 import com.google.firebase.firestore.GeoPoint;
 
 import java.text.SimpleDateFormat;
@@ -12,7 +14,12 @@ public class MoodEvent {
     private String socialSituation; // Optional
     private String timestamp;       // Required
 
+    private String reason;
+
+    //private Picture picture;
+
     private GeoPoint location;
+
 
 
     // Constructor to initialize the required fields (emotional state and timestamp)
@@ -22,12 +29,30 @@ public class MoodEvent {
     }
 
     // Constructor to initialize all fields (emotional state, trigger, and social situation)
-    public MoodEvent(String emotionalState, String trigger, String socialSituation, String timestamp, GeoPoint location) {
+    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, String timestamp, GeoPoint location) {
         this.emotionalState = emotionalState;
+        this.reason = reason;
         this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.timestamp = timestamp;
         this.location = location;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    // Getter for Timestamp
+    public String getTimestamp() {
+        return timestamp;
     }
 
     public GeoPoint getLocation() {
@@ -65,12 +90,6 @@ public class MoodEvent {
         this.socialSituation = socialSituation;
     }
 
-    // Getter for Timestamp (No setter for timestamp since it is auto-generated)
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    // Method to get the current date and time in a formatted string
 
 
     // toString method to display the mood event

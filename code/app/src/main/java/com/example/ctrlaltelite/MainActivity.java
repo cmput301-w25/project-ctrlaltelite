@@ -99,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void fragmentRepl(Fragment fragment){
+    protected void fragmentRepl(Fragment fragment){
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout,fragment);
