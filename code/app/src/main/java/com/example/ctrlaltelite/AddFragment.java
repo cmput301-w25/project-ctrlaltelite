@@ -4,8 +4,13 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
 
+import java.io.File;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
@@ -67,10 +73,21 @@ public class AddFragment extends Fragment {
                         Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
                     } else {
                         imageRef = uri; //for uploading purposes
-                        imagePreview.setImageURI(uri);
-                        imagePreview.setVisibility(VISIBLE);
-                        buttonUpload.setEnabled(false);
-                        Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
+
+                        //check file size and ensure less than 65536 bytes
+                        Cursor returnCursor = getContext().getContentResolver().query(uri, null, null, null, null);
+                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                        returnCursor.moveToFirst();
+                        int imgSize = returnCursor.getInt(sizeIndex);
+                        returnCursor.close();
+                        if (imgSize < 65536) {
+                            imagePreview.setImageURI(uri);
+                            imagePreview.setVisibility(VISIBLE);
+                            buttonUpload.setEnabled(false);
+                            Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
 
