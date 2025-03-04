@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
     app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardElevation="8dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,13 +17,11 @@
             android:id="@+id/mood_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Happy"
             android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/reason_text"
-            android:text="Low marks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
@@ -31,7 +29,6 @@
 
         <TextView
             android:id="@+id/trigger_text"
-            android:text="Scolded"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
@@ -39,7 +36,6 @@
 
         <TextView
             android:id="@+id/social_situation_text"
-            android:text="Alone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
@@ -58,7 +54,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:text="5:21 PM . 12-21-24 "
             android:textColor="#757575"
             android:layout_marginTop="4dp" />
 

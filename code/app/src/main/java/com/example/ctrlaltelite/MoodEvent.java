@@ -1,11 +1,6 @@
 package com.example.ctrlaltelite;
 
-import android.graphics.Picture;
-
 import com.google.firebase.firestore.GeoPoint;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class MoodEvent {
 
@@ -13,7 +8,8 @@ public class MoodEvent {
     private String trigger;         // Optional
     private String socialSituation; // Optional
     private String timestamp;       // Required
-
+    private String documentId;
+    private String Username;
     private String reason;
 
     //private Picture picture;
@@ -92,12 +88,21 @@ public class MoodEvent {
         this.socialSituation = socialSituation;
     }
 
+    public String getDocumentId() { return documentId; }
 
+    public void setDocumentId(String documentId) { this.documentId = documentId; }
+
+
+    public String getUsername() { return Username;}
+
+    public void setUsername(String username) { this.Username = username;}
 
     // toString method to display the mood event
     @Override
     public String toString() {
         return "MoodEvent{" +
+                "Username='" + Username + '\'' +
+                "DocID='" + documentId + '\'' +
                 "emotionalState='" + emotionalState + '\'' +
                 ", trigger='" + trigger + '\'' +
                 ", socialSituation='" + socialSituation + '\'' +
