@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -99,11 +100,16 @@ public class HomeFragment extends Fragment {
 
         // Bind views
         TextView closeButton = dialogView.findViewById(R.id.close_button);
+        // Button buttonUpload = dialogView.findViewById(R.id.edit_upload_media_button);
+        // ImageView image = dialogView.findViewById(R.id.edit_uploaded_image);
         Spinner moodSpinner = dialogView.findViewById(R.id.edit_mood_spinner);
         EditText reasonEditText = dialogView.findViewById(R.id.edit_reason_edittext);
         EditText triggerEditText = dialogView.findViewById(R.id.edit_trigger);
         Spinner socialSituationSpinner = dialogView.findViewById(R.id.edit_social_situation_spinner);
         Button saveButton = dialogView.findViewById(R.id.save_button);
+
+        // buttonUpload.setVisibility(View.VISIBLE);
+        // image.setVisibility(View.VISIBLE);
 
         // Populate Mood Spinner
         ArrayAdapter<String> moodAdapter = new ArrayAdapter<>(requireContext(),
