@@ -33,11 +33,48 @@ public class AddFragment extends Fragment {
     private Spinner editSocialSituation;
     private EditText editReason, editTrigger;
     private Switch switchLocation;
-    private Button buttonSave, buttonCancel;
+    private Button buttonSave, buttonCancel, buttonUpload;
     private  String username;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
+
+    //private StorageReference storageRef;
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
+
+    private Uri imageRef;
+    private ImageView imagePreview;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        pickMedia =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    if (uri == null) {
+                        Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+                    } else {
+                        imageRef = uri; //for uploading purposes
+                        imagePreview.setImageURI(uri);
+                        imagePreview.setVisibility(VISIBLE);
+                        buttonUpload.setEnabled(false);
+                        Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        requestPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        // Start the photo picker (only images).
+                        pickMedia.launch(new PickVisualMediaRequest.Builder()
+                                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                                .build());
+                    } else {
+                        Toast.makeText(getContext(), "No access to device images", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
     @Nullable
     @Override
@@ -62,6 +99,9 @@ public class AddFragment extends Fragment {
         switchLocation = view.findViewById(R.id.switch_location);
         buttonSave = view.findViewById(R.id.button_save);
         buttonCancel = view.findViewById(R.id.button_cancel);
+        buttonUpload = view.findViewById(R.id.button_upload);
+        imagePreview = view.findViewById(R.id.uploaded_image);
+        imagePreview.setVisibility(GONE);
 
         setupDropdown();
         setupButtons();
@@ -98,7 +138,24 @@ public class AddFragment extends Fragment {
             // Navigate to the home screen fragment using the parent activity's method
             navigateToHome();
         });
+        buttonUpload.setOnClickListener(v -> uploadPhoto());
     }
+
+    private void uploadPhoto() {
+        //If app has permission
+        if (ContextCompat.checkSelfPermission(
+                getContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
+                PackageManager.PERMISSION_GRANTED) {
+            // Start the photo picker (only images).
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        } else {
+            // Ask for the permission
+            requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES);
+        }
+    }
+
 
     private void navigateToHome() {
         if (getActivity() instanceof MainActivity) {
@@ -143,6 +200,13 @@ public class AddFragment extends Fragment {
             return;
         }
 
+        //Upload to Firestore and save reference in db
+        //StorageReference fileRef = storageRef.child(ID+".png");
+        //fileRef.putFile(imageRef).addOnFailureListener(error ->
+        // {
+            //Toast.makeText(getContext(), "Error uploading image", Toast.LENGTH_SHORT),show();
+        // }
+        
         // Create a new MoodEvent object
         MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location);
 
@@ -155,6 +219,7 @@ public class AddFragment extends Fragment {
         moodEventData.put("trigger", moodEvent.getTrigger());
         moodEventData.put("socialSituation", moodEvent.getSocialSituation());
         moodEventData.put("Username", userId);
+        //moodEventData.put("imageRef", moodEvent.getImage());
 
 
         db.collection("Mood Events")
