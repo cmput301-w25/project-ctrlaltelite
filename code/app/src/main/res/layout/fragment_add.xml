@@ -86,8 +86,7 @@
         app:layout_constraintTop_toBottomOf="@id/button_upload"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:visibility="gone" />
+        android:layout_marginTop="16dp" />
 
     <Switch
         android:id="@+id/switch_location"
