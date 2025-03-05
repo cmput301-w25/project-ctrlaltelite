@@ -236,7 +236,7 @@ public class AddFragment extends Fragment {
         // }
         
         // Create a new MoodEvent object
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location, username);
 
         // Build a map to save to Firestore
         Map<String, Object> moodEventData = new HashMap<>();
@@ -246,7 +246,7 @@ public class AddFragment extends Fragment {
         moodEventData.put("location", isLocationEnabled ? getUserLocation() : null);
         moodEventData.put("trigger", moodEvent.getTrigger());
         moodEventData.put("socialSituation", moodEvent.getSocialSituation());
-        moodEventData.put("Username", userId);
+        moodEventData.put("Username", moodEvent.getUsername());
         //moodEventData.put("imageRef", moodEvent.getImage());
 
 
