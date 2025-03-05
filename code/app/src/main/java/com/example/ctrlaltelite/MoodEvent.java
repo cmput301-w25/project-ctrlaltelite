@@ -1,5 +1,7 @@
 package com.example.ctrlaltelite;
 
+import android.graphics.Picture;
+
 import com.google.firebase.firestore.GeoPoint;
 
 public class MoodEvent {
@@ -8,12 +10,12 @@ public class MoodEvent {
     private String trigger;         // Optional
     private String socialSituation; // Optional
     private String timestamp;       // Required
-    private String documentId;
     private String Username;
     private String reason;
 
-    //private Picture picture;
+    private String imgPath;
 
+    private String documentId;
     private GeoPoint location;
 
     public MoodEvent() {
@@ -27,13 +29,14 @@ public class MoodEvent {
     }
 
     // Constructor to initialize all fields (emotional state, trigger, and social situation)
-    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, String timestamp, GeoPoint location) {
+    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, String timestamp, GeoPoint location, String imgPath) {
         this.emotionalState = emotionalState;
         this.reason = reason;
         this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.timestamp = timestamp;
         this.location = location;
+        this.imgPath = imgPath;
     }
 
     public String getReason() {
@@ -97,6 +100,7 @@ public class MoodEvent {
 
     public void setUsername(String username) { this.Username = username;}
 
+
     // toString method to display the mood event
     @Override
     public String toString() {
@@ -108,5 +112,13 @@ public class MoodEvent {
                 ", socialSituation='" + socialSituation + '\'' +
                 ", timestamp='" + timestamp + '\'' +
                 '}';
+    }
+
+    public String getImgPath() {
+        return imgPath;
+    }
+
+    public void setImgPath(String imgPath) {
+        this.imgPath = imgPath;
     }
 }
