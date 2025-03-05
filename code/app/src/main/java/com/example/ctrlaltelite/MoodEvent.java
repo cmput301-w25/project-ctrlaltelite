@@ -29,7 +29,8 @@ public class MoodEvent {
     }
 
     // Constructor to initialize all fields (emotional state, trigger, and social situation)
-    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, String timestamp, GeoPoint location, String imgPath) {
+    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, String timestamp, GeoPoint location, String imgPath, String Username) {
+
         this.emotionalState = emotionalState;
         this.reason = reason;
         this.trigger = trigger;
@@ -37,6 +38,8 @@ public class MoodEvent {
         this.timestamp = timestamp;
         this.location = location;
         this.imgPath = imgPath;
+        this.Username = Username;
+
     }
 
     public String getReason() {

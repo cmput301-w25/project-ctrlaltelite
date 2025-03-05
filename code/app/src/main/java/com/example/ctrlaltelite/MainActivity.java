@@ -44,9 +44,6 @@ public class MainActivity extends AppCompatActivity {
 
         fragmentRepl(new HomeFragment());
 
-
-
-
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -58,12 +55,9 @@ public class MainActivity extends AppCompatActivity {
                     fragmentRepl(new HomeFragment());
                 }
 
-
                 else if (itemId == R.id.map) {
                     fragmentRepl(new MapFragment());
                 }
-
-
 
                 else if (itemId == R.id.add) {
 
@@ -75,28 +69,20 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-
                 else if (itemId == R.id.following) {
                     fragmentRepl(new FollowingFragment());
                 }
-
 
                 else if (itemId == R.id.profile) {
                     fragmentRepl(new ProfileFragment());
                 }
 
-
                 if (selectedFragment != null) {
                     fragmentRepl(selectedFragment);
                 }
-
-
-
                 return true;
             }
         });
-
-
     }
 
     protected void fragmentRepl(Fragment fragment){
@@ -107,8 +93,6 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout,fragment);
         fragmentTransaction.commit();
-
-
     }
 
 

@@ -68,6 +68,8 @@ public class AddFragment extends Fragment {
     private String imgPath = null; //default, no image
     private ImageView imagePreview;
 
+    private int maxSize = 65536;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +86,7 @@ public class AddFragment extends Fragment {
                         returnCursor.moveToFirst();
                         int imgSize = returnCursor.getInt(sizeIndex);
                         returnCursor.close();
-                        if (imgSize < 65536) {
+                        if (imgSize < maxSize) {
                             imagePreview.setImageURI(uri);
                             imagePreview.setVisibility(VISIBLE);
                             buttonUpload.setEnabled(false);
@@ -247,7 +249,7 @@ public class AddFragment extends Fragment {
 
 
         // Create a new MoodEvent object
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location, imgPath);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location, imgPath, username);
 
         // Build a map to save to Firestore
         Map<String, Object> moodEventData = new HashMap<>();
@@ -257,7 +259,7 @@ public class AddFragment extends Fragment {
         moodEventData.put("location", isLocationEnabled ? getUserLocation() : null);
         moodEventData.put("trigger", moodEvent.getTrigger());
         moodEventData.put("socialSituation", moodEvent.getSocialSituation());
-        moodEventData.put("Username", userId);
+        moodEventData.put("username", moodEvent.getUsername());
         moodEventData.put("imgPath", moodEvent.getImgPath());
         //moodEventData.put("docId", moodEvent.getDocumentId());
 

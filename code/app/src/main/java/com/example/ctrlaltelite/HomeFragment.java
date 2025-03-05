@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -16,7 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +65,7 @@ public class HomeFragment extends Fragment {
         // Set short click listener for editing
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             MoodEvent moodEvent = moodEvents.get(position);
-            showEditMoodDialog(moodEvent, position);
+            showDeleteEditMoodDialog(moodEvent, position);
         });
 
         // Fetch mood events
@@ -93,7 +96,7 @@ public class HomeFragment extends Fragment {
                     }
                 });
     }
-    public void showEditMoodDialog(MoodEvent moodEvent, int position) {
+    public void showDeleteEditMoodDialog(MoodEvent moodEvent, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_delete_mood_event, null);
         builder.setView(dialogView);
@@ -107,6 +110,7 @@ public class HomeFragment extends Fragment {
         EditText triggerEditText = dialogView.findViewById(R.id.edit_trigger);
         Spinner socialSituationSpinner = dialogView.findViewById(R.id.edit_social_situation_spinner);
         Button saveButton = dialogView.findViewById(R.id.save_button);
+        Button deleteButton = dialogView.findViewById(R.id.delete_button);
 
         // buttonUpload.setVisibility(View.VISIBLE);
         // image.setVisibility(View.VISIBLE);
@@ -139,6 +143,12 @@ public class HomeFragment extends Fragment {
 
         AlertDialog dialog = builder.create();
 
+        // Delete button
+        deleteButton.setOnClickListener(v -> {
+            DeleteMoodEventAndUpdateDatabaseUponDeletion(moodEvent);
+            dialog.dismiss();
+        });
+
         // Close button
         closeButton.setOnClickListener(v -> dialog.dismiss());
 
@@ -169,6 +179,44 @@ public class HomeFragment extends Fragment {
             }
         });
         dialog.show();
+    }
+
+    private void DeleteMoodEventAndUpdateDatabaseUponDeletion(MoodEvent moodEvent) {
+
+        CollectionReference moodEventRef = db.collection("Mood Events");
+
+        fetchMoodEvents();
+
+        moodEventRef.addSnapshotListener((value, error) -> {
+            if (error != null) {
+                Log.e("Firestore", error.toString());
+            }
+            if (value != null) {
+                moodEvents.clear();
+                for (QueryDocumentSnapshot snapshot : value) {
+                    String emotionalState = snapshot.getString("emotionalState");
+                    String reason = snapshot.getString("Reason");
+                    String socialSituation = snapshot.getString("socialSituation");
+                    String timeStamp = snapshot.getString("timestamp");
+                    String trigger = snapshot.getString("trigger");
+                    String username = snapshot.getString("username");
+                    String imgPath = snapshot.getString("imgPath");
+                    String id = snapshot.getId();
+                    GeoPoint location = (GeoPoint) snapshot.get("location");
+                    MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timeStamp, location, imgPath, username);
+                    moodEvents.add(updatedMoodEvent);
+                    updatedMoodEvent.setDocumentId(id);
+                }
+                adapter.notifyDataSetChanged();
+            }
+        });
+        if (moodEvents.isEmpty()) {
+            Toast.makeText(getContext(), "Zero length", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            DocumentReference docRef = moodEventRef.document(moodEvent.getDocumentId());
+            docRef.delete();
+        }
     }
 
     // Update the mood event in Firebase
