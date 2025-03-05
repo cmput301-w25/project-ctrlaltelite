@@ -200,9 +200,10 @@ public class HomeFragment extends Fragment {
                     String timeStamp = snapshot.getString("timestamp");
                     String trigger = snapshot.getString("trigger");
                     String username = snapshot.getString("username");
+                    String imgPath = snapshot.getString("imgPath");
                     String id = snapshot.getId();
                     GeoPoint location = (GeoPoint) snapshot.get("location");
-                    MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timeStamp, location, username);
+                    MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timeStamp, location, imgPath, username);
                     moodEvents.add(updatedMoodEvent);
                     updatedMoodEvent.setDocumentId(id);
                 }
