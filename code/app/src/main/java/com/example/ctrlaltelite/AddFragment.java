@@ -34,6 +34,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 
 import java.io.File;
@@ -56,34 +58,39 @@ public class AddFragment extends Fragment {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
 
-    //private StorageReference storageRef;
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
     private Uri imageRef;
+
+    private String imgPath = null; //default, no image
     private ImageView imagePreview;
+
+    private int maxSize = 65536;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
         pickMedia =
                 registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                     if (uri == null) {
                         Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
                     } else {
-                        imageRef = uri; //for uploading purposes
-
                         //check file size and ensure less than 65536 bytes
                         Cursor returnCursor = getContext().getContentResolver().query(uri, null, null, null, null);
                         int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
                         returnCursor.moveToFirst();
                         int imgSize = returnCursor.getInt(sizeIndex);
                         returnCursor.close();
-                        if (imgSize < 65536) {
+                        if (imgSize < maxSize) {
                             imagePreview.setImageURI(uri);
                             imagePreview.setVisibility(VISIBLE);
                             buttonUpload.setEnabled(false);
+                            imageRef = uri; //for uploading purposes
                             Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
@@ -166,10 +173,10 @@ public class AddFragment extends Fragment {
             // Navigate to the home screen fragment using the parent activity's method
             navigateToHome();
         });
-        buttonUpload.setOnClickListener(v -> uploadPhoto());
+        buttonUpload.setOnClickListener(v -> selectPhoto());
     }
 
-    private void uploadPhoto() {
+    private void selectPhoto() {
         //If app has permission
         if (ContextCompat.checkSelfPermission(
                 getContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
@@ -248,15 +255,21 @@ public class AddFragment extends Fragment {
             return;
         }
 
-        //Upload to Firestore and save reference in db
-        //StorageReference fileRef = storageRef.child(ID+".png");
-        //fileRef.putFile(imageRef).addOnFailureListener(error ->
-        // {
-            //Toast.makeText(getContext(), "Error uploading image", Toast.LENGTH_SHORT),show();
-        // }
-        
+        imgPath = "images/"+userId+timeStamp+".png";
+        //Upload to Firebase
+        //save with docId name in file path
+        StorageReference fileRef = storageRef.child(imgPath);
+
+        fileRef.putFile(imageRef)
+                .addOnFailureListener(error ->
+                {
+                    imgPath = null; //could not upload
+                    Toast.makeText(getContext(), "Error uploading image", Toast.LENGTH_SHORT).show();
+                });
+
+
         // Create a new MoodEvent object
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location, username);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location, imgPath, username);
 
         // Build a map to save to Firestore
         Map<String, Object> moodEventData = new HashMap<>();
@@ -266,8 +279,9 @@ public class AddFragment extends Fragment {
         moodEventData.put("location", isLocationEnabled ? getUserLocation() : null);
         moodEventData.put("trigger", moodEvent.getTrigger());
         moodEventData.put("socialSituation", moodEvent.getSocialSituation());
-        moodEventData.put("Username", moodEvent.getUsername());
-        //moodEventData.put("imageRef", moodEvent.getImage());
+        moodEventData.put("username", moodEvent.getUsername());
+        moodEventData.put("imgPath", moodEvent.getImgPath());
+        //moodEventData.put("docId", moodEvent.getDocumentId());
 
 
         db.collection("Mood Events")
