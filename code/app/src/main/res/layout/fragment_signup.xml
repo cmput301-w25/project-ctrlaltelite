@@ -62,7 +62,7 @@
             android:id="@+id/SUsername"
             android:layout_width="312dp"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_baseline_user_42"
+            android:drawableLeft="@drawable/union"
             android:drawablePadding="5dp"
             android:drawableTint="#3F51B5"
             android:hint="Username"
@@ -75,7 +75,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:drawableLeft="@android:drawable/ic_dialog_email"
+            android:drawableLeft="@drawable/vector"
             android:drawablePadding="10dp"
             android:drawableTint="#3F51B5"
             android:hint="Email"
@@ -87,7 +87,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:drawableLeft="@android:drawable/stat_sys_phone_call"
+            android:drawableLeft="@drawable/mobile"
             android:drawablePadding="8dp"
             android:drawableTint="#3F51B5"
             android:hint="Mobile Number"
@@ -99,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:drawableLeft="@android:drawable/ic_lock_idle_lock"
+            android:drawableLeft="@drawable/password"
             android:drawablePadding="8dp"
             android:drawableTint="#3F51B5"
             android:hint="Password"
@@ -143,3 +143,4 @@
         app:layout_constraintTop_toBottomOf="@+id/welcomeContainer" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

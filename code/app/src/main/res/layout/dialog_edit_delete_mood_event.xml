@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <!-- Close button X and Edit/Delete Mood Event aligned horizontally -->
+    <LinearLayout
+        android:layout_marginTop="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal">
+        <!-- Close button X -->
+        <TextView
+            android:id="@+id/close_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:padding="8dp"
+            android:text="X"
+            android:textColor="#000000"
+            android:textSize="20sp" />
+        <!-- Edit/Delete Mood Event text -->
+        <TextView
+            android:layout_marginTop="0dp"
+            android:layout_marginRight="0dp"
+            android:paddingLeft="70dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Edit/Delete Mood Event"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Select an Emotional State and * Required aligned horizontally -->
+    <LinearLayout
+        android:layout_marginTop="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:orientation="horizontal">
+        <!-- Select an Emotional State -->
+        <Spinner
+        android:id="@+id/edit_mood_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Select Mood"
+        android:layout_marginBottom="16dp" />
+        <!-- * Required (to let user know) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="* Required"
+            android:textColor="#F44336"
+            android:layout_marginBottom="8dp" />
+    </LinearLayout>
+
+    <!-- Reason why for mood -->
+    <EditText
+        android:id="@+id/edit_reason_edittext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Reason why for mood" />
+
+    <!-- Trigger -->
+    <EditText
+        android:id="@+id/edit_trigger"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Trigger"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Select a social situation -->
+    <Spinner
+        android:id="@+id/edit_social_situation_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Social situation *"
+        android:layout_marginBottom="16dp" />
+
+    <Button
+        android:id="@+id/edit_upload_media_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Upload media"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+    <ImageView
+        android:id="@+id/edit_uploaded_image"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
+    <Switch
+        android:id="@+id/edit_location_switch"
+        android:padding="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Keep track of users' geolocation"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <Button
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:backgroundTint="#FF8E6F"
+            android:textColor="#FFFFFF" />
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:backgroundTint="#FF8E6F"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
+</LinearLayout>

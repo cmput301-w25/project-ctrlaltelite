@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="mood_options">
+        <item>Select Emotional State</item>
+        <item>Happy</item>
+        <item>Sad</item>
+        <item>Surprised</item>
+        <item>Angry</item>
+        <item>Disgust</item>
+        <item>Confusion</item>
+    </string-array>
+    <string-array name="social_situation_options">
+        <item>Select Social Situation</item>
+        <item>Alone</item>
+        <item>With one other person</item>
+        <item>With two to several people</item>
+        <item>With a crowd</item>
+    </string-array>
+</resources>

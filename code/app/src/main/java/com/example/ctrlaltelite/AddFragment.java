@@ -1,63 +1,287 @@
 package com.example.ctrlaltelite;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
+import android.content.pm.PackageManager;
+import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.Switch;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link AddFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+
+import java.io.File;
+import java.util.Date;
+import java.util.Map;
+import java.util.HashMap;
+
+// Import the MoodEvent class
+
+
 public class AddFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private Spinner dropdownMood;
+    private Spinner editSocialSituation;
+    private EditText editReason, editTrigger;
+    private Switch switchLocation;
+    private Button buttonSave, buttonCancel, buttonUpload;
+    private  String username;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private FirebaseFirestore db;
+    private FirebaseAuth mAuth;
 
-    public AddFragment() {
-        // Required empty public constructor
-    }
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AddFragment newInstance(String param1, String param2) {
-        AddFragment fragment = new AddFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private Uri imageRef;
+
+    private String imgPath = null; //default, no image
+    private ImageView imagePreview;
+
+    private int maxSize = 65536;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+        pickMedia =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    if (uri == null) {
+                        Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+                    } else {
+                        //check file size and ensure less than 65536 bytes
+                        Cursor returnCursor = getContext().getContentResolver().query(uri, null, null, null, null);
+                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                        returnCursor.moveToFirst();
+                        int imgSize = returnCursor.getInt(sizeIndex);
+                        returnCursor.close();
+                        if (imgSize < maxSize) {
+                            imagePreview.setImageURI(uri);
+                            imagePreview.setVisibility(VISIBLE);
+                            buttonUpload.setEnabled(false);
+                            imageRef = uri; //for uploading purposes
+                            Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+        requestPermissionLauncher =
+                registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        // Start the photo picker (only images).
+                        pickMedia.launch(new PickVisualMediaRequest.Builder()
+                                .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                                .build());
+                    } else {
+                        Toast.makeText(getContext(), "No access to device images", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_add, container, false);
+
+        db = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();  // Firebase Authentication instance
+
+
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            username = getArguments().getString("username");
+
+        }
+
+
+        // Initialize UI elements
+        dropdownMood = view.findViewById(R.id.dropdown_mood);
+        editSocialSituation = view.findViewById(R.id.social_situation_spinner);
+        editReason = view.findViewById(R.id.edit_reason);
+        editTrigger = view.findViewById(R.id.edit_trigger);
+        switchLocation = view.findViewById(R.id.switch_location);
+        buttonSave = view.findViewById(R.id.button_save);
+        buttonCancel = view.findViewById(R.id.button_cancel);
+        buttonUpload = view.findViewById(R.id.button_upload);
+        imagePreview = view.findViewById(R.id.uploaded_image);
+        imagePreview.setVisibility(GONE);
+
+        setupDropdown();
+        setupButtons();
+        setupDropdownSocialSituation();
+
+        return view;
+    }
+
+    private void setupDropdown() {
+        // Selecting Mood Spinner setup
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.mood_options,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dropdownMood.setAdapter(adapter);
+
+    }
+
+    private  void setupDropdownSocialSituation(){
+        // Social Situation Spinner setup
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.social_situation_options,
+                android.R.layout.simple_spinner_item
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        editSocialSituation.setAdapter(adapter);
+    }
+    private void setupButtons() {
+        buttonSave.setOnClickListener(v -> saveMoodEvent(username));
+        buttonCancel.setOnClickListener(v -> {
+            // Navigate to the home screen fragment using the parent activity's method
+            navigateToHome();
+        });
+        buttonUpload.setOnClickListener(v -> selectPhoto());
+    }
+
+    private void selectPhoto() {
+        //If app has permission
+        if (ContextCompat.checkSelfPermission(
+                getContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
+                PackageManager.PERMISSION_GRANTED) {
+            // Start the photo picker (only images).
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        } else {
+            // Ask for the permission
+            requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES);
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_add, container, false);
+
+    private void navigateToHome() {
+        if (getActivity() instanceof MainActivity) {
+            // First, change the fragment
+            ((MainActivity) getActivity()).fragmentRepl(new HomeFragment());
+
+            // Then, update the bottom navigation to select the home item
+            BottomNavigationView bottomNavigationView = getActivity().findViewById(R.id.btnNav);
+            if (bottomNavigationView != null) {
+                bottomNavigationView.setSelectedItemId(R.id.home);
+            }
+        }
+    }
+
+    private void saveMoodEvent(String uName) {
+        // Check if mood is at default position (0)
+        if (dropdownMood.getSelectedItemPosition() == 0) {
+            Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check if social situation is at default position (0)
+        if (editSocialSituation.getSelectedItemPosition() == 0) {
+            Toast.makeText(getContext(), "Social situation cannot be the default option", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String selectedEmotion = dropdownMood.getSelectedItem().toString();
+        String reason = editReason.getText().toString();
+        String socialSituation = editSocialSituation.getSelectedItem().toString();
+        String trigger = editTrigger.getText().toString();
+        GeoPoint location = null; // needs to be implemented later
+        String timeStamp = String.valueOf(new Date());
+
+        boolean isLocationEnabled = switchLocation.isChecked();
+
+        // Get the current user ID from Firebase Authentication
+        //String userId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
+        String userId = username;
+
+        if (userId == null) {
+            Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        imgPath = "images/"+userId+timeStamp+".png";
+        //Upload to Firebase
+        //save with docId name in file path
+        StorageReference fileRef = storageRef.child(imgPath);
+
+        fileRef.putFile(imageRef)
+                .addOnFailureListener(error ->
+                {
+                    imgPath = null; //could not upload
+                    Toast.makeText(getContext(), "Error uploading image", Toast.LENGTH_SHORT).show();
+                });
+
+
+        // Create a new MoodEvent object
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location, imgPath, username);
+
+        // Build a map to save to Firestore
+        Map<String, Object> moodEventData = new HashMap<>();
+        moodEventData.put("mood", moodEvent.getEmotionalState());
+        moodEventData.put("reason", moodEvent.getReason());
+        moodEventData.put("timestamp", moodEvent.getTimestamp());
+        moodEventData.put("location", isLocationEnabled ? getUserLocation() : null);
+        moodEventData.put("trigger", moodEvent.getTrigger());
+        moodEventData.put("socialSituation", moodEvent.getSocialSituation());
+        moodEventData.put("username", moodEvent.getUsername());
+        moodEventData.put("imgPath", moodEvent.getImgPath());
+        //moodEventData.put("docId", moodEvent.getDocumentId());
+
+
+        db.collection("Mood Events")
+                .add(moodEventData)
+                .addOnSuccessListener(documentReference -> {
+                    // Successfully added the document to Firestore
+                    Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
+                    navigateToHome();
+                })
+                .addOnFailureListener(e -> {
+                    // Failed to add the document
+                    Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private GeoPoint getUserLocation() {
+        // Example latitude and longitude values
+        double latitude = 53.5;
+        double longitude = -113.5;
+
+        return new GeoPoint(latitude, longitude);
     }
 }

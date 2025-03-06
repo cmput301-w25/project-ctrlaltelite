@@ -9,4 +9,7 @@
         <item name="android:windowBackground">@color/white</item> <!-- Set the background color -->
     </style>
 
+
+
+
 </resources>
