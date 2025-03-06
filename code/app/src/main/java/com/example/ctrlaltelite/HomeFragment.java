@@ -1,5 +1,9 @@
 package com.example.ctrlaltelite;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,22 +11,33 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class HomeFragment extends Fragment {
 
@@ -32,11 +47,65 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore db;
     private String Username;
 
+    // Image picking variables
+    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    private ActivityResultLauncher<String> requestPermissionLauncher;
+    private Uri newImageRef; // Holds the selected image URI (no array needed now)
+    private ImageView imagePreview; // To display the image in the dialog
+    private static final int MAX_SIZE = 65536; // Max image size in bytes
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Initialize Firebase Storage
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
+
+        // Register image picker in onCreate (only once)
+        pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+            if (uri == null) {
+                Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+            } else {
+                Cursor returnCursor = requireContext().getContentResolver().query(uri, null, null, null, null);
+                int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                returnCursor.moveToFirst();
+                int imgSize = returnCursor.getInt(sizeIndex);
+                returnCursor.close();
+
+                if (imgSize < MAX_SIZE) {
+                    if (imagePreview != null) { // Ensure imagePreview is set
+                        // Use Glide to load the selected local image into imagePreview immediately
+                        Glide.with(requireContext())
+                                .load(uri)
+                                .placeholder(android.R.drawable.ic_menu_gallery)
+                                .into(imagePreview);
+                    }
+                    newImageRef = uri; // Store the new image URI for use in save
+                    Toast.makeText(getContext(), "New image selected", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getContext(), "File exceeds max size (64KB)", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // Register permission request
+        requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            if (isGranted) {
+                pickMedia.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
+            } else {
+                Toast.makeText(getContext(), "No access to device images", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-
         db = FirebaseFirestore.getInstance();
 
         // Retrieve username from Bundle
@@ -110,8 +179,8 @@ public class HomeFragment extends Fragment {
 
         // Bind views
         TextView closeButton = dialogView.findViewById(R.id.close_button);
-        // Button buttonUpload = dialogView.findViewById(R.id.edit_upload_media_button);
-        // ImageView image = dialogView.findViewById(R.id.edit_uploaded_image);
+        Button buttonUpload = dialogView.findViewById(R.id.edit_upload_media_button);
+        ImageView imagePreview = dialogView.findViewById(R.id.edit_uploaded_image);
         Spinner moodSpinner = dialogView.findViewById(R.id.edit_mood_spinner);
         EditText reasonEditText = dialogView.findViewById(R.id.edit_reason_edittext);
         EditText triggerEditText = dialogView.findViewById(R.id.edit_trigger);
@@ -119,8 +188,29 @@ public class HomeFragment extends Fragment {
         Button saveButton = dialogView.findViewById(R.id.save_button);
         Button deleteButton = dialogView.findViewById(R.id.delete_button);
 
-        // buttonUpload.setVisibility(View.VISIBLE);
-        // image.setVisibility(View.VISIBLE);
+        // Make upload button and image preview visible
+        buttonUpload.setVisibility(View.VISIBLE);
+        imagePreview.setVisibility(View.VISIBLE);
+
+        // Reset newImageRef for this dialog instance
+        newImageRef = null;
+
+        // Load existing image if available using Glide for better reliability
+        if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
+            StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
+            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                // Use Glide to load the image for better performance and preview
+                Glide.with(requireContext())
+                        .load(uri)
+                        .placeholder(android.R.drawable.ic_menu_gallery)
+                        .into(imagePreview);
+            }).addOnFailureListener(e -> {
+                Log.e("HomeFragment", "Failed to load image: " + e.getMessage());
+                imagePreview.setImageResource(android.R.drawable.ic_menu_gallery);
+            });
+        } else {
+            imagePreview.setImageResource(android.R.drawable.ic_menu_gallery);
+        }
 
         // Populate Mood Spinner
         ArrayAdapter<String> moodAdapter = new ArrayAdapter<>(requireContext(),
@@ -147,6 +237,18 @@ public class HomeFragment extends Fragment {
         // Pre-fill EditText fields
         reasonEditText.setText(moodEvent.getReason());
         triggerEditText.setText(moodEvent.getTrigger());
+
+        // Upload button listener (uses existing pickMedia)
+        buttonUpload.setOnClickListener(v -> {
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                pickMedia.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
+            } else {
+                requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES);
+            }
+        });
 
         AlertDialog dialog = builder.create();
 
@@ -178,7 +280,25 @@ public class HomeFragment extends Fragment {
                 );
                 String currentTimestamp = dateFormat.format(new java.util.Date());
                 moodEvent.setTimestamp(currentTimestamp);
-                updateMoodEventInFirestore(moodEvent, position);
+                Log.d("HomeFragment", "Saving MoodEvent with docId: " + moodEvent.getDocumentId());
+                if (newImageRef != null) {
+                    String newImgPath = "images/" + Username + currentTimestamp + ".png";
+                    StorageReference fileRef = storageRef.child(newImgPath);
+                    fileRef.putFile(newImageRef)
+                            .addOnSuccessListener(taskSnapshot -> {
+                                if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
+                                    storageRef.child(moodEvent.getImgPath()).delete();
+                                }
+                                moodEvent.setImgPath(newImgPath);
+                                updateMoodEventInFirestore(moodEvent, position);
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(getContext(), "Image upload failed, saving without image", Toast.LENGTH_SHORT).show();
+                                updateMoodEventInFirestore(moodEvent, position);
+                            });
+                } else {
+                    updateMoodEventInFirestore(moodEvent, position);
+                }
                 dialog.dismiss();
             } else {
                 Toast.makeText(getContext(), "Mood is required", Toast.LENGTH_SHORT).show();
