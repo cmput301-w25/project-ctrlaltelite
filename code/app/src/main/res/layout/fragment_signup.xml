@@ -60,7 +60,7 @@
         <!-- Username Field -->
         <EditText
             android:id="@+id/SUsername"
-            android:layout_width="312dp"
+            android:layout_width="294dp"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/union"
             android:drawablePadding="5dp"

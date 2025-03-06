@@ -82,8 +82,20 @@ public class SignUp extends AppCompatActivity {
 
                 // Validation Check
                 //Validate that no fields are empty
-                if (username.isEmpty() || email.isEmpty() || mobile.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(SignUp.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                if (username.isEmpty()){
+                    SUsername.setError("Username cannot be empty!");
+                    return;
+                }
+                if (email.isEmpty()){
+                    SEmail.setError("Email cannot be empty!");
+                    return;
+                }
+                if (mobile.isEmpty()){
+                    SMobile.setError("Mobile number cannot be empty!");
+                    return;
+                }
+                if (password.isEmpty()){
+                    SPassword.setError("Password cannot be empty!");
                     return;
                 }
                 // Validate that the mobile number is numeric
@@ -94,7 +106,7 @@ public class SignUp extends AppCompatActivity {
                 // Validate the email address format using regex
                 Matcher matcher = EMAIL_PATTERN.matcher(email);
                 if (!matcher.matches()) {
-                    Toast.makeText(SignUp.this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+                    SEmail.setError("Please enter a valid email address");
                     return;
                 }
                 // Check if the username already exists in the "users" collection

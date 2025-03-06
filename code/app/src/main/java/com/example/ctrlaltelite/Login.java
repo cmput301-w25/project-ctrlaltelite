@@ -64,11 +64,14 @@ public class Login extends AppCompatActivity {
                 String username = Username.getText().toString().trim();
                 String password = Password.getText().toString().trim();
 
-                if (username.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(Login.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                if (username.isEmpty()){
+                    Username.setError("Username cannot be empty!");
                     return;
                 }
-
+                if (password.isEmpty()){
+                    Password.setError("Password cannot be empty!");
+                    return;
+                }
                 // Verify Credentials
                 db.collection("users")
                         .whereEqualTo("username", username)
