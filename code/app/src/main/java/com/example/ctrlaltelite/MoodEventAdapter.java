@@ -26,12 +26,13 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         }
 
         MoodEvent moodEvent = moodEvents.get(position);
-
         TextView moodText = listItem.findViewById(R.id.mood_text);
+        TextView reasonText = listItem.findViewById(R.id.reason_text);
         TextView socialSituationText = listItem.findViewById(R.id.social_situation_text);
         TextView triggerText = listItem.findViewById(R.id.trigger_text);
         TextView timestampText = listItem.findViewById(R.id.timestamp_text);
 
+        reasonText.setText(moodEvent.getReason());
         moodText.setText(moodEvent.getEmotionalState());
         socialSituationText.setText(moodEvent.getSocialSituation());
         triggerText.setText(moodEvent.getTrigger());

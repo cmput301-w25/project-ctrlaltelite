@@ -253,7 +253,7 @@ public class AddFragment extends Fragment {
 
         // Build a map to save to Firestore
         Map<String, Object> moodEventData = new HashMap<>();
-        moodEventData.put("mood", moodEvent.getEmotionalState());
+        moodEventData.put("emotionalState", moodEvent.getEmotionalState());
         moodEventData.put("reason", moodEvent.getReason());
         moodEventData.put("timestamp", moodEvent.getTimestamp());
         moodEventData.put("location", isLocationEnabled ? getUserLocation() : null);
@@ -261,7 +261,7 @@ public class AddFragment extends Fragment {
         moodEventData.put("socialSituation", moodEvent.getSocialSituation());
         moodEventData.put("username", moodEvent.getUsername());
         moodEventData.put("imgPath", moodEvent.getImgPath());
-        //moodEventData.put("docId", moodEvent.getDocumentId());
+        moodEventData.put("docId", moodEvent.getDocumentId());
 
 
         db.collection("Mood Events")

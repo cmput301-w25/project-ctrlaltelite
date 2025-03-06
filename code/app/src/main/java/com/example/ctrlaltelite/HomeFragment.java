@@ -45,11 +45,20 @@ public class HomeFragment extends Fragment {
             Username = args.getString("username");
             Log.d("MoodHistoryFragment", "Fetching mood events for Username: " + Username);
         }
-
         if (Username == null) {
             Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
             return view;
         }
+
+        // Initialize Spinner
+        Spinner moodFilter = view.findViewById(R.id.mood_filter);
+        ArrayAdapter<CharSequence> moodAdapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.mood_options,
+                android.R.layout.simple_spinner_item
+        );
+        moodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        moodFilter.setAdapter(moodAdapter);
 
         // Initialize ListView
         listView = view.findViewById(R.id.mood_list);
@@ -57,7 +66,6 @@ public class HomeFragment extends Fragment {
             Log.e("HomeFragment", "ListView is null, check fragment_home.xml");
             return view;
         }
-
         moodEvents = new ArrayList<>();
         adapter = new MoodEventAdapter(requireContext(), moodEvents);
         listView.setAdapter(adapter);
@@ -67,7 +75,6 @@ public class HomeFragment extends Fragment {
             MoodEvent moodEvent = moodEvents.get(position);
             showDeleteEditMoodDialog(moodEvent, position);
         });
-
         // Fetch mood events
         fetchMoodEvents();
 
@@ -76,7 +83,7 @@ public class HomeFragment extends Fragment {
 
     private void fetchMoodEvents() {
         db.collection("Mood Events")
-                .whereEqualTo("Username", Username) // Matches Firestore field name
+                .whereEqualTo("username", Username) // Matches Firestore field name
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -171,7 +178,6 @@ public class HomeFragment extends Fragment {
                 );
                 String currentTimestamp = dateFormat.format(new java.util.Date());
                 moodEvent.setTimestamp(currentTimestamp);
-                moodEvent.setTimestamp(currentTimestamp);
                 updateMoodEventInFirestore(moodEvent, position);
                 dialog.dismiss();
             } else {
@@ -195,7 +201,7 @@ public class HomeFragment extends Fragment {
                 moodEvents.clear();
                 for (QueryDocumentSnapshot snapshot : value) {
                     String emotionalState = snapshot.getString("emotionalState");
-                    String reason = snapshot.getString("Reason");
+                    String reason = snapshot.getString("reason");
                     String socialSituation = snapshot.getString("socialSituation");
                     String timeStamp = snapshot.getString("timestamp");
                     String trigger = snapshot.getString("trigger");
