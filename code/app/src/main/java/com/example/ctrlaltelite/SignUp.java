@@ -20,14 +20,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * The SignUp activity handles new user registration.
- *
- * Users can enter their details including username, email, mobile number, and password.
- * The activity checks for uniqueness of the username against Firestore.
- * If the username is unique, the user's data is saved and the user is navigated to the Login activity.
- *
- */
 public class SignUp extends AppCompatActivity {
 
     private EditText SUsername, SEmail, SMobile, SPassword;
@@ -35,12 +27,6 @@ public class SignUp extends AppCompatActivity {
     private TextView tvLoginPrompt;
     private FirebaseFirestore db;
 
-    /**
-     * Called when the activity is first created.
-     *
-     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
-     *                           then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,13 +44,6 @@ public class SignUp extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         btnCreateAccount.setOnClickListener(new View.OnClickListener() {
-            /**
-             * Handles the account creation button click event.
-             * Validates input fields and checks for the uniqueness of the username in Firestore.
-             * On successful registration, navigates the user to the Login activity.
-             *
-             * @param view The view that was clicked.
-             */
             @Override
             public void onClick(View view) {
                 String username = SUsername.getText().toString().trim();
@@ -120,12 +99,6 @@ public class SignUp extends AppCompatActivity {
 
         // Define clickable span for the "Login" word
         ClickableSpan clickableSpan = new ClickableSpan() {
-            /**
-             * Handles the click event for the Login prompt.
-             * Navigates the user to the Login activity.
-             *
-             * @param view The view that was clicked.
-             */
             @Override
             public void onClick(View view) {
                 // Navigate to the Login page when "Login" is clicked
