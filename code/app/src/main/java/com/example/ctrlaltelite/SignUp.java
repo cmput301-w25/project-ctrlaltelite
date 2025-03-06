@@ -1,9 +1,12 @@
 package com.example.ctrlaltelite;
 
+import static android.text.TextUtils.isDigitsOnly;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -19,14 +22,33 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+/**
+ * The SignUp activity handles new user registration.
+ *
+ * Users can enter their details including username, email, mobile number, and password.
+ * The activity checks for uniqueness of the username against Firestore.
+ * If the username is unique, the user's data is saved and the user is navigated to the Login activity.
+ *
+ */
 public class SignUp extends AppCompatActivity {
 
     private EditText SUsername, SEmail, SMobile, SPassword;
     private Button btnCreateAccount;
     private TextView tvLoginPrompt;
     private FirebaseFirestore db;
+    // Email regex pattern for validating email addresses
+    private String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+    private Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
+    /**
+     * Called when the activity is first created.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +66,13 @@ public class SignUp extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         btnCreateAccount.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Handles the account creation button click event.
+             * Validates input fields and checks for the uniqueness of the username in Firestore.
+             * On successful registration, navigates the user to the Login activity.
+             *
+             * @param view The view that was clicked.
+             */
             @Override
             public void onClick(View view) {
                 String username = SUsername.getText().toString().trim();
@@ -52,44 +81,56 @@ public class SignUp extends AppCompatActivity {
                 String password = SPassword.getText().toString().trim();
 
                 // Validation Check
+                //Validate that no fields are empty
                 if (username.isEmpty() || email.isEmpty() || mobile.isEmpty() || password.isEmpty()) {
                     Toast.makeText(SignUp.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                } else {
-                    // Check if the username already exists in the "users" collection
-                    db.collection("users")
-                            .whereEqualTo("username", username)
-                            .get()
-                            .addOnSuccessListener(queryDocumentSnapshots -> {
-                                if (!queryDocumentSnapshots.isEmpty()) {
-                                    // Username already exists
-                                    Toast.makeText(SignUp.this, "Username already exists.", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    // Username is unique
-                                    Map<String, Object> user = new HashMap<>();
-                                    user.put("username", username);
-                                    user.put("email", email);
-                                    user.put("mobile", mobile);
-                                    user.put("password", password);
-
-                                    // Save the user info to Firestore
-                                    db.collection("users")
-                                            .add(user)
-                                            .addOnSuccessListener(documentReference -> {
-                                                Toast.makeText(SignUp.this, "Account created successfully", Toast.LENGTH_SHORT).show();
-                                                // Navigate to Login page
-                                                Intent intent = new Intent(SignUp.this, Login.class);
-                                                startActivity(intent);
-                                                finish();
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                Toast.makeText(SignUp.this, "Error creating account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                                            });
-                                }
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(SignUp.this, "Error checking username: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                            });
+                    return;
                 }
+                // Validate that the mobile number is numeric
+                if (!isDigitsOnly(mobile)) {
+                    Toast.makeText(SignUp.this, "Please enter a valid numeric phone number", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // Validate the email address format using regex
+                Matcher matcher = EMAIL_PATTERN.matcher(email);
+                if (!matcher.matches()) {
+                    Toast.makeText(SignUp.this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // Check if the username already exists in the "users" collection
+                db.collection("users")
+                        .whereEqualTo("username", username)
+                        .get()
+                        .addOnSuccessListener(queryDocumentSnapshots -> {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                // Username already exists
+                                Toast.makeText(SignUp.this, "Username already exists.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Username is unique
+                                Map<String, Object> user = new HashMap<>();
+                                user.put("username", username);
+                                user.put("email", email);
+                                user.put("mobile", mobile);
+                                user.put("password", password);
+
+                                // Save the user info to Firestore
+                                db.collection("users")
+                                        .add(user)
+                                        .addOnSuccessListener(documentReference -> {
+                                            Toast.makeText(SignUp.this, "Account created successfully", Toast.LENGTH_SHORT).show();
+                                            // Navigate to Login page
+                                            Intent intent = new Intent(SignUp.this, Login.class);
+                                            startActivity(intent);
+                                            finish();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(SignUp.this, "Error creating account: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        });
+                            }
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(SignUp.this, "Error checking username: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
             }
         });
 
@@ -99,6 +140,12 @@ public class SignUp extends AppCompatActivity {
 
         // Define clickable span for the "Login" word
         ClickableSpan clickableSpan = new ClickableSpan() {
+            /**
+             * Handles the click event for the Login prompt.
+             * Navigates the user to the Login activity.
+             *
+             * @param view The view that was clicked.
+             */
             @Override
             public void onClick(View view) {
                 // Navigate to the Login page when "Login" is clicked
