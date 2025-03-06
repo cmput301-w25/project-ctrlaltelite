@@ -63,7 +63,7 @@ public class AddFragment extends Fragment {
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
-    private Uri imageRef;
+    private Uri imageRef = null;
 
     private String imgPath = null; //default, no image
     private ImageView imagePreview;
@@ -235,18 +235,19 @@ public class AddFragment extends Fragment {
             return;
         }
 
-        imgPath = "images/"+userId+timeStamp+".png";
-        //Upload to Firebase
-        //save with docId name in file path
-        StorageReference fileRef = storageRef.child(imgPath);
+        if (imageRef != null) {
+            imgPath = "images/" + userId + timeStamp + ".png";
+            //Upload to Firebase
+            //save with docId name in file path
+            StorageReference fileRef = storageRef.child(imgPath);
 
-        fileRef.putFile(imageRef)
-                .addOnFailureListener(error ->
-                {
-                    imgPath = null; //could not upload
-                    Toast.makeText(getContext(), "Error uploading image", Toast.LENGTH_SHORT).show();
-                });
-
+            fileRef.putFile(imageRef)
+                    .addOnFailureListener(error ->
+                    {
+                        imgPath = null; //could not upload
+                        Toast.makeText(getContext(), "Error uploading image", Toast.LENGTH_SHORT).show();
+                    });
+        }
 
         // Create a new MoodEvent object
         MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location, imgPath, username);
@@ -262,20 +263,19 @@ public class AddFragment extends Fragment {
         moodEventData.put("username", moodEvent.getUsername());
         moodEventData.put("imgPath", moodEvent.getImgPath());
         moodEventData.put("docId", moodEvent.getDocumentId());
-
-
+        
         db.collection("Mood Events")
-                .add(moodEventData)
-                .addOnSuccessListener(documentReference -> {
-                    // Successfully added the document to Firestore
-                    Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
-                    navigateToHome();
-                })
-                .addOnFailureListener(e -> {
-                    // Failed to add the document
-                    Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
-                });
-    }
+                    .add(moodEventData)
+                    .addOnSuccessListener(documentReference -> {
+                        // Successfully added the document to Firestore
+                        Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
+                        navigateToHome();
+                    })
+                    .addOnFailureListener(e -> {
+                        // Failed to add the document
+                        Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
+                    });
+        }
 
     private GeoPoint getUserLocation() {
         // Example latitude and longitude values
