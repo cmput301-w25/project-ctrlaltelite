@@ -79,8 +79,8 @@ public class HomeFragment extends Fragment {
                         // Use Glide to load the selected local image into imagePreview immediately
                         Glide.with(requireContext())
                                 .load(uri)
-                                .placeholder(android.R.drawable.ic_menu_gallery)
                                 .into(imagePreview);
+                        imagePreview.setVisibility(View.VISIBLE);
                     }
                     newImageRef = uri; // Store the new image URI for use in save
                     Toast.makeText(getContext(), "New image selected", Toast.LENGTH_SHORT).show();
@@ -190,26 +190,25 @@ public class HomeFragment extends Fragment {
 
         // Make upload button and image preview visible
         buttonUpload.setVisibility(View.VISIBLE);
-        imagePreview.setVisibility(View.VISIBLE);
-
+        imagePreview.setVisibility(View.GONE);
         // Reset newImageRef for this dialog instance
         newImageRef = null;
 
         // Load existing image if available using Glide for better reliability
-        if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
+        if (moodEvent.getImgPath() != null) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                // Use Glide to load the image for better performance and preview
                 Glide.with(requireContext())
                         .load(uri)
-                        .placeholder(android.R.drawable.ic_menu_gallery)
                         .into(imagePreview);
+                imagePreview.setVisibility(View.VISIBLE);
             }).addOnFailureListener(e -> {
                 Log.e("HomeFragment", "Failed to load image: " + e.getMessage());
-                imagePreview.setImageResource(android.R.drawable.ic_menu_gallery);
+                imagePreview.setVisibility(View.GONE);
             });
         } else {
-            imagePreview.setImageResource(android.R.drawable.ic_menu_gallery);
+            imagePreview.setVisibility(View.GONE);
+            Log.d("NoImg", "Fetched MoodEvent: " + moodEvent.toString());
         }
 
         // Populate Mood Spinner
