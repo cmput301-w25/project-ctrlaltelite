@@ -1,12 +1,9 @@
 package com.example.ctrlaltelite;
 
-import static android.text.TextUtils.isDigitsOnly;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -22,8 +19,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The SignUp activity handles new user registration.
@@ -39,9 +34,6 @@ public class SignUp extends AppCompatActivity {
     private Button btnCreateAccount;
     private TextView tvLoginPrompt;
     private FirebaseFirestore db;
-    // Email regex pattern for validating email addresses
-    private String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
-    private Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
 
     /**
      * Called when the activity is first created.
@@ -81,22 +73,9 @@ public class SignUp extends AppCompatActivity {
                 String password = SPassword.getText().toString().trim();
 
                 // Validation Check
-                //Validate that no fields are empty
                 if (username.isEmpty() || email.isEmpty() || mobile.isEmpty() || password.isEmpty()) {
                     Toast.makeText(SignUp.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                // Validate that the mobile number is numeric
-                if (!isDigitsOnly(mobile)) {
-                    Toast.makeText(SignUp.this, "Please enter a valid numeric phone number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                // Validate the email address format using regex
-                Matcher matcher = EMAIL_PATTERN.matcher(email);
-                if (!matcher.matches()) {
-                    Toast.makeText(SignUp.this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                } else {
                     // Check if the username already exists in the "users" collection
                     db.collection("users")
                             .whereEqualTo("username", username)
@@ -131,6 +110,7 @@ public class SignUp extends AppCompatActivity {
                             .addOnFailureListener(e -> {
                                 Toast.makeText(SignUp.this, "Error checking username: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             });
+                }
             }
         });
 
