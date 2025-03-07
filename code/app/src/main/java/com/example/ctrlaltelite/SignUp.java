@@ -116,7 +116,7 @@ public class SignUp extends AppCompatActivity {
                         .addOnSuccessListener(queryDocumentSnapshots -> {
                             if (!queryDocumentSnapshots.isEmpty()) {
                                 // Username already exists
-                                Toast.makeText(SignUp.this, "Username already exists.", Toast.LENGTH_SHORT).show();
+                                SUsername.setError("Username already exists. Please Choose a different Username");
                             } else {
                                 // Username is unique
                                 Map<String, Object> user = new HashMap<>();

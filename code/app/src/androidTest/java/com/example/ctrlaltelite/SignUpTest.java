@@ -55,22 +55,81 @@ public class SignUpTest {
         user.put("password", "TestP");
         user.put("email","test@gmail.com");
         user.put("mobile","12345678");
-        usersRef.document("testUserDoc").set(user);
+        usersRef.document().set(user);
 
         Thread.sleep(1000);
     }
     @Test
-    public void validSignupNavigatesToLogin() throws InterruptedException {
-        // Enter valid credentials and click login
-        onView(withId(R.id.SUsername)).perform(replaceText("NewU"));
+    public void validSignUpNavigatesToLogin() throws InterruptedException {
+        // Enter valid credentials and click SignUp
+        onView(withId(R.id.SUsername)).perform(replaceText("NewUser"));
         onView(withId(R.id.SEmail)).perform(replaceText("new@gmail.com"));
-        onView(withId(R.id.username)).perform(replaceText("NewU"));
-        onView(withId(R.id.SPassword)).perform(replaceText("NewP"));
-
-        onView(withId(R.id.button_login)).perform(click());
+        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SPassword)).perform(replaceText("NewPass"));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
         // Verify that Login is displayed by checking for a key view
-        onView(withId(R.id.btnNav)).check(matches(isDisplayed()));
+        onView(withId(R.id.button_login)).check(matches(isDisplayed()));
+    }
+    @Test
+    public void emptyUsernameShowsError() throws InterruptedException {
+        // Leave username empty, fill password, and click login
+        onView(withId(R.id.SUsername)).perform(replaceText(""));
+        onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
+        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
+        Thread.sleep(1000);
+        // Check that the username field shows the error
+        onView(withId(R.id.SUsername)).check(matches(hasErrorText("Username cannot be empty!")));
+    }
+    @Test
+    public void emptyEmailShowsError() throws InterruptedException {
+        // Leave email empty, fill password, and click login
+        onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SEmail)).perform(replaceText(""));
+        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
+        Thread.sleep(1000);
+        // Check that the email field shows the error
+        onView(withId(R.id.SEmail)).check(matches(hasErrorText("Email cannot be empty!")));
+    }
+    @Test
+    public void emptyMobileShowsError() throws InterruptedException {
+        // Leave username empty, fill password, and click login
+        onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
+        onView(withId(R.id.SMobile)).perform(replaceText(""));
+        onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
+        Thread.sleep(1000);
+        // Check that the username field shows the error
+        onView(withId(R.id.SMobile)).check(matches(hasErrorText("Mobile number cannot be empty!")));
+    }
+    @Test
+    public void emptyPasswordShowsError() throws InterruptedException {
+        // Leave username empty, fill password, and click login
+        onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
+        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SPassword)).perform(replaceText(""));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
+        Thread.sleep(1000);
+        // Check that the username field shows the error
+        onView(withId(R.id.SPassword)).check(matches(hasErrorText("Password cannot be empty!")));
+    }
+    @Test
+    public void duplicateUsernameShowsError() throws InterruptedException {
+        // Leave username empty, fill password, and click login
+        onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
+        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
+        Thread.sleep(1000);
+        // Check that the username field shows the error
+        onView(withId(R.id.SUsername)).check(matches(hasErrorText("Username already exists. Please Choose a different Username")));
     }
     @After
     public void tearDown() {
@@ -78,7 +137,7 @@ public class SignUpTest {
         URL url = null;
         try {
             url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId +
-                    "/databases/(default)/documents/users/testUserDoc");
+                    "/databases/(default)/documents");
         } catch (MalformedURLException exception) {
             Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
         }
@@ -95,4 +154,5 @@ public class SignUpTest {
                 urlConnection.disconnect();
             }
         }
+    }
 }
