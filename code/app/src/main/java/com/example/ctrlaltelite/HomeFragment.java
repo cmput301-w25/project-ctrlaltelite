@@ -190,12 +190,13 @@ public class HomeFragment extends Fragment {
 
         // Make upload button and image preview visible
         buttonUpload.setVisibility(View.VISIBLE);
+        Glide.with(requireContext()).clear(imagePreview);
         imagePreview.setVisibility(View.GONE);
         // Reset newImageRef for this dialog instance
         newImageRef = null;
 
         // Load existing image if available using Glide for better reliability
-        if (moodEvent.getImgPath() != null) {
+        if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                 Glide.with(requireContext())
@@ -204,9 +205,11 @@ public class HomeFragment extends Fragment {
                 imagePreview.setVisibility(View.VISIBLE);
             }).addOnFailureListener(e -> {
                 Log.e("HomeFragment", "Failed to load image: " + e.getMessage());
+                Glide.with(requireContext()).clear(imagePreview);
                 imagePreview.setVisibility(View.GONE);
             });
         } else {
+            Glide.with(requireContext()).clear(imagePreview);
             imagePreview.setVisibility(View.GONE);
             Log.d("NoImg", "Fetched MoodEvent: " + moodEvent.toString());
         }
@@ -287,6 +290,14 @@ public class HomeFragment extends Fragment {
                             .addOnSuccessListener(taskSnapshot -> {
                                 if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
                                     storageRef.child(moodEvent.getImgPath()).delete();
+                                }
+                                else
+                                {
+                                    if (moodEvent.getImgPath().equals("null"))
+                                    {
+                                        imagePreview.setVisibility(View.GONE);
+                                    }
+                                    imagePreview.setVisibility(View.GONE);
                                 }
                                 moodEvent.setImgPath(newImgPath);
                                 updateMoodEventInFirestore(moodEvent, position);
