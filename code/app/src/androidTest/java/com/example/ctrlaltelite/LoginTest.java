@@ -91,6 +91,16 @@ public class LoginTest {
         // Check that the password field shows the error
         onView(withId(R.id.password)).check(matches(hasErrorText("Password cannot be empty!")));
     }
+    @Test
+    public void unregisteredUsernameShowsError() throws InterruptedException {
+        // Add an unregisterd Username and Password
+        onView(withId(R.id.username)).perform(replaceText("NewU"));
+        onView(withId(R.id.password)).perform(replaceText("NewP"));
+        onView(withId(R.id.button_login)).perform(click());
+        Thread.sleep(1000);
+        // Check that the username field shows the error
+        onView(withId(R.id.username)).check(matches(hasErrorText("User not found")));
+    }
     @After
     public void tearDown() {
         String projectId = "ctrlaltelite-be29f";

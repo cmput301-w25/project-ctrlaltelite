@@ -78,7 +78,7 @@ public class Login extends AppCompatActivity {
                         .get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
                             if (queryDocumentSnapshots.isEmpty()) {
-                                Toast.makeText(Login.this, "User not found", Toast.LENGTH_SHORT).show();
+                                Username.setError("User not found");
                             } else {
                                 boolean valid = false;
                                 DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
