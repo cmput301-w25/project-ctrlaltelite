@@ -215,12 +215,38 @@ public class AddFragment extends Fragment {
             Toast.makeText(getContext(), "Social situation cannot be the default option", Toast.LENGTH_SHORT).show();
             return;
         }
+
         String selectedEmotion = dropdownMood.getSelectedItem().toString();
-        String reason = editReason.getText().toString();
         String socialSituation = editSocialSituation.getSelectedItem().toString();
         String trigger = editTrigger.getText().toString();
         String timeStamp = String.valueOf(new Date());
         GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
+
+ 
+        String reason = editReason.getText().toString().trim();
+        String regex = " ";
+        String[] separationArray = reason.split(regex);
+
+        // Trying to implement setError instead of Toast Messages (will try to figure out)
+        /*
+        if (reason.length() <= 20 || separationArray.length >= 4) {
+            editReason.setError("Reason Length Cannot Have More than 20 Characters or Have More Than 3 Words");
+            return;
+        }
+        */
+
+        if (reason.length() > 20) {
+            Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        else if (separationArray.length >= 4) {
+            Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        boolean isLocationEnabled = switchLocation.isChecked();
+        // Get the current user ID from Firebase Authentication
+        //String userId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
 
         String userId = username;
         if (userId == null) {
