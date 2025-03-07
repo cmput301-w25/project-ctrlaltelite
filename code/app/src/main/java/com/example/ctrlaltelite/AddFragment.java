@@ -11,6 +11,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +64,7 @@ public class AddFragment extends Fragment {
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
-    private Uri imageRef;
+    private Uri imageRef = null;
 
     private String imgPath = null; //default, no image
     private ImageView imagePreview;
@@ -206,13 +207,10 @@ public class AddFragment extends Fragment {
     }
 
     private void saveMoodEvent(String uName) {
-        // Check if mood is at default position (0)
         if (dropdownMood.getSelectedItemPosition() == 0) {
             Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // Check if social situation is at default position (0)
         if (editSocialSituation.getSelectedItemPosition() == 0) {
             Toast.makeText(getContext(), "Social situation cannot be the default option", Toast.LENGTH_SHORT).show();
             return;
@@ -221,9 +219,10 @@ public class AddFragment extends Fragment {
         String selectedEmotion = dropdownMood.getSelectedItem().toString();
         String socialSituation = editSocialSituation.getSelectedItem().toString();
         String trigger = editTrigger.getText().toString();
-        GeoPoint location = null; // needs to be implemented later
         String timeStamp = String.valueOf(new Date());
+        GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
 
+ 
         String reason = editReason.getText().toString().trim();
         String regex = " ";
         String[] separationArray = reason.split(regex);
@@ -248,51 +247,42 @@ public class AddFragment extends Fragment {
         boolean isLocationEnabled = switchLocation.isChecked();
         // Get the current user ID from Firebase Authentication
         //String userId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
-        String userId = username;
 
+        String userId = username;
         if (userId == null) {
             Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        imgPath = "images/"+userId+timeStamp+".png";
-        //Upload to Firebase
-        //save with docId name in file path
-        StorageReference fileRef = storageRef.child(imgPath);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username);
+        if (imageRef != null) {
+            String imgPath = "images/" + userId + timeStamp + ".png";
+            StorageReference fileRef = storageRef.child(imgPath);
+            fileRef.putFile(imageRef)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        moodEvent.setImgPath(imgPath);
+                        saveToFirestore(moodEvent);
+                    })
+                    .addOnFailureListener(error -> {
+                        Toast.makeText(getContext(), "Error uploading image, saving without image", Toast.LENGTH_SHORT).show();
+                        saveToFirestore(moodEvent);
+                    });
+        } else {
+            saveToFirestore(moodEvent);
+        }
+    }
 
-        fileRef.putFile(imageRef)
-                .addOnFailureListener(error ->
-                {
-                    imgPath = null; //could not upload
-                    Toast.makeText(getContext(), "Error uploading image", Toast.LENGTH_SHORT).show();
-                });
-
-
-        // Create a new MoodEvent object
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger,socialSituation, timeStamp, location, imgPath, username);
-
-        // Build a map to save to Firestore
-        Map<String, Object> moodEventData = new HashMap<>();
-        moodEventData.put("mood", moodEvent.getEmotionalState());
-        moodEventData.put("reason", moodEvent.getReason());
-        moodEventData.put("timestamp", moodEvent.getTimestamp());
-        moodEventData.put("location", isLocationEnabled ? getUserLocation() : null);
-        moodEventData.put("trigger", moodEvent.getTrigger());
-        moodEventData.put("socialSituation", moodEvent.getSocialSituation());
-        moodEventData.put("username", moodEvent.getUsername());
-        moodEventData.put("imgPath", moodEvent.getImgPath());
-        //moodEventData.put("docId", moodEvent.getDocumentId());
-
-
+    // Add this new method to handle Firestore saving and set the docId
+    private void saveToFirestore(MoodEvent moodEvent) {
         db.collection("Mood Events")
-                .add(moodEventData)
+                .add(moodEvent)
                 .addOnSuccessListener(documentReference -> {
-                    // Successfully added the document to Firestore
+                    moodEvent.setDocumentId(documentReference.getId());
+                    Log.d("AddFragment", "Saved MoodEvent with docId: " + moodEvent.getDocumentId() + ", imgPath: " + moodEvent.getImgPath());
                     Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
                     navigateToHome();
                 })
                 .addOnFailureListener(e -> {
-                    // Failed to add the document
                     Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
                 });
     }

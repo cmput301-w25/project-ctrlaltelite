@@ -17,6 +17,7 @@
             android:id="@+id/mood_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#757575"
             android:textSize="18sp"
             android:textStyle="bold" />
 
@@ -24,6 +25,7 @@
             android:id="@+id/reason_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#757575"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
 
@@ -31,6 +33,7 @@
             android:id="@+id/trigger_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#757575"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
 
@@ -38,6 +41,7 @@
             android:id="@+id/social_situation_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#757575"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
 
@@ -45,9 +49,7 @@
             android:id="@+id/mood_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:cropToPadding="true"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/mood_image" />
+            android:layout_marginTop="8dp" />
 
         <TextView
             android:id="@+id/timestamp_text"
