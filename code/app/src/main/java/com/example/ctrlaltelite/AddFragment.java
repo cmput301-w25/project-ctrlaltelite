@@ -222,7 +222,7 @@ public class AddFragment extends Fragment {
         String timeStamp = String.valueOf(new Date());
         GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
 
-<<<<<<< HEAD
+ 
         String reason = editReason.getText().toString().trim();
         String regex = " ";
         String[] separationArray = reason.split(regex);
@@ -240,15 +240,14 @@ public class AddFragment extends Fragment {
             return;
         }
         else if (separationArray.length >= 4) {
-            Toast.makeText(getContext(), "Reason cannot be more than 3 words", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
             return;
         }
 
         boolean isLocationEnabled = switchLocation.isChecked();
         // Get the current user ID from Firebase Authentication
         //String userId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
-=======
->>>>>>> 6fc7044784074ad04b93e368af4ddb945f3c7c0d
+
         String userId = username;
         if (userId == null) {
             Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
