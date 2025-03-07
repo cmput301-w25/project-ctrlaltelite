@@ -50,10 +50,10 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                 Glide.with(getContext()).load(uri).into(moodImage);
             }).addOnFailureListener(e -> {
-                moodImage.setImageResource(android.R.drawable.ic_menu_gallery);
+                moodImage.setVisibility(View.GONE);
             });
         } else {
-            moodImage.setImageResource(android.R.drawable.ic_menu_gallery);
+            moodImage.setVisibility(View.GONE);
         }
 
         return convertView;
