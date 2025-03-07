@@ -306,19 +306,30 @@ public class HomeFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Function to delete mood events and update firebase and our mood events list accordingly
+     * @param moodEvent - The mood event we want to delete
+     */
     private void DeleteMoodEventAndUpdateDatabaseUponDeletion(MoodEvent moodEvent) {
 
+        // Getting the mood events collection in firestore
         CollectionReference moodEventRef = db.collection("Mood Events");
 
+        // Obtaining the User's mood events
         fetchMoodEvents();
 
+        // Similar to what was done in lab 5
         moodEventRef.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.e("Firestore", error.toString());
             }
             if (value != null) {
                 moodEvents.clear();
+
+                // Going through each snapshot to obtain the mood event info
                 for (QueryDocumentSnapshot snapshot : value) {
+
+                    // All mood event data
                     String emotionalState = snapshot.getString("emotionalState");
                     String reason = snapshot.getString("reason");
                     String socialSituation = snapshot.getString("socialSituation");
@@ -328,10 +339,15 @@ public class HomeFragment extends Fragment {
                     String imgPath = snapshot.getString("imgPath");
                     String id = snapshot.getId();
                     GeoPoint location = (GeoPoint) snapshot.get("location");
+
+                    // Creating new mood event with the data obtained above
                     MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timeStamp, location, imgPath, username);
+
+                    // Add everything back into our mood events list
                     moodEvents.add(updatedMoodEvent);
                     updatedMoodEvent.setDocumentId(id);
                 }
+                // Updating display
                 adapter.notifyDataSetChanged();
             }
         });
@@ -339,6 +355,7 @@ public class HomeFragment extends Fragment {
             Toast.makeText(getContext(), "Zero length", Toast.LENGTH_SHORT).show();
         }
         else {
+            // Deleting the mood event reference in the collection
             DocumentReference docRef = moodEventRef.document(moodEvent.getDocumentId());
             docRef.delete();
         }

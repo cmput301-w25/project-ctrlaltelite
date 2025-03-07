@@ -222,12 +222,17 @@ public class AddFragment extends Fragment {
         String timeStamp = String.valueOf(new Date());
         GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
 
- 
-        String reason = editReason.getText().toString().trim();
-        String regex = " ";
-        String[] separationArray = reason.split(regex);
 
-        // Trying to implement setError instead of Toast Messages (will try to figure out)
+        // Obtaining the textual reason from the user
+        String reason = editReason.getText().toString().trim();
+
+        // Separator
+        String separator = " ";
+
+        // Separating the reason by spaces
+        String[] separationArray = reason.split(separator);
+
+        // Trying to implement setError instead of Toast Messages (will try to figure out later)
         /*
         if (reason.length() <= 20 || separationArray.length >= 4) {
             editReason.setError("Reason Length Cannot Have More than 20 Characters or Have More Than 3 Words");
@@ -235,6 +240,7 @@ public class AddFragment extends Fragment {
         }
         */
 
+        // Adding the conditions for the textual reason
         if (reason.length() > 20) {
             Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
             return;
