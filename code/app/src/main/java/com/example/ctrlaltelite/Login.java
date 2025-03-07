@@ -17,7 +17,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
+/**
+ * The Login activity handles user authentication.
+ *
+ * This activity allows users to input their username and password,
+ * verifies their credentials against Firestore, and navigates to the
+ * MainActivity upon successful login. If the user does not have an account,
+ * they can click the sign-up prompt to navigate to the SignUp activity.
+ *
+ */
 public class Login extends AppCompatActivity {
 
     private EditText Username;
@@ -26,6 +34,13 @@ public class Login extends AppCompatActivity {
     private TextView tvSignUpPrompt;
     private FirebaseFirestore db;
 
+    /**
+     * Called when the activity starts. Most initializations go here.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *        then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,23 +53,32 @@ public class Login extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         btnLogin.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Handles the login button click event.
+             * Validates user input, verifies credentials against Firestore, and navigates to MainActivity upon success.
+             *
+             * @param view The view that was clicked.
+             */
             @Override
             public void onClick(View view) {
                 String username = Username.getText().toString().trim();
                 String password = Password.getText().toString().trim();
 
-                if (username.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(Login.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                if (username.isEmpty()){
+                    Username.setError("Username cannot be empty!");
                     return;
                 }
-
+                if (password.isEmpty()){
+                    Password.setError("Password cannot be empty!");
+                    return;
+                }
                 // Verify Credentials
                 db.collection("users")
                         .whereEqualTo("username", username)
                         .get()
                         .addOnSuccessListener(queryDocumentSnapshots -> {
                             if (queryDocumentSnapshots.isEmpty()) {
-                                Toast.makeText(Login.this, "User not found", Toast.LENGTH_SHORT).show();
+                                Username.setError("User not found");
                             } else {
                                 boolean valid = false;
                                 DocumentSnapshot document = queryDocumentSnapshots.getDocuments().get(0);
@@ -89,6 +113,11 @@ public class Login extends AppCompatActivity {
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View view) {
+                /**
+                 * Handles the click event for the SignUp prompt.
+                 *
+                 * @param view The view that was clicked.
+                 */
                 // Go to the Login page when "Login" is clicked
                 Intent intent = new Intent(Login.this, SignUp.class);
                 startActivity(intent);

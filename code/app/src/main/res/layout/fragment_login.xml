@@ -58,7 +58,7 @@
 
         <EditText
             android:id="@+id/username"
-            android:layout_width="308dp"
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/union"
             android:drawablePadding="5dp"
