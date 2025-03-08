@@ -37,8 +37,12 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-
+/**
+ * Home Fragment displays and manages a user's mood history - personal mood events, allowing viewing, editing and delete.
+ * Integrates with Firebase Firestore for data storage and Firebase Storage for image handling.
+ */
 public class HomeFragment extends Fragment {
 
     private ListView listView;
@@ -56,6 +60,13 @@ public class HomeFragment extends Fragment {
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
+    /**
+     * This is called to do initial creation of the fragment. It initializes Firebase Storage and registers
+     * the image picker and permission request handlers.
+     *
+     * @param savedInstanceState If non-null, this fragment is re-constructed from a previous
+     *                           saved state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +76,11 @@ public class HomeFragment extends Fragment {
 
         // Register image picker in onCreate (only once)
         pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+            /**
+             * Handles the result of the image picker for editing mood events.
+             *
+             * @param uri The URI of the selected image, or null if no image was selected.
+             */
             if (uri == null) {
                 Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
             } else {
@@ -92,6 +108,11 @@ public class HomeFragment extends Fragment {
 
         // Register permission request
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            /**
+             * Handles the result of the permission request for accessing media images.
+             *
+             * @param isGranted True if permission was granted, false otherwise.
+             */
             if (isGranted) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
@@ -150,11 +171,20 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
-    private void fetchMoodEvents() {
+    /**
+     * Fetches mood events associated with the current user from Firestore and updates the local
+     * list and UI adapter. Clears the existing list before adding new data.
+     */
+    public void fetchMoodEvents() {
         db.collection("Mood Events")
                 .whereEqualTo("username", Username) // Matches Firestore field name
                 .get()
                 .addOnCompleteListener(task -> {
+                    /**
+                     * Processes the result of fetching mood events from Firestore.
+                     *
+                     * @param task The task containing the result of the Firestore query.
+                     */
                     if (task.isSuccessful()) {
                         moodEvents.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
@@ -172,6 +202,24 @@ public class HomeFragment extends Fragment {
                     }
                 });
     }
+
+    /**
+     * Validates if the mood input is non-empty.
+     *
+     * @param mood The mood string to validate.
+     * @return True if the mood is non-empty, false otherwise.
+     */
+    public boolean isMoodValid(String mood) {
+        return !Objects.equals(mood, "Select Emotional State");
+    }
+
+    /**
+     * Displays a dialog allowing the user to edit or delete a specific mood event.
+     * Pre-populates the dialog with the mood event's current data and handles image uploads.
+     *
+     * @param moodEvent The MoodEvent object to be edited or deleted.
+     * @param position  The position of the mood event in the list, used for updating the adapter.
+     */
     public void showDeleteEditMoodDialog(MoodEvent moodEvent, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_delete_mood_event, null);
@@ -199,11 +247,21 @@ public class HomeFragment extends Fragment {
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                /**
+                 * Loads the existing image into the preview when the download URL is successfully retrieved.
+                 *
+                 * @param uri The URI of the image downloaded from Firebase Storage.
+                 */
                 Glide.with(requireContext())
                         .load(uri)
                         .into(imagePreview);
                 imagePreview.setVisibility(View.VISIBLE);
             }).addOnFailureListener(e -> {
+                /**
+                 * Handles failure to retrieve the image download URL from Firebase Storage.
+                 *
+                 * @param e The exception indicating the reason for failure.
+                 */
                 Log.e("HomeFragment", "Failed to load image: " + e.getMessage());
                 Glide.with(requireContext()).clear(imagePreview);
                 imagePreview.setVisibility(View.GONE);
@@ -242,6 +300,11 @@ public class HomeFragment extends Fragment {
 
         // Upload button listener (uses existing pickMedia)
         buttonUpload.setOnClickListener(v -> {
+            /**
+             * Initiates the image upload process when the upload button is clicked.
+             *
+             * @param v The view that was clicked (the upload button).
+             */
             if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
                     PackageManager.PERMISSION_GRANTED) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
@@ -265,11 +328,17 @@ public class HomeFragment extends Fragment {
 
         // Save button
         saveButton.setOnClickListener(v -> {
+            /**
+             * Saves the edited mood event data when the save button is clicked.
+             * Updates the mood event in Firestore and handles image upload if a new image is selected.
+             *
+             * @param v The view that was clicked (the save button).
+             */
             String updatedMood = moodSpinner.getSelectedItem().toString();
             String updatedReason = reasonEditText.getText().toString().trim();
             String updatedTrigger = triggerEditText.getText().toString().trim();
             String updatedSocialSituation = socialSituationSpinner.getSelectedItem().toString();
-            if (!updatedMood.isEmpty()) {
+            if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
                 moodEvent.setReason(updatedReason);
                 moodEvent.setTrigger(updatedTrigger);
@@ -288,6 +357,11 @@ public class HomeFragment extends Fragment {
                     StorageReference fileRef = storageRef.child(newImgPath);
                     fileRef.putFile(newImageRef)
                             .addOnSuccessListener(taskSnapshot -> {
+                                /**
+                                 * Handles successful image upload to Firebase Storage and updates the mood event.
+                                 *
+                                 * @param taskSnapshot The snapshot of the upload task, containing metadata.
+                                 */
                                 if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
                                     storageRef.child(moodEvent.getImgPath()).delete();
                                 }
@@ -303,6 +377,11 @@ public class HomeFragment extends Fragment {
                                 updateMoodEventInFirestore(moodEvent, position);
                             })
                             .addOnFailureListener(e -> {
+                                /**
+                                 * Handles failure to upload the image to Firebase Storage and proceeds without it.
+                                 *
+                                 * @param e The exception indicating the reason for failure.
+                                 */
                                 Toast.makeText(getContext(), "Image upload failed, saving without image", Toast.LENGTH_SHORT).show();
                                 updateMoodEventInFirestore(moodEvent, position);
                             });
@@ -321,7 +400,7 @@ public class HomeFragment extends Fragment {
      * Function to delete mood events and update firebase and our mood events list accordingly
      * @param moodEvent - The mood event we want to delete
      */
-    private void DeleteMoodEventAndUpdateDatabaseUponDeletion(MoodEvent moodEvent) {
+    public void DeleteMoodEventAndUpdateDatabaseUponDeletion(MoodEvent moodEvent) {
 
         // Getting the mood events collection in firestore
         CollectionReference moodEventRef = db.collection("Mood Events");
@@ -373,7 +452,14 @@ public class HomeFragment extends Fragment {
     }
 
     // Update the mood event in Firebase
-    private void updateMoodEventInFirestore(MoodEvent moodEvent, int position) {
+    /**
+     * Updates a mood event in Firestore with the provided MoodEvent data and refreshes the UI.
+     * Logs success or failure and notifies the adapter of changes.
+     *
+     * @param moodEvent The MoodEvent object containing updated data to be saved in Firestore.
+     * @param position  The position of the mood event in the list, used to update the adapter.
+     */
+    public void updateMoodEventInFirestore(MoodEvent moodEvent, int position) {
         String docId = moodEvent.getDocumentId();
         if (docId == null) {
             Log.e("HomeFragment", "Document ID is null for MoodEvent: " + moodEvent.toString());
@@ -387,12 +473,22 @@ public class HomeFragment extends Fragment {
                 .document(docId)
                 .set(moodEvent)
                 .addOnSuccessListener(aVoid -> {
+                    /**
+                     * Handles successful update of the mood event in Firestore and refreshes the UI.
+                     *
+                     * @param aVoid Void parameter (unused).
+                     */
                     Log.d("HomeFragment", "Successfully updated MoodEvent with ID: " + docId + " in Firestore");
                     moodEvents.set(position, moodEvent);
                     adapter.notifyDataSetChanged();
                     Toast.makeText(getContext(), "Mood updated successfully", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
+                    /**
+                     * Handles failure to update the mood event in Firestore and notifies the user.
+                     *
+                     * @param e The exception indicating the reason for failure.
+                     */
                     Log.e("HomeFragment", "Failed to update MoodEvent with ID: " + docId + " - " + e.getMessage());
                     Toast.makeText(getContext(), "Failed to update mood in Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
