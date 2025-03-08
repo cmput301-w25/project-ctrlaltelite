@@ -54,13 +54,10 @@ public class MainActivity extends AppCompatActivity {
                 if (itemId == R.id.home) {
                     fragmentRepl(new HomeFragment());
                 }
-
                 else if (itemId == R.id.map) {
                     fragmentRepl(new MapFragment());
                 }
-
                 else if (itemId == R.id.add) {
-
                     AddFragment addFragment = new AddFragment();
                     Bundle fragmentBundle = new Bundle();
                     fragmentBundle.putString("username", username);  // Pass the username
@@ -68,15 +65,12 @@ public class MainActivity extends AppCompatActivity {
                     selectedFragment = addFragment;
 
                 }
-
                 else if (itemId == R.id.following) {
                     fragmentRepl(new FollowingFragment());
                 }
-
                 else if (itemId == R.id.profile) {
                     fragmentRepl(new ProfileFragment());
                 }
-
                 if (selectedFragment != null) {
                     fragmentRepl(selectedFragment);
                 }

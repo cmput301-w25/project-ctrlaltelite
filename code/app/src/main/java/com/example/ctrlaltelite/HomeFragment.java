@@ -37,6 +37,7 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Home Fragment displays and manages a user's mood history - personal mood events, allowing viewing, editing and delete.
@@ -174,7 +175,7 @@ public class HomeFragment extends Fragment {
      * Fetches mood events associated with the current user from Firestore and updates the local
      * list and UI adapter. Clears the existing list before adding new data.
      */
-    private void fetchMoodEvents() {
+    public void fetchMoodEvents() {
         db.collection("Mood Events")
                 .whereEqualTo("username", Username) // Matches Firestore field name
                 .get()
@@ -200,6 +201,16 @@ public class HomeFragment extends Fragment {
                         Toast.makeText(getContext(), "Error loading mood events", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    /**
+     * Validates if the mood input is non-empty.
+     *
+     * @param mood The mood string to validate.
+     * @return True if the mood is non-empty, false otherwise.
+     */
+    public boolean isMoodValid(String mood) {
+        return !Objects.equals(mood, "Select Emotional State");
     }
 
     /**
@@ -327,7 +338,7 @@ public class HomeFragment extends Fragment {
             String updatedReason = reasonEditText.getText().toString().trim();
             String updatedTrigger = triggerEditText.getText().toString().trim();
             String updatedSocialSituation = socialSituationSpinner.getSelectedItem().toString();
-            if (!updatedMood.isEmpty()) {
+            if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
                 moodEvent.setReason(updatedReason);
                 moodEvent.setTrigger(updatedTrigger);
@@ -389,7 +400,7 @@ public class HomeFragment extends Fragment {
      * Function to delete mood events and update firebase and our mood events list accordingly
      * @param moodEvent - The mood event we want to delete
      */
-    private void DeleteMoodEventAndUpdateDatabaseUponDeletion(MoodEvent moodEvent) {
+    public void DeleteMoodEventAndUpdateDatabaseUponDeletion(MoodEvent moodEvent) {
 
         // Getting the mood events collection in firestore
         CollectionReference moodEventRef = db.collection("Mood Events");
@@ -448,7 +459,7 @@ public class HomeFragment extends Fragment {
      * @param moodEvent The MoodEvent object containing updated data to be saved in Firestore.
      * @param position  The position of the mood event in the list, used to update the adapter.
      */
-    private void updateMoodEventInFirestore(MoodEvent moodEvent, int position) {
+    public void updateMoodEventInFirestore(MoodEvent moodEvent, int position) {
         String docId = moodEvent.getDocumentId();
         if (docId == null) {
             Log.e("HomeFragment", "Document ID is null for MoodEvent: " + moodEvent.toString());
