@@ -1,4 +1,5 @@
 package com.example.ctrlaltelite;
+
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
@@ -31,49 +32,76 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * UI tests for the SignUp activity using Espresso.
+ * <p>
+ * This test class seeds the Firestore emulator with a test user before each test and verifies that
+ * input validations and navigation behave as expected when signing up.
+ * It cleans up the Firestore documents after the tests.
+ * </p>
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class SignUpTest {
+
+    /**
+     * ActivityScenarioRule to launch the SignUp activity for testing.
+     */
     @Rule
-    public ActivityScenarioRule<SignUp> scenario = new
-            ActivityScenarioRule<SignUp>(SignUp.class);
+    public ActivityScenarioRule<SignUp> scenario = new ActivityScenarioRule<>(SignUp.class);
+
+    /**
+     * Configures the Firestore emulator before any tests run.
+     */
     @BeforeClass
     public static void setup(){
-        // Specific address for emulated device to access our localHost
         String androidLocalhost = "10.0.2.2";
-
         int portNumber = 8080;
         FirebaseFirestore.getInstance().useEmulator(androidLocalhost, portNumber);
     }
+
+    /**
+     * Seeds the Firestore emulator with a test user document before each test.
+     *
+     * @throws InterruptedException if the thread sleep is interrupted.
+     */
     @Before
     public void seedDatabase() throws InterruptedException {
-        // Seed Firestore with a test user document
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference usersRef = db.collection("users");
         Map<String, Object> user = new HashMap<>();
         user.put("username", "TestU");
         user.put("password", "TestP");
-        user.put("email","test@gmail.com");
-        user.put("mobile","12345678");
+        user.put("email", "test@gmail.com");
+        user.put("mobile", "12345678");
         usersRef.document().set(user);
-
         Thread.sleep(1000);
     }
+
+    /**
+     * Tests that entering valid sign-up credentials navigates the user to the Login screen.
+     *
+     * @throws InterruptedException if the thread sleep is interrupted.
+     */
     @Test
     public void validSignUpNavigatesToLogin() throws InterruptedException {
-        // Enter valid credentials and click SignUp
         onView(withId(R.id.SUsername)).perform(replaceText("NewUser"));
         onView(withId(R.id.SEmail)).perform(replaceText("new@gmail.com"));
         onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
         onView(withId(R.id.SPassword)).perform(replaceText("NewPass"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
-        // Verify that Login is displayed by checking for a key view
+        // Verify that the Login activity is displayed
         onView(withId(R.id.button_login)).check(matches(isDisplayed()));
     }
+
+    /**
+     * Tests that leaving the username field empty shows an error.
+     *
+     * @throws InterruptedException if the thread sleep is interrupted.
+     */
     @Test
     public void emptyUsernameShowsError() throws InterruptedException {
-        // Leave username empty, fill password, and click login
         onView(withId(R.id.SUsername)).perform(replaceText(""));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
         onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
@@ -83,54 +111,74 @@ public class SignUpTest {
         // Check that the username field shows the error
         onView(withId(R.id.SUsername)).check(matches(hasErrorText("Username cannot be empty!")));
     }
+
+    /**
+     * Tests that leaving the email field empty shows an error.
+     *
+     * @throws InterruptedException if the thread sleep is interrupted.
+     */
     @Test
     public void emptyEmailShowsError() throws InterruptedException {
-        // Leave email empty, fill password, and click login
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
         onView(withId(R.id.SEmail)).perform(replaceText(""));
         onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
         onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
-        // Check that the email field shows the error
         onView(withId(R.id.SEmail)).check(matches(hasErrorText("Email cannot be empty!")));
     }
+
+    /**
+     * Tests that leaving the mobile number field empty shows an error.
+     *
+     * @throws InterruptedException if the thread sleep is interrupted.
+     */
     @Test
     public void emptyMobileShowsError() throws InterruptedException {
-        // Leave username empty, fill password, and click login
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
         onView(withId(R.id.SMobile)).perform(replaceText(""));
         onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
-        // Check that the username field shows the error
         onView(withId(R.id.SMobile)).check(matches(hasErrorText("Mobile number cannot be empty!")));
     }
+
+    /**
+     * Tests that leaving the password field empty shows an error.
+     *
+     * @throws InterruptedException if the thread sleep is interrupted.
+     */
     @Test
     public void emptyPasswordShowsError() throws InterruptedException {
-        // Leave username empty, fill password, and click login
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
         onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
         onView(withId(R.id.SPassword)).perform(replaceText(""));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
-        // Check that the username field shows the error
         onView(withId(R.id.SPassword)).check(matches(hasErrorText("Password cannot be empty!")));
     }
+
+    /**
+     * Tests that attempting to sign up with a duplicate username shows an error.
+     *
+     * @throws InterruptedException if the thread sleep is interrupted.
+     */
     @Test
     public void duplicateUsernameShowsError() throws InterruptedException {
-        // Leave username empty, fill password, and click login
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
         onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
         onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
-        // Check that the username field shows the error
         onView(withId(R.id.SUsername)).check(matches(hasErrorText("Username already exists. Please Choose a different Username")));
     }
+
+    /**
+     * Cleans up the seeded documents from the Firestore emulator after each test.
+     */
     @After
     public void tearDown() {
         String projectId = "ctrlaltelite-be29f";
