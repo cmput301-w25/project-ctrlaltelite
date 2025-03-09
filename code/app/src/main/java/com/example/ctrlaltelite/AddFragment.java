@@ -71,6 +71,10 @@ public class AddFragment extends Fragment {
 
     private int maxSize = 65536;
 
+    /**
+     * This is a function that sets up the Firebase reference, photo picker and permission launcher for calling
+     * @param @Nullable Bundle savedInstanceState
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,7 +162,7 @@ public class AddFragment extends Fragment {
 
     }
 
-    private  void setupDropdownSocialSituation(){
+    private void setupDropdownSocialSituation(){
         // Social Situation Spinner setup
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 requireContext(),
@@ -177,6 +181,9 @@ public class AddFragment extends Fragment {
         buttonUpload.setOnClickListener(v -> selectPhoto());
     }
 
+    /**
+     * This is a function that checks for gallery access permissions and starts a photo picker
+     */
     private void selectPhoto() {
         //If app has permission
         if (ContextCompat.checkSelfPermission(
@@ -292,6 +299,7 @@ public class AddFragment extends Fragment {
                     Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private GeoPoint getUserLocation() {
         // Example latitude and longitude values
