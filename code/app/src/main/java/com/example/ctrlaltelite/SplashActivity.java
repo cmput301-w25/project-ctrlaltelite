@@ -10,8 +10,17 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class SplashActivity extends AppCompatActivity {
+/**
+ * The {@code SplashActivity} serves as the introductory screen displayed when the app launches.
+ */
 
+public class SplashActivity extends AppCompatActivity {
+    /**
+     * Called when the activity is created.
+     * Initializes the splash screen and starts a timer to transition to the main activity.
+     *
+     * @param savedInstanceState The saved instance state, if available.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);

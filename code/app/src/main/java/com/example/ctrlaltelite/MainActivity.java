@@ -22,11 +22,25 @@ import com.google.android.material.navigation.NavigationBarView;
 import java.util.ArrayList;
 
 import com.google.firebase.firestore.FirebaseFirestore;
-
+/**
+ * The {@code MainActivity} serves as the entry point of the application and manages
+ * navigation between different fragments using a bottom navigation bar.
+ */
 public class MainActivity extends AppCompatActivity {
+    /** Firebase Firestore instance for potential database interactions. */
     private FirebaseFirestore db;
+
+    /** Stores the logged-in user's username. */
     private String username;
     BottomNavigationView bottomNavigationView;
+
+    /**
+     * Called when the activity is first created. It initializes the UI, retrieves
+     * user information, and sets up the bottom navigation.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously
+     *                           being shut down, this contains the saved state.
+     */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +59,12 @@ public class MainActivity extends AppCompatActivity {
         fragmentRepl(new HomeFragment());
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            /**
+             * Handles navigation item selection by replacing the current fragment with the selected one.
+             *
+             * @param item The selected menu item.
+             * @return {@code true} if the navigation event is handled successfully.
+             */
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
@@ -78,6 +98,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    /**
+     * Replaces the current fragment with a new one and passes the username to the fragment.
+     *
+     * @param fragment The fragment to be displayed.
+     */
 
     protected void fragmentRepl(Fragment fragment){
         Bundle bundle = new Bundle();

@@ -150,8 +150,12 @@ public class HomeFragment extends Fragment {
         // Initialize Spinner
         Spinner moodFilter = view.findViewById(R.id.mood_filter);
         // Get mood options from resources
-        List<String> moodOptionsList = Arrays.asList(getResources().getStringArray(R.array.mood_options));
-        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodOptionsList);
+        List<String> moodFilterOptions = new ArrayList<>();
+        moodFilterOptions.add("Mood");  // Default text only for the filter
+        moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 7)); // Skip "Select Emotional State"
+
+        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions);
+        moodFilter.setAdapter(moodAdapter);
 
         moodFilter.setAdapter(moodAdapter);
 
