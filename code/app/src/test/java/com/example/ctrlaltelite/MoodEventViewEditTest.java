@@ -188,4 +188,30 @@ public class MoodEventViewEditTest {
         verify(mockDocRef).set(moodEvent);
         verify(mockAdapter, never()).notifyDataSetChanged();
     }
+
+    @Test
+    public void testDeleteMoodIsSuccessful() throws NoSuchFieldException, IllegalAccessException {
+
+        // Adding two mood events for our test uesr
+        MoodEvent test1MoodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", "2025-03-07", null, null, "testUser");
+        test1MoodEvent.setDocumentId("test1Id");
+
+        MoodEvent test2MoodEvent = new MoodEvent("Sad", "Bad day", "Enemy", "Not Alone", "2025-03-09", null, null, "testUser");
+        test2MoodEvent.setDocumentId("test2Id");
+
+        List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
+        moodEventsList.add(test1MoodEvent);
+
+        when(mockTask.addOnSuccessListener(any())).thenAnswer(invocation -> {
+            invocation.getArgument(0, com.google.android.gms.tasks.OnSuccessListener.class).onSuccess(null);
+            return mockTask; // Ensure chaining
+        });
+
+        // Deleting the first mood event
+        fragment.DeleteMoodEventAndUpdateDatabaseUponDeletion(test2MoodEvent);
+
+        // Ensuring a DocumentReference was deleted
+        verify(mockDocRef).delete();
+
+    }
 }
