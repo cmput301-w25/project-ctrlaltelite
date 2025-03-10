@@ -64,12 +64,13 @@ public class Login extends AppCompatActivity {
                 String username = Username.getText().toString().trim();
                 String password = Password.getText().toString().trim();
 
-                if (username.isEmpty()){
-                    Username.setError("Username cannot be empty!");
-                    return;
-                }
-                if (password.isEmpty()){
-                    Password.setError("Password cannot be empty!");
+                if (!isInputValid(username, password)) {
+                    if (username.isEmpty()) {
+                        Username.setError("Username cannot be empty!");
+                    }
+                    if (password.isEmpty()) {
+                        Password.setError("Password cannot be empty!");
+                    }
                     return;
                 }
                 // Verify Credentials
@@ -135,5 +136,9 @@ public class Login extends AppCompatActivity {
 
         tvSignUpPrompt.setText(spannableString);
         tvSignUpPrompt.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+    public static boolean isInputValid(String username, String password) {
+        return username != null && !username.trim().isEmpty() &&
+                password != null && !password.trim().isEmpty();
     }
 }

@@ -81,33 +81,34 @@ public class SignUp extends AppCompatActivity {
                 String password = SPassword.getText().toString().trim();
 
                 // Validation Check
-                //Validate that no fields are empty
-                if (username.isEmpty()){
-                    SUsername.setError("Username cannot be empty!");
-                    return;
-                }
-                if (email.isEmpty()){
-                    SEmail.setError("Email cannot be empty!");
-                    return;
-                }
-                if (mobile.isEmpty()){
-                    SMobile.setError("Mobile number cannot be empty!");
-                    return;
-                }
-                if (password.isEmpty()){
-                    SPassword.setError("Password cannot be empty!");
-                    return;
-                }
-                // Validate that the mobile number is numeric
-                if (!isDigitsOnly(mobile)) {
-                    Toast.makeText(SignUp.this, "Please enter a valid numeric phone number", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                // Validate the email address format using regex
-                Matcher matcher = EMAIL_PATTERN.matcher(email);
-                if (!matcher.matches()) {
-                    SEmail.setError("Please enter a valid email address");
-                    return;
+                if (!isSignUpDataValid(username, email, mobile, password)) {
+                    if (username.isEmpty()) {
+                        SUsername.setError("Username cannot be empty!");
+                        return;
+                    }
+                    if (email.isEmpty()) {
+                        SEmail.setError("Email cannot be empty!");
+                        return;
+                    }
+                    if (mobile.isEmpty()) {
+                        SMobile.setError("Mobile number cannot be empty!");
+                        return;
+                    }
+                    if (password.isEmpty()) {
+                        SPassword.setError("Password cannot be empty!");
+                        return;
+                    }
+                    // Validate that the mobile number is numeric
+                    if (!isDigitsOnly(mobile)) {
+                        Toast.makeText(SignUp.this, "Please enter a valid numeric phone number", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    // Validate the email address format using regex
+                    Matcher matcher = EMAIL_PATTERN.matcher(email);
+                    if (!matcher.matches()) {
+                        SEmail.setError("Please enter a valid email address");
+                        return;
+                    }
                 }
                 // Check if the username already exists in the "users" collection
                 db.collection("users")
@@ -177,5 +178,20 @@ public class SignUp extends AppCompatActivity {
 
         tvLoginPrompt.setText(spannableString);
         tvLoginPrompt.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+    public static boolean isSignUpDataValid(String username, String email, String mobile, String password) {
+        if (username == null || username.trim().isEmpty()) {
+            return false;
+        }
+        if (email == null || email.trim().isEmpty() || !email.contains("@")) {
+            return false;
+        }
+        if (mobile == null || mobile.trim().isEmpty()) {
+            return false;
+        }
+        if (password == null || password.trim().isEmpty()) {
+            return false;
+        }
+        return true;
     }
 }

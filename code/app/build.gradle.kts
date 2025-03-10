@@ -36,6 +36,7 @@ android {
 dependencies {
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.fragment:fragment:1.6.2")
+    implementation(libs.core)
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:core:1.5.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

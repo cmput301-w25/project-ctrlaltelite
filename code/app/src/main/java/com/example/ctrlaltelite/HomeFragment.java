@@ -419,23 +419,26 @@ public class HomeFragment extends Fragment {
                 // Going through each snapshot to obtain the mood event info
                 for (QueryDocumentSnapshot snapshot : value) {
 
-                    // All mood event data
-                    String emotionalState = snapshot.getString("emotionalState");
-                    String reason = snapshot.getString("reason");
-                    String socialSituation = snapshot.getString("socialSituation");
-                    String timeStamp = snapshot.getString("timestamp");
-                    String trigger = snapshot.getString("trigger");
-                    String username = snapshot.getString("username");
-                    String imgPath = snapshot.getString("imgPath");
-                    String id = snapshot.getId();
-                    GeoPoint location = (GeoPoint) snapshot.get("location");
+                    // All mood event data of the user
+                    if (snapshot.getString("Username") == moodEvent.getUsername()) {
+                        String emotionalState = snapshot.getString("emotionalState");
+                        String reason = snapshot.getString("reason");
+                        String socialSituation = snapshot.getString("socialSituation");
+                        String timeStamp = snapshot.getString("timestamp");
+                        String trigger = snapshot.getString("trigger");
+                        String username = snapshot.getString("username");
+                        String imgPath = snapshot.getString("imgPath");
+                        String id = snapshot.getId();
+                        GeoPoint location = (GeoPoint) snapshot.get("location");
 
-                    // Creating new mood event with the data obtained above
-                    MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timeStamp, location, imgPath, username);
+                        // Creating new mood event with the data obtained above
+                        MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timeStamp, location, imgPath, username);
 
-                    // Add everything back into our mood events list
-                    moodEvents.add(updatedMoodEvent);
-                    updatedMoodEvent.setDocumentId(id);
+                        // Add everything back into our mood events list
+                        moodEvents.add(updatedMoodEvent);
+                        updatedMoodEvent.setDocumentId(id);
+                    }
+
                 }
                 // Updating display
                 adapter.notifyDataSetChanged();

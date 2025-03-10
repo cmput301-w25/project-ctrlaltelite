@@ -221,13 +221,9 @@ public class AddFragment extends Fragment {
             Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
             return;
         }
-        if (editSocialSituation.getSelectedItemPosition() == 0) {
-            Toast.makeText(getContext(), "Social situation cannot be the default option", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         String selectedEmotion = dropdownMood.getSelectedItem().toString();
-        String socialSituation = editSocialSituation.getSelectedItem().toString();
+        String socialSituation = editSocialSituation.getSelectedItemPosition() == 0 ? null : editSocialSituation.getSelectedItem().toString();
         String trigger = editTrigger.getText().toString();
         String timeStamp = String.valueOf(new Date());
         GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
@@ -249,6 +245,12 @@ public class AddFragment extends Fragment {
             return;
         }
         */
+
+        // Ensure either text reason or image is provided
+        if (reason.isEmpty() && imageRef == null) {
+            Toast.makeText(getContext(), "Either a reason or an image must be provided", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // Adding the conditions for the textual reason
         if (reason.length() > 20) {
