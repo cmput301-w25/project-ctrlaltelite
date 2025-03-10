@@ -371,7 +371,7 @@ public class HomeFragment extends Fragment {
                 return;
             }
 
-            String updatedMood = moodSpinner.getSelectedItem().toString();
+
             String updatedTrigger = triggerEditText.getText().toString().trim();
             String updatedSocialSituation = socialSituationSpinner.getSelectedItemPosition() == 0 ? null : socialSituationSpinner.getSelectedItem().toString();
             if (isMoodValid(updatedMood)) {
