@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/*
 import static android.app.Activity.RESULT_OK;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -80,7 +79,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * UI tests for mood event reason why visual explanation (US 02.02.01 and US 02.02.02)
  */
-/*
+
 @RunWith(AndroidJUnit4.class)
 public class UploadPhotoTest {
 
@@ -224,4 +223,3 @@ public class UploadPhotoTest {
         }
     }
 }
-*/
