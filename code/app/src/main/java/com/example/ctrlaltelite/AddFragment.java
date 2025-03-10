@@ -106,9 +106,8 @@ public class AddFragment extends Fragment {
                     } else {
                         //check file size and ensure less than 65536 bytes
                         Cursor returnCursor = getContext().getContentResolver().query(uri, null, null, null, null);
-                        if (returnCursor != null) {
+                        if (returnCursor != null && returnCursor.moveToFirst()) {
                             int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                            returnCursor.moveToFirst();
                             int imgSize = returnCursor.getInt(sizeIndex);
                             returnCursor.close();
                             if (imgSize < maxSize) {
@@ -258,7 +257,7 @@ public class AddFragment extends Fragment {
             return;
         }
 
-        String selectedEmotion = dropdownMood.getSelectedItem().toString();
+        String selectedEmotion = dropdownMood.getSelectedItem().toString().trim();
         String socialSituation = editSocialSituation.getSelectedItemPosition() == 0 ? null : editSocialSituation.getSelectedItem().toString();
         String trigger = editTrigger.getText().toString();
         String timeStamp = String.valueOf(new Date());
@@ -274,28 +273,25 @@ public class AddFragment extends Fragment {
         // Separating the reason by spaces
         String[] separationArray = reason.split(separator);
 
-        // Trying to implement setError instead of Toast Messages (will try to figure out later)
-        /*
-        if (reason.length() <= 20 || separationArray.length >= 4) {
-            editReason.setError("Reason Length Cannot Have More than 20 Characters or Have More Than 3 Words");
-            return;
-        }
-        */
+        if (!(isTextualReasonValid(reason))) {
 
-        // Ensure either text reason or image is provided
-        if (reason.isEmpty() && imageRef == null) {
-            Toast.makeText(getContext(), "Either a reason or an image must be provided", Toast.LENGTH_SHORT).show();
-            return;
-        }
+            // Ensure either text reason or image is provided
+            if (reason.isEmpty() && imageRef == null) {
+                editReason.setError("Either a reason or an image must be provided");
+                //Toast.makeText(getContext(), "Either a reason or an image must be provided", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-        // Adding the conditions for the textual reason
-        if (reason.length() > 20) {
-            Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        else if (separationArray.length >= 4) {
-            Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
-            return;
+            // Adding the conditions for the textual reason
+            if (reason.length() > 20) {
+                editReason.setError("Reason cannot have more than 20 characters");
+                //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
+                return;
+            } else if (separationArray.length >= 4) {
+                editReason.setError("Reason cannot be more than 3 words");
+                //Toast.makeText(getContext(), "Reason cannot be more than 3 words", Toast.LENGTH_SHORT).show();
+                return;
+            }
         }
 
         boolean isLocationEnabled = switchLocation.isChecked();
@@ -356,4 +352,20 @@ public class AddFragment extends Fragment {
 
         return new GeoPoint(latitude, longitude);
     }
+
+    /**
+     * Method to determine if textual reason is valid (mainly beneficial for unit testing)
+     * @param textualReason the textual reason the user wants to type in
+     * @return boolean value of whether or not the input textual reason is valid
+     */
+    public static boolean isTextualReasonValid(String textualReason) {
+        // Separator
+        String separator = " ";
+
+        // Separating the reason by spaces
+        String[] separationArray = textualReason.split(separator);
+
+        return !(textualReason.isEmpty() || separationArray.length >= 4 || textualReason.length() >= 20);
+    }
+
 }

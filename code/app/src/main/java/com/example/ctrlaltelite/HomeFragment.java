@@ -210,7 +210,8 @@ public class HomeFragment extends Fragment {
      * @return True if the mood is non-empty, false otherwise.
      */
     public boolean isMoodValid(String mood) {
-        return !Objects.equals(mood, "Select Emotional State");
+        return mood != null && !mood.trim().isEmpty() &&
+                !mood.equals("😐 Select Emotional State");
     }
 
     /**
@@ -334,10 +335,45 @@ public class HomeFragment extends Fragment {
              *
              * @param v The view that was clicked (the save button).
              */
+
             String updatedMood = moodSpinner.getSelectedItem().toString();
+            // Validate mood selection
+            if (!isMoodValid(updatedMood)) {
+                Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
             String updatedReason = reasonEditText.getText().toString().trim();
+
+            // Separator
+            String separator = " ";
+
+            // Separating the reason by spaces
+            String[] separationArray = updatedReason.split(separator);
+
+            // Ensure either text reason or image is provided
+            if (updatedReason.isEmpty()) {
+                reasonEditText.setError("Reason must be provided");
+                //Toast.makeText(getContext(), "Reason must be provided", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Adding the conditions for the textual reason
+            if (updatedReason.length() > 20) {
+                reasonEditText.setError("Reason cannot have more than 20 characters");
+                //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            else if (separationArray.length >= 4) {
+                reasonEditText.setError("Reason cannot be more than 3 words");
+                //Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
             String updatedTrigger = triggerEditText.getText().toString().trim();
-            String updatedSocialSituation = socialSituationSpinner.getSelectedItem().toString();
+            String updatedSocialSituation = socialSituationSpinner.getSelectedItemPosition() == 0 ? null : socialSituationSpinner.getSelectedItem().toString();
             if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
                 moodEvent.setReason(updatedReason);
@@ -496,4 +532,5 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "Failed to update mood in Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
+
 }
