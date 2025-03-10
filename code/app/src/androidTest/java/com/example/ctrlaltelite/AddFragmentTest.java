@@ -29,7 +29,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
+import java.lang.Thread;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -40,18 +40,24 @@ import java.util.Objects;
 
 
 @RunWith(AndroidJUnit4.class)
+@LargeTest
 public class AddFragmentTest {
 
     @Rule
-    public ActivityScenarioRule<MainActivity> activityScenarioRule =
-            new ActivityScenarioRule<>(MainActivity.class);
+    public ActivityScenarioRule<Login> scenario = new ActivityScenarioRule<>(Login.class);
 
     private void signIn() {
+
         Espresso.onView(ViewMatchers.withId(R.id.username))
                 .perform(ViewActions.typeText("ert"), ViewActions.closeSoftKeyboard());
         Espresso.onView(ViewMatchers.withId(R.id.password))
                 .perform(ViewActions.typeText("blah"), ViewActions.closeSoftKeyboard());
         Espresso.onView(ViewMatchers.withId(R.id.button_login)).perform(ViewActions.click());
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
@@ -73,6 +79,12 @@ public class AddFragmentTest {
 
         // Click Save
         Espresso.onView(ViewMatchers.withId(R.id.button_save)).perform(ViewActions.click());
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         // Check for success message
         Espresso.onView(ViewMatchers.withText("Mood event saved!"))
@@ -104,6 +116,12 @@ public class AddFragmentTest {
 
         // Click Save
         Espresso.onView(ViewMatchers.withId(R.id.button_save)).perform(ViewActions.click());
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         // Check for success message
         Espresso.onView(ViewMatchers.withText("Mood event saved!"))
