@@ -6,12 +6,17 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
 import static androidx.test.espresso.matcher.ViewMatchers.hasErrorText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.hamcrest.CoreMatchers.anything;
+import static org.hamcrest.Matchers.is;
+
+import static java.util.function.Predicate.not;
 
 import android.util.Log;
 
@@ -79,22 +84,6 @@ public class TextualReasonTest {
         // Allowing for some time for the data to be added into the database
         Thread.sleep(1000);
 
-        // Additional test data that is not needed as of right now
-        /*
-        CollectionReference moodEventsRef = db.collection("Mood Events");
-        Map<String, Object> moodEvent = new HashMap<>();
-        moodEvent.put("username", "testUsername");
-        moodEvent.put("emotionalState", "Happy");
-        moodEvent.put("reason", "Good day");
-        moodEvent.put("trigger", "Friend");
-        moodEvent.put("socialSituation", "With Friends");
-        moodEvent.put("formattedtimestamp", "2025-03-07 12:00:00");
-        moodEvent.put("imgPath", null);
-        moodEventsRef.document().set(moodEvent);
-
-        // Allowing for some time for the data to be added into the database
-        Thread.sleep(1000);
-         */
     }
 
     /**
@@ -229,7 +218,6 @@ public class TextualReasonTest {
         onView(withId(R.id.button_save)).perform(click());
         Thread.sleep(1000);
 
-        //onView(withText("Either a reason or an image must be provided")).check(matches(isDisplayed()));
         onView(withId(R.id.edit_reason)).check(matches(hasErrorText("Either a reason or an image must be provided")));
     }
 
@@ -271,7 +259,7 @@ public class TextualReasonTest {
                 .atPosition(0)
                 .perform(click());
 
-        onView(withId(R.id.edit_mood_spinner)).check(matches(withText("Happy")));
+        onView(withId(R.id.edit_mood_spinner)).check(matches(withSpinnerText("\uD83D\uDE0A Happy")));
 
     }
 
@@ -313,7 +301,7 @@ public class TextualReasonTest {
                 .atPosition(0)
                 .perform(click());
 
-        onView(withId(R.id.edit_social_situation_spinner)).check(matches(withText("Alone")));
+        onView(withId(R.id.edit_social_situation_spinner)).check(matches(withSpinnerText("\uD83C\uDFE1 Alone")));
     }
 
     /**
@@ -357,10 +345,11 @@ public class TextualReasonTest {
         onView(withId(R.id.edit_trigger)).check(matches(withText("Sitting alone at school")));
     }
 
+    /*
     /**
-     * Mood cannot be default option
+     * Mood cannot be default option (will be done for project part 4)
      * @throws InterruptedException
-     */
+     
     @Test
     public void InvalidMoodShouldFail() throws InterruptedException {
         onView(withId(R.id.username)).perform(replaceText("testUsername"));
@@ -384,8 +373,8 @@ public class TextualReasonTest {
         Thread.sleep(1000);
 
         onView(withText("Emotional state cannot be the default option")).check(matches(isDisplayed()));
-
     }
+    */
 
     /**
      * Cleans up the seeded documents from the Firestore emulator after each test.

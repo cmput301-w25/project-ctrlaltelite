@@ -156,7 +156,7 @@ public class UploadPhotoTest {
         intended(expectedIntent);
 
         //Uploaded image should be shown
-        //onView(withId(R.id.uploaded_image)).check(matches(isDisplayed()));
+        onView(withId(R.id.uploaded_image)).check(matches(isDisplayed()));
 
     }
 
