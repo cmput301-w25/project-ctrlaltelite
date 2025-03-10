@@ -44,33 +44,55 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 
-// Import the MoodEvent class
 
 
+/**
+ * Fragment for adding a mood event.
+ * Users can select a mood, provide a reason and a trigger, upload an image, specify a social situation, and choose to attach their location.
+ */
 public class AddFragment extends Fragment {
 
+    /** Spinner for selecting mood */
     private Spinner dropdownMood;
+    /** Spinner for selecting social situation (optional) */
     private Spinner editSocialSituation;
-    private EditText editReason, editTrigger;
+    /** EditText for entering reason */
+    protected EditText editReason;
+    /** EditText for entering reason */
+    private EditText editTrigger;
+    /** Switch for enabling location tracking */
     private Switch switchLocation;
+    /** Buttons for saving, canceling, and uploading an image */
     private Button buttonSave, buttonCancel, buttonUpload;
+    /** Username of the logged-in user */
     private  String username;
 
-    private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
+    /** Firebase Firestore database instance */
+    protected FirebaseFirestore db;
+    /** Firebase Authentication instance */
+    protected FirebaseAuth mAuth;
 
-    private FirebaseStorage storage;
+    /** Firebase Storage instance for image uploads */
+    protected FirebaseStorage storage;
     private StorageReference storageRef;
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
     private ActivityResultLauncher<String> requestPermissionLauncher;
 
-    private Uri imageRef = null;
+    /** Reference to the uploaded image */
+    protected Uri imageRef = null;
 
     private String imgPath = null; //default, no image
     private ImageView imagePreview;
 
+    /** Max allowed image size in bytes */
     private int maxSize = 65536;
 
+
+
+    /**
+     * Initializes fragment and registers media pickers.
+     * @param savedInstanceState The saved state of the fragment.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +134,14 @@ public class AddFragment extends Fragment {
                 });
     }
 
+    /**
+     * Creates and returns the view for the fragment.
+     * @param inflater Layout inflater
+     * @param container View container
+     * @param savedInstanceState The saved state of the fragment
+     * @return The created View
+     */
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -123,7 +153,6 @@ public class AddFragment extends Fragment {
 
         if (getArguments() != null) {
             username = getArguments().getString("username");
-
         }
 
 
@@ -146,6 +175,7 @@ public class AddFragment extends Fragment {
         return view;
     }
 
+    /** Sets up the mood selection dropdown. */
     private void setupDropdown() {
         // Selecting Mood Spinner setup
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
@@ -158,6 +188,7 @@ public class AddFragment extends Fragment {
 
     }
 
+    /** Sets up the social situation dropdown. */
     private  void setupDropdownSocialSituation(){
         // Social Situation Spinner setup
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
@@ -168,6 +199,8 @@ public class AddFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         editSocialSituation.setAdapter(adapter);
     }
+
+    /** Sets up button click listeners. */
     private void setupButtons() {
         buttonSave.setOnClickListener(v -> saveMoodEvent(username));
         buttonCancel.setOnClickListener(v -> {
@@ -177,6 +210,7 @@ public class AddFragment extends Fragment {
         buttonUpload.setOnClickListener(v -> selectPhoto());
     }
 
+    /** Handles selecting and uploading a photo. */
     private void selectPhoto() {
         //If app has permission
         if (ContextCompat.checkSelfPermission(
@@ -192,7 +226,7 @@ public class AddFragment extends Fragment {
         }
     }
 
-
+    /** Navigates back to the home fragment. */
     private void navigateToHome() {
         if (getActivity() instanceof MainActivity) {
             // First, change the fragment
@@ -206,7 +240,11 @@ public class AddFragment extends Fragment {
         }
     }
 
-    private void saveMoodEvent(String uName) {
+    /**
+     * Saves a mood event, ensuring a reason or image is provided.
+     * @param uName The username of the logged-in user.
+     */
+    protected void saveMoodEvent(String uName) {
         if (dropdownMood.getSelectedItemPosition() == 0) {
             Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
             return;
@@ -281,6 +319,10 @@ public class AddFragment extends Fragment {
     }
 
     // Add this new method to handle Firestore saving and set the docId
+    /**
+     * Saves the mood event to Firestore.
+     * @param moodEvent The mood event to save.
+     */
     private void saveToFirestore(MoodEvent moodEvent) {
         db.collection("Mood Events")
                 .add(moodEvent)
@@ -295,6 +337,10 @@ public class AddFragment extends Fragment {
                 });
     }
 
+    /**
+     * Gets the user's current location as a GeoPoint.
+     * @return The user's location.
+     */
     private GeoPoint getUserLocation() {
         // Example latitude and longitude values
         double latitude = 53.5;
