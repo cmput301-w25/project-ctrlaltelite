@@ -154,6 +154,7 @@ public class UploadPhotoTest {
         // Click the upload button
         onView(withId(R.id.button_upload)).perform(click());
         intended(expectedIntent);
+
         //Uploaded image should be shown
         //onView(withId(R.id.uploaded_image)).check(matches(isDisplayed()));
 
@@ -166,14 +167,12 @@ public class UploadPhotoTest {
         return new Instrumentation.ActivityResult(RESULT_OK, resultIntent);
     }
 
-
-
     private void seedTestData() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         Map<String, Object> moodEvent = new HashMap<>();
         moodEvent.put("username", testUsername);
         moodEvent.put("emotionalState", "Happy");
-        moodEvent.put("reason", "Good day");
+        //moodEvent.put("reason", "Good day");
         moodEvent.put("trigger", "Friend");
         moodEvent.put("socialSituation", "With Friends");
         moodEvent.put("timestamp", "2025-03-07 12:00:00");
