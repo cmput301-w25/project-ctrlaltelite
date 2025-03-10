@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Class to check conditions for the textual reason
+ * Class to check conditions for the textual reason - US 02.01
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -79,7 +79,7 @@ public class TextualReasonTest {
         // Allowing for some time for the data to be added into the database
         Thread.sleep(1000);
 
-
+        // Additional test data that is not needed as of right now
         /*
         CollectionReference moodEventsRef = db.collection("Mood Events");
         Map<String, Object> moodEvent = new HashMap<>();

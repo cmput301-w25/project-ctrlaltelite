@@ -142,7 +142,7 @@ public class MoodEventViewDeleteEditUITest {
     }
 
     /**
-     * Checking to see if a mood event is deleted upon pressing the delete button
+     * Checking to see if a mood event is deleted upon pressing the delete button - US 01.06
      */
     @Test
     public void DeleteMoodEventIsSuccessful() {
@@ -163,7 +163,10 @@ public class MoodEventViewDeleteEditUITest {
         onView(withId(R.id.mood_list)).check(matches(hasChildCount(0)));
     }
 
-
+    /**
+     * Adding test data
+     * @throws InterruptedException
+     */
     private void seedTestData() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         Map<String, Object> moodEvent = new HashMap<>();
