@@ -114,9 +114,6 @@ public class UploadPhotoTest {
         IdlingRegistry.getInstance().unregister(idlingResource);
     }
 
-    /**
-     *
-     */
     @Test
     public void testUploadPhoto() {
         //What is expected when photo picker
