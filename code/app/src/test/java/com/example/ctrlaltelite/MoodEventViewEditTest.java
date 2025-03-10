@@ -4,10 +4,12 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -110,7 +112,7 @@ public class MoodEventViewEditTest {
     @Test
     public void testFetchMoodEvents_Success() throws NoSuchFieldException, IllegalAccessException {
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
-        MoodEvent moodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", "2025-03-07", null, null, "testUser");
+        MoodEvent moodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", Timestamp.now(), null, null, "testUser");
         moodEvent.setDocumentId("testId");
 
         // Mock the QuerySnapshot to return a single document
@@ -131,7 +133,7 @@ public class MoodEventViewEditTest {
 
         verify(mockCollectionRef).whereEqualTo("username", "testUser");
         verify(mockQuery).get();
-        verify(mockAdapter).notifyDataSetChanged();
+        verify(mockAdapter, times(2)).notifyDataSetChanged();
         assert moodEventsList.size() == 1;
         assert moodEventsList.get(0).equals(moodEvent);
         assert moodEventsList.get(0).getDocumentId().equals("testId");
@@ -146,7 +148,7 @@ public class MoodEventViewEditTest {
      */
     @Test
     public void testUpdateMoodEventInFirestore_Success() throws NoSuchFieldException, IllegalAccessException {
-        MoodEvent moodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", "2025-03-07", null, null, "testUser");
+        MoodEvent moodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", Timestamp.now(), null, null, "testUser");
         moodEvent.setDocumentId("testId");
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
         moodEventsList.add(moodEvent);
@@ -171,7 +173,7 @@ public class MoodEventViewEditTest {
      */
     @Test
     public void testUpdateMoodEventInFirestore_Failure() throws NoSuchFieldException, IllegalAccessException {
-        MoodEvent moodEvent = new MoodEvent("Sad", "Bad day", "Work", "With others", "2025-03-07", null, null, "testUser");
+        MoodEvent moodEvent = new MoodEvent("Sad", "Bad day", "Work", "With others", Timestamp.now(), null, null, "testUser");
         moodEvent.setDocumentId("testId");
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
         moodEventsList.add(moodEvent);
@@ -193,11 +195,8 @@ public class MoodEventViewEditTest {
     public void testDeleteMoodIsSuccessful() throws NoSuchFieldException, IllegalAccessException {
 
         // Adding two mood events for our test uesr
-        MoodEvent test1MoodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", "2025-03-07", null, null, "testUser");
+        MoodEvent test1MoodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", Timestamp.now(), null, null, "testUser");
         test1MoodEvent.setDocumentId("test1Id");
-
-        MoodEvent test2MoodEvent = new MoodEvent("Sad", "Bad day", "Enemy", "Not Alone", "2025-03-09", null, null, "testUser");
-        test2MoodEvent.setDocumentId("test2Id");
 
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
         moodEventsList.add(test1MoodEvent);
@@ -208,7 +207,7 @@ public class MoodEventViewEditTest {
         });
 
         // Deleting the first mood event
-        fragment.DeleteMoodEventAndUpdateDatabaseUponDeletion(test2MoodEvent);
+        fragment.DeleteMoodEventAndUpdateDatabaseUponDeletion(test1MoodEvent);
 
         // Ensuring a DocumentReference was deleted
         verify(mockDocRef).delete();
