@@ -5,6 +5,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasChildCount;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -12,7 +13,6 @@ import static org.hamcrest.Matchers.anything;
 
 import android.os.Bundle;
 
-import androidx.test.core.app.ActivityScenario;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -20,6 +20,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -35,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  * UI tests for mood event viewing and editing functionalities US 01.04.01 and 01.05.01 using Espresso.
  */
 @RunWith(AndroidJUnit4.class)
-public class MoodEventViewEditUITest {
+public class MoodEventViewDeleteEditUITest {
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
@@ -139,6 +140,29 @@ public class MoodEventViewEditUITest {
                 .perform(click());
         onView(withId(R.id.edit_reason_edittext)).check(matches(withText("Great day")));
     }
+
+    /**
+     * Checking to see if a mood event is deleted upon pressing the delete button
+     */
+    @Test
+    public void DeleteMoodEventIsSuccessful() {
+
+        // Click the first item in the mood list to open the edit dialog
+        onData(CoreMatchers.anything())
+                .inAdapterView(withId(R.id.mood_list))
+                .atPosition(0)
+                .perform(click());
+
+        // Submit form
+        onView(withId(R.id.delete_button)).perform(click());
+
+        // Wait for Firestore update
+        idlingResource.waitForIdle();
+
+        // Check that there is nothing in the display view now
+        onView(withId(R.id.mood_list)).check(matches(hasChildCount(0)));
+    }
+
 
     private void seedTestData() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);

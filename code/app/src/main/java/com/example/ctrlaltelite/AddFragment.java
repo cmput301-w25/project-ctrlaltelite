@@ -251,17 +251,20 @@ public class AddFragment extends Fragment {
 
         // Ensure either text reason or image is provided
         if (reason.isEmpty() && imageRef == null) {
-            Toast.makeText(getContext(), "Either a reason or an image must be provided", Toast.LENGTH_SHORT).show();
+            editReason.setError("Either a reason or an image must be provided");
+            //Toast.makeText(getContext(), "Either a reason or an image must be provided", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // Adding the conditions for the textual reason
         if (reason.length() > 20) {
-            Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
+            editReason.setError("Reason cannot have more than 20 characters");
+            //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
             return;
         }
         else if (separationArray.length >= 4) {
-            Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
+            editReason.setError("Reason cannot be more than 3 words");
+            //Toast.makeText(getContext(), "Reason cannot be more than 3 words", Toast.LENGTH_SHORT).show();
             return;
         }
 
