@@ -334,8 +334,32 @@ public class HomeFragment extends Fragment {
              *
              * @param v The view that was clicked (the save button).
              */
-            String updatedMood = moodSpinner.getSelectedItem().toString();
+
             String updatedReason = reasonEditText.getText().toString().trim();
+
+            // Separator
+            String separator = " ";
+
+            // Separating the reason by spaces
+            String[] separationArray = updatedReason.split(separator);
+
+            // Ensure either text reason or image is provided
+            if (updatedReason.isEmpty()) {
+                Toast.makeText(getContext(), "Reason must be provided", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Adding the conditions for the textual reason
+            if (updatedReason.length() > 20) {
+                Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            else if (separationArray.length >= 4) {
+                Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String updatedMood = moodSpinner.getSelectedItem().toString();
             String updatedTrigger = triggerEditText.getText().toString().trim();
             String updatedSocialSituation = socialSituationSpinner.getSelectedItem().toString();
             if (isMoodValid(updatedMood)) {
@@ -496,4 +520,5 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "Failed to update mood in Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
+
 }
