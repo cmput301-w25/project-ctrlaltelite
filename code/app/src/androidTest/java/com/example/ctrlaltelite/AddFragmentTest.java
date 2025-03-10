@@ -46,8 +46,19 @@ public class AddFragmentTest {
     public ActivityScenarioRule<MainActivity> activityScenarioRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
+    private void signIn() {
+        Espresso.onView(ViewMatchers.withId(R.id.username))
+                .perform(ViewActions.typeText("ert"), ViewActions.closeSoftKeyboard());
+        Espresso.onView(ViewMatchers.withId(R.id.password))
+                .perform(ViewActions.typeText("blah"), ViewActions.closeSoftKeyboard());
+        Espresso.onView(ViewMatchers.withId(R.id.button_login)).perform(ViewActions.click());
+    }
+
     @Test
     public void testAddingMoodEventWithTextReason() {
+        // Sign in first
+        signIn();
+
         // Navigate to Add Mood Event fragment
         Espresso.onView(ViewMatchers.withId(R.id.btnNav)).perform(ViewActions.click());
         Espresso.onView(ViewMatchers.withId(R.id.add)).perform(ViewActions.click());
@@ -70,6 +81,9 @@ public class AddFragmentTest {
 
     @Test
     public void testAddingMoodEventWithImage() {
+        // Sign in first
+        signIn();
+
         // Navigate to Add Mood Event fragment
         Espresso.onView(ViewMatchers.withId(R.id.btnNav)).perform(ViewActions.click());
         Espresso.onView(ViewMatchers.withId(R.id.add)).perform(ViewActions.click());
@@ -78,8 +92,15 @@ public class AddFragmentTest {
         Espresso.onView(ViewMatchers.withId(R.id.dropdown_mood)).perform(ViewActions.click());
         Espresso.onData(org.hamcrest.Matchers.anything()).atPosition(1).perform(ViewActions.click());
 
-        // Upload an image (mocked, as Espresso cannot interact with external pickers)
+        // Request image permission if necessary
+        Espresso.onView(ViewMatchers.withText("Allow access to photos?"))
+                .perform(ViewActions.click());
+
+        // Upload an image (mocking selection from gallery)
         Espresso.onView(ViewMatchers.withId(R.id.button_upload)).perform(ViewActions.click());
+        Espresso.onView(ViewMatchers.withText("Choose an image"))
+                .perform(ViewActions.click());
+        Espresso.onData(org.hamcrest.Matchers.anything()).atPosition(0).perform(ViewActions.click());
 
         // Click Save
         Espresso.onView(ViewMatchers.withId(R.id.button_save)).perform(ViewActions.click());
@@ -89,3 +110,4 @@ public class AddFragmentTest {
                 .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
     }
 }
+
