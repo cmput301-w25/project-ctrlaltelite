@@ -210,8 +210,6 @@ public class MoodEventViewEditTest {
         // Deleting the first mood event
         fragment.DeleteMoodEventAndUpdateDatabaseUponDeletion(test2MoodEvent);
 
-        // verify(mockAdapter).notifyDataSetChanged();
-
         // Ensuring a DocumentReference was deleted
         verify(mockDocRef).delete();
 
