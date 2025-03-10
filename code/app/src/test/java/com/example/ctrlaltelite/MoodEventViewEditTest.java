@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -132,7 +133,7 @@ public class MoodEventViewEditTest {
 
         verify(mockCollectionRef).whereEqualTo("username", "testUser");
         verify(mockQuery).get();
-        verify(mockAdapter).notifyDataSetChanged();
+        verify(mockAdapter, times(2)).notifyDataSetChanged();
         assert moodEventsList.size() == 1;
         assert moodEventsList.get(0).equals(moodEvent);
         assert moodEventsList.get(0).getDocumentId().equals("testId");
