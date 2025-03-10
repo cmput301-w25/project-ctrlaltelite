@@ -1,35 +1,53 @@
 package com.example.ctrlaltelite;
 
+import static org.junit.Assert.assertFalse;
+
 import org.junit.Test;
 
+/**
+ * Testing the Conditions for Textual Reason in AddFragment (and by extension HomeFragment too as the same conditions
+ *      are checked in each class)
+ */
 public class TextualReasonUnitTest {
 
+    /**
+     * Checking to see if AddFragment invalidates an empty textual reason
+     */
     @Test
-    public testEmptyTextualReason() {
-        private String mockTextualReason = "";
+    public void testEmptyTextualReason() {
+        String mockTextualReason = "";
         boolean result = AddFragment.isTextualReasonValid(mockTextualReason);
         assertFalse("Expected non-empty textual reason", result);
     }
 
+    /**
+     * Checking to see if AddFragment invalidates a textual reason with too many words (4 or more)
+     */
     @Test
-    public testTextualReasonWithTooManyWords() {
-        private String mockTextualReason = "I am very lonely";
+    public void testTextualReasonWithTooManyWords() {
+        String mockTextualReason = "I am very lonely";
         boolean result = AddFragment.isTextualReasonValid(mockTextualReason);
         assertFalse("Expected Textual Reason with 3 Words or Less", result);
     }
 
+    /**
+     * Checking to see if AddFragment invalidates a textual reason with too many characters (20 or more)
+     */
     @Test
-    public testTextualReasonWithTooManyCharacter() {
-        private String mockTextualReason = "Absolutely insurmountable loneliness";
+    public void testTextualReasonWithTooManyCharacter() {
+        String mockTextualReason = "Absolutely insurmountable loneliness";
         boolean result = AddFragment.isTextualReasonValid(mockTextualReason);
-        assertFalse("Expected Textual Reason with 20 characters or Less");
+        assertFalse("Expected Textual Reason with 20 characters or Less", result);
     }
 
+    /**
+     * Checking to see if AddFragment validates a valid textual reason
+     */
     @Test
-    public testValidTextualReason() {
-        private String mockTextualReason = "I am lonely";
+    public void testValidTextualReason() {
+        String mockTextualReason = "I am lonely";
         boolean result = AddFragment.isTextualReasonValid(mockTextualReason);
-        assertTrue("Valid Textual Reason", result);
+        assert result;
     }
 
 }
