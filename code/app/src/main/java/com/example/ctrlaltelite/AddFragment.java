@@ -87,20 +87,21 @@ public class AddFragment extends Fragment {
                     } else {
                         //check file size and ensure less than 65536 bytes
                         Cursor returnCursor = getContext().getContentResolver().query(uri, null, null, null, null);
-                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                        returnCursor.moveToFirst();
-                        int imgSize = returnCursor.getInt(sizeIndex);
-                        returnCursor.close();
-                        if (imgSize < maxSize) {
-                            imagePreview.setImageURI(uri);
-                            imagePreview.setVisibility(VISIBLE);
-                            buttonUpload.setEnabled(false);
-                            imageRef = uri; //for uploading purposes
-                            Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                        if (returnCursor != null) {
+                            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                            returnCursor.moveToFirst();
+                            int imgSize = returnCursor.getInt(sizeIndex);
+                            returnCursor.close();
+                            if (imgSize < maxSize) {
+                                imagePreview.setImageURI(uri);
+                                imagePreview.setVisibility(VISIBLE);
+                                buttonUpload.setEnabled(false);
+                                imageRef = uri; //for uploading purposes
+                                Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
+                            }
+                        }}
                 });
 
         requestPermissionLauncher =
