@@ -55,15 +55,15 @@ import java.util.HashMap;
 public class AddFragment extends Fragment {
 
     /** Spinner for selecting mood */
-    private Spinner dropdownMood;
+    protected Spinner dropdownMood;
     /** Spinner for selecting social situation (optional) */
-    private Spinner editSocialSituation;
+    protected Spinner editSocialSituation;
     /** EditText for entering reason */
     protected EditText editReason;
     /** EditText for entering reason */
-    private EditText editTrigger;
+    protected EditText editTrigger;
     /** Switch for enabling location tracking */
-    private Switch switchLocation;
+    protected Switch switchLocation;
     /** Buttons for saving, canceling, and uploading an image */
     private Button buttonSave, buttonCancel, buttonUpload;
     /** Username of the logged-in user */
