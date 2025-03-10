@@ -40,6 +40,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -148,12 +149,10 @@ public class HomeFragment extends Fragment {
 
         // Initialize Spinner
         Spinner moodFilter = view.findViewById(R.id.mood_filter);
-        ArrayAdapter<CharSequence> moodAdapter = ArrayAdapter.createFromResource(
-                requireContext(),
-                R.array.mood_options,
-                android.R.layout.simple_spinner_item
-        );
-        moodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Get mood options from resources
+        List<String> moodOptionsList = Arrays.asList(getResources().getStringArray(R.array.mood_options));
+        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodOptionsList);
+
         moodFilter.setAdapter(moodAdapter);
 
         // Initialize ListView
@@ -297,9 +296,13 @@ public class HomeFragment extends Fragment {
         }
 
         // Populate Mood Spinner
-        ArrayAdapter<String> moodAdapter = new ArrayAdapter<>(requireContext(),
-                android.R.layout.simple_spinner_item,
-                getResources().getStringArray(R.array.mood_options));
+        // Get mood options from resources
+        List<String> moodOptionsList = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.mood_options)));
+        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodOptionsList);
+
+        moodSpinner.setAdapter(moodAdapter);
+
+
         moodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         moodSpinner.setAdapter(moodAdapter);
         int moodPosition = moodAdapter.getPosition(moodEvent.getEmotionalState());

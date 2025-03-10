@@ -45,6 +45,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         socialSituationText.setText(moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "");
         timestampText.setText(moodEvent.getFormattedTimestamp());
 
+        moodText.setTextColor(getColorForMood(moodEvent.getEmotionalState()));
+
 
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
@@ -59,4 +61,18 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 
         return convertView;
     }
+    private int getColorForMood(String mood) {
+        switch (mood) {
+            case "😊 Happy": return 0xFFFFC107; // Amber
+            case "😢 Sad": return 0xFF2196F3; // Blue
+            case "😲 Surprised": return 0xFFFF5722; // Orange
+            case "😡 Angry": return 0xFFD32F2F; // Red
+            case "🤢 Disgust": return 0xFF4CAF50; // Green
+            case "😕 Confusion": return 0xFF9C27B0; // Purple
+            default: return 0xFF616161; // Default Gray
+        }
+
+
+
+}
 }
