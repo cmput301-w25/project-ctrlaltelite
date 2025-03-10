@@ -337,8 +337,6 @@ public class HomeFragment extends Fragment {
              */
 
             String updatedMood = moodSpinner.getSelectedItem().toString();
-
-
             // Validate mood selection
             if (!isMoodValid(updatedMood)) {
                 Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
@@ -356,17 +354,20 @@ public class HomeFragment extends Fragment {
 
             // Ensure either text reason or image is provided
             if (updatedReason.isEmpty()) {
-                Toast.makeText(getContext(), "Reason must be provided", Toast.LENGTH_SHORT).show();
+                reasonEditText.setError("Reason must be provided");
+                //Toast.makeText(getContext(), "Reason must be provided", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             // Adding the conditions for the textual reason
             if (updatedReason.length() > 20) {
-                Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
+                reasonEditText.setError("Reason cannot have more than 20 characters");
+                //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
                 return;
             }
             else if (separationArray.length >= 4) {
-                Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
+                reasonEditText.setError("Reason cannot be more than 3 words");
+                //Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
                 return;
             }
 
