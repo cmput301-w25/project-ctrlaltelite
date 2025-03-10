@@ -4,12 +4,13 @@ import android.graphics.Picture;
 
 import com.google.firebase.firestore.GeoPoint;
 
+
 public class MoodEvent {
 
-    private String emotionalState;  // Required
-    private String trigger;         // Optional
-    private String socialSituation; // Optional
-    private String timestamp;       // Required
+    private String emotionalState;  
+    private String trigger;
+    private String socialSituation;
+    private String timestamp;
     private String Username;
     private String reason;
 
@@ -23,6 +24,11 @@ public class MoodEvent {
     }
 
     // Constructor to initialize the required fields (emotional state and timestamp)
+
+    /**
+     *
+     * @param emotionalState
+     */
     public MoodEvent(String emotionalState) {
         this.emotionalState = emotionalState;
         this.timestamp = getTimestamp(); // Set current timestamp
