@@ -43,7 +43,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         reasonText.setText(moodEvent.getReason() != null ? moodEvent.getReason() : "");
         triggerText.setText(moodEvent.getTrigger() != null ? moodEvent.getTrigger() : "");
         socialSituationText.setText(moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "");
-        timestampText.setText(moodEvent.getTimestamp());
+        timestampText.setText(moodEvent.getFormattedTimestamp());
+
 
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
