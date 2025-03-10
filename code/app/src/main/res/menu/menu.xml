@@ -4,29 +4,25 @@
     <item
         android:icon="@drawable/home_3__streamline_core_svg"
         android:id="@+id/home"
-        android:title="History"
+
         />
 
     <item
         android:icon="@drawable/ic_baseline_map_45"
-        android:id="@+id/map"
-        android:title="Map"/>
+        android:id="@+id/map" />
 
     <item
         android:icon="@drawable/baseline_add_circle_outline_42"
-        android:id="@+id/add"
-        android:title="Add"/>
+        android:id="@+id/add" />
 
 
     <item
         android:icon="@drawable/following"
-        android:id="@+id/following"
-        android:title="Following"/>
+        android:id="@+id/following" />
 
     <item
         android:icon="@drawable/profile"
-        android:id="@+id/profile"
-        android:title="Profile"/>
+        android:id="@+id/profile" />
 
 
 </menu>
