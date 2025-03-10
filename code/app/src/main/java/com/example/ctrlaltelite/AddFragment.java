@@ -258,7 +258,7 @@ public class AddFragment extends Fragment {
             return;
         }
 
-        String selectedEmotion = dropdownMood.getSelectedItem().toString();
+        String selectedEmotion = dropdownMood.getSelectedItem().toString().trim();
         String socialSituation = editSocialSituation.getSelectedItemPosition() == 0 ? null : editSocialSituation.getSelectedItem().toString();
         String trigger = editTrigger.getText().toString();
         String timeStamp = String.valueOf(new Date());

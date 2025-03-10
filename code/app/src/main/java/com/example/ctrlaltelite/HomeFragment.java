@@ -210,7 +210,8 @@ public class HomeFragment extends Fragment {
      * @return True if the mood is non-empty, false otherwise.
      */
     public boolean isMoodValid(String mood) {
-        return !Objects.equals(mood, "Select Emotional State");
+        return mood != null && !mood.trim().isEmpty() &&
+                !mood.equals("😐 Select Emotional State");
     }
 
     /**
@@ -335,9 +336,17 @@ public class HomeFragment extends Fragment {
              * @param v The view that was clicked (the save button).
              */
             String updatedMood = moodSpinner.getSelectedItem().toString();
+
+
+            // Validate mood selection
+            if (!isMoodValid(updatedMood)) {
+                Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             String updatedReason = reasonEditText.getText().toString().trim();
             String updatedTrigger = triggerEditText.getText().toString().trim();
-            String updatedSocialSituation = socialSituationSpinner.getSelectedItem().toString();
+            String updatedSocialSituation = socialSituationSpinner.getSelectedItemPosition() == 0 ? null : socialSituationSpinner.getSelectedItem().toString();
             if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
                 moodEvent.setReason(updatedReason);

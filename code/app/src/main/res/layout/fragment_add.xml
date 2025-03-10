@@ -42,7 +42,8 @@
         app:layout_constraintTop_toBottomOf="@id/Required"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:theme="@style/SpinnerTextStyle"/>
     <EditText
         android:id="@+id/edit_reason"
         android:layout_width="match_parent"
