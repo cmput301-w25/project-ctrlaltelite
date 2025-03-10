@@ -14,6 +14,12 @@ import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
+/**
+ * Custom adapter for displaying MoodEvent objects in a ListView.
+ * This adapter binds mood event details, including mood, reason, trigger, timestamp,
+ * social situation, and an optional image.
+ */
+
 public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     private FirebaseStorage storage;
     private StorageReference storageRef;
@@ -61,6 +67,13 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 
         return convertView;
     }
+
+    /**
+     * Determines the text color for the mood text based on the mood type.
+     *
+     * @param mood The mood description.
+     * @return The corresponding color value.
+     */
     private int getColorForMood(String mood) {
         switch (mood) {
             case "😊 Happy": return 0xFFFFC107; // Amber
