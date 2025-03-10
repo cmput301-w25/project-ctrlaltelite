@@ -46,7 +46,9 @@ import java.util.HashMap;
 
 // Import the MoodEvent class
 
-
+/**
+* This class is for the Fragment which allows creation of a new Mood Event taking user input for emotional state, reason why, trigger and social situation, as well as images and geolocation
+ */
 public class AddFragment extends Fragment {
 
     private Spinner dropdownMood;
@@ -71,6 +73,10 @@ public class AddFragment extends Fragment {
 
     private int maxSize = 65536;
 
+    /**
+     * This is a function that sets up the Firebase reference, photo picker and permission launcher for calling
+     * @param @Nullable Bundle savedInstanceState
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,20 +89,21 @@ public class AddFragment extends Fragment {
                     } else {
                         //check file size and ensure less than 65536 bytes
                         Cursor returnCursor = getContext().getContentResolver().query(uri, null, null, null, null);
-                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                        returnCursor.moveToFirst();
-                        int imgSize = returnCursor.getInt(sizeIndex);
-                        returnCursor.close();
-                        if (imgSize < maxSize) {
-                            imagePreview.setImageURI(uri);
-                            imagePreview.setVisibility(VISIBLE);
-                            buttonUpload.setEnabled(false);
-                            imageRef = uri; //for uploading purposes
-                            Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                        if (returnCursor != null) {
+                            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                            returnCursor.moveToFirst();
+                            int imgSize = returnCursor.getInt(sizeIndex);
+                            returnCursor.close();
+                            if (imgSize < maxSize) {
+                                imagePreview.setImageURI(uri);
+                                imagePreview.setVisibility(VISIBLE);
+                                buttonUpload.setEnabled(false);
+                                imageRef = uri; //for uploading purposes
+                                Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
+                            }
+                        }}
                 });
 
         requestPermissionLauncher =
@@ -158,7 +165,7 @@ public class AddFragment extends Fragment {
 
     }
 
-    private  void setupDropdownSocialSituation(){
+    private void setupDropdownSocialSituation(){
         // Social Situation Spinner setup
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 requireContext(),
@@ -174,9 +181,15 @@ public class AddFragment extends Fragment {
             // Navigate to the home screen fragment using the parent activity's method
             navigateToHome();
         });
+        /**
+         * Connects the Upload Media button to the functionality of selecting a photo
+         */
         buttonUpload.setOnClickListener(v -> selectPhoto());
     }
 
+    /**
+     * This is a function that checks for gallery access permissions and starts a photo picker
+     */
     private void selectPhoto() {
         //If app has permission
         if (ContextCompat.checkSelfPermission(
@@ -294,6 +307,7 @@ public class AddFragment extends Fragment {
                     Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
                 });
     }
+
 
     private GeoPoint getUserLocation() {
         // Example latitude and longitude values
