@@ -2,4 +2,14 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="mood_happy">#FFD700</color> <!-- Gold -->
+    <color name="mood_sad">#2196F3</color>   <!-- Blue -->
+    <color name="mood_surprised">#00BCD4</color> <!-- Cyan -->
+    <color name="mood_angry">#F44336</color> <!-- Red -->
+    <color name="mood_disgust">#4CAF50</color> <!-- Green -->
+    <color name="mood_confusion">#9E9E9E</color> <!-- Gray -->
+
 </resources>
+
+
+
