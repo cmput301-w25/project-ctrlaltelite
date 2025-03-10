@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "622340895309",
+    "project_id": "ctrlaltelite-be29f",
+    "storage_bucket": "ctrlaltelite-be29f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:622340895309:android:51274989ad598350e3a204",
+        "android_client_info": {
+          "package_name": "com.example.ctrlaltelite"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCo5nfuBovWE0p7YS59k9TmQRHmUYy7BJA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
