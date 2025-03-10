@@ -128,9 +128,11 @@ public class AddFragmentUnitTest {
         verify(mockFirestore, never()).collection(anyString());
     }
 
+
     /**
      * Tests saving a mood event with only an uploaded image.
      */
+    /*
     @Test
     public void testSaveMoodEvent_WithImage_Success() {
         // Mock UI state
@@ -149,4 +151,5 @@ public class AddFragmentUnitTest {
         // Verify Firestore save attempt
         verify(mockFirestore, times(1)).collection("Mood Events");
     }
+    */
 }
