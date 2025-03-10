@@ -44,6 +44,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 
+// Import the MoodEvent class
 
 
 /**
@@ -105,20 +106,21 @@ public class AddFragment extends Fragment {
                     } else {
                         //check file size and ensure less than 65536 bytes
                         Cursor returnCursor = getContext().getContentResolver().query(uri, null, null, null, null);
-                        int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                        returnCursor.moveToFirst();
-                        int imgSize = returnCursor.getInt(sizeIndex);
-                        returnCursor.close();
-                        if (imgSize < maxSize) {
-                            imagePreview.setImageURI(uri);
-                            imagePreview.setVisibility(VISIBLE);
-                            buttonUpload.setEnabled(false);
-                            imageRef = uri; //for uploading purposes
-                            Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
-                        }
-                    }
+                        if (returnCursor != null) {
+                            int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
+                            returnCursor.moveToFirst();
+                            int imgSize = returnCursor.getInt(sizeIndex);
+                            returnCursor.close();
+                            if (imgSize < maxSize) {
+                                imagePreview.setImageURI(uri);
+                                imagePreview.setVisibility(VISIBLE);
+                                buttonUpload.setEnabled(false);
+                                imageRef = uri; //for uploading purposes
+                                Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
+                            }
+                        }}
                 });
 
         requestPermissionLauncher =
@@ -153,6 +155,7 @@ public class AddFragment extends Fragment {
 
         if (getArguments() != null) {
             username = getArguments().getString("username");
+
         }
 
 
@@ -207,10 +210,15 @@ public class AddFragment extends Fragment {
             // Navigate to the home screen fragment using the parent activity's method
             navigateToHome();
         });
+        /**
+         * Connects the Upload Media button to the functionality of selecting a photo
+         */
         buttonUpload.setOnClickListener(v -> selectPhoto());
     }
 
-    /** Handles selecting and uploading a photo. */
+    /**
+     * This is a function that checks for gallery access permissions and starts a photo picker
+     */
     private void selectPhoto() {
         //If app has permission
         if (ContextCompat.checkSelfPermission(
