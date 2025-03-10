@@ -57,15 +57,15 @@ import java.util.HashMap;
 public class AddFragment extends Fragment {
 
     /** Spinner for selecting mood */
-    private Spinner dropdownMood;
+    protected Spinner dropdownMood;
     /** Spinner for selecting social situation (optional) */
-    private Spinner editSocialSituation;
+    protected Spinner editSocialSituation;
     /** EditText for entering reason */
     protected EditText editReason;
     /** EditText for entering reason */
-    private EditText editTrigger;
+    protected EditText editTrigger;
     /** Switch for enabling location tracking */
-    private Switch switchLocation;
+    protected Switch switchLocation;
     /** Buttons for saving, canceling, and uploading an image */
     private Button buttonSave, buttonCancel, buttonUpload;
     /** Username of the logged-in user */
@@ -278,18 +278,18 @@ public class AddFragment extends Fragment {
             // Ensure either text reason or image is provided
             if (reason.isEmpty() && imageRef == null) {
                 editReason.setError("Either a reason or an image must be provided");
-                //Toast.makeText(getContext(), "Either a reason or an image must be provided", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Either a reason or an image must be provided", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             // Adding the conditions for the textual reason
             if (reason.length() > 20) {
                 editReason.setError("Reason cannot have more than 20 characters");
-                //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
                 return;
             } else if (separationArray.length >= 4) {
                 editReason.setError("Reason cannot be more than 3 words");
-                //Toast.makeText(getContext(), "Reason cannot be more than 3 words", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Reason cannot be more than 3 words", Toast.LENGTH_SHORT).show();
                 return;
             }
         }

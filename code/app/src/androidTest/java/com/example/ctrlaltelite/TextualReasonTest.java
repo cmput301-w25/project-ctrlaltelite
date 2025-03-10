@@ -123,7 +123,10 @@ public class TextualReasonTest {
                 .inAdapterView(withId(R.id.mood_list))
                 .atPosition(0)
                 .perform(click());
+        onView(withId(R.id.edit_mood_spinner)).check(matches(withText("Happy")));
         onView(withId(R.id.edit_reason_edittext)).check(matches(withText("Feeling alone")));
+        onView(withId(R.id.edit_trigger)).check(matches(withText("Sitting alone at school")));
+        onView(withId(R.id.edit_social_situation_spinner)).check(matches(withText("Alone")));
 
     }
 
