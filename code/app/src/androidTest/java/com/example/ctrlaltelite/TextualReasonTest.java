@@ -88,7 +88,7 @@ public class TextualReasonTest {
         moodEvent.put("reason", "Good day");
         moodEvent.put("trigger", "Friend");
         moodEvent.put("socialSituation", "With Friends");
-        moodEvent.put("timestamp", "2025-03-07 12:00:00");
+        moodEvent.put("formattedtimestamp", "2025-03-07 12:00:00");
         moodEvent.put("imgPath", null);
         moodEventsRef.document().set(moodEvent);
 
@@ -354,29 +354,10 @@ public class TextualReasonTest {
         onView(withId(R.id.edit_trigger)).check(matches(withText("Sitting alone at school")));
     }
 
-    @Test
-    public void InvalidSocialSituationShouldFail() throws InterruptedException {
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
-
-        onView(withId(R.id.add)).perform(click());
-
-        onView(withId(R.id.dropdown_mood)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
-
-        onView(withId(R.id.edit_reason)).perform(typeText(""));
-
-        onView(withId(R.id.social_situation_spinner)).perform(click());
-        onData(anything()).atPosition(0).perform(click());
-
-        onView(withId(R.id.button_save)).perform(click());
-        Thread.sleep(1000);
-    }
-
+    /**
+     * Mood cannot be default option
+     * @throws InterruptedException
+     */
     @Test
     public void InvalidMoodShouldFail() throws InterruptedException {
         onView(withId(R.id.username)).perform(replaceText("testUsername"));
@@ -399,32 +380,9 @@ public class TextualReasonTest {
         onView(withId(R.id.button_save)).perform(click());
         Thread.sleep(1000);
 
+        onView(withText("Emotional state cannot be the default option")).check(matches(isDisplayed()));
 
     }
-
-    @Test
-    public void InvalidTriggerShouldFail() throws InterruptedException {
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
-
-        onView(withId(R.id.add)).perform(click());
-
-        onView(withId(R.id.dropdown_mood)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
-
-        onView(withId(R.id.edit_reason)).perform(typeText(""));
-
-        onView(withId(R.id.social_situation_spinner)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-
-        onView(withId(R.id.button_save)).perform(click());
-        Thread.sleep(1000);
-    }
-
 
     /**
      * Cleans up the seeded documents from the Firestore emulator after each test.
