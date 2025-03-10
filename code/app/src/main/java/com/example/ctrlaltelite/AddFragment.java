@@ -181,6 +181,9 @@ public class AddFragment extends Fragment {
             // Navigate to the home screen fragment using the parent activity's method
             navigateToHome();
         });
+        /**
+         * Connects the Upload Media button to the functionality of selecting a photo
+         */
         buttonUpload.setOnClickListener(v -> selectPhoto());
     }
 
