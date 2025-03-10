@@ -561,6 +561,7 @@ public class HomeFragment extends Fragment {
                      */
                     Log.d("HomeFragment", "Successfully updated MoodEvent with ID: " + docId + " in Firestore");
                     moodEvents.set(position, moodEvent);
+                    toggleSort();
                     adapter.notifyDataSetChanged();
                     Toast.makeText(getContext(), "Mood updated successfully", Toast.LENGTH_SHORT).show();
                 })
