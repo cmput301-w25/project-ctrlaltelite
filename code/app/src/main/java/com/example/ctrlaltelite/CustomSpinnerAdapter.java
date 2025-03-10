@@ -11,16 +11,34 @@ import android.view.LayoutInflater;
 
 import java.util.List;
 
+/**
+ * Custom adapter for a spinner that changes text color based on the selected mood.
+ */
 public class CustomSpinnerAdapter extends ArrayAdapter<String> {
     private Context context;
     private List<String> items;
 
+    /**
+     * Constructor for the CustomSpinnerAdapter.
+     *
+     * @param context The current context.
+     * @param items   The list of mood options.
+     */
     public CustomSpinnerAdapter(Context context, List<String> items) {
         super(context, android.R.layout.simple_spinner_item, items);
         this.context = context;
         this.items = items;
     }
 
+
+    /**
+     * Returns the selected item view with custom text color.
+     *
+     * @param position    The selected item's position.
+     * @param convertView The recycled view.
+     * @param parent      The parent ViewGroup.
+     * @return The view for the selected item.
+     */
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
@@ -33,6 +51,15 @@ public class CustomSpinnerAdapter extends ArrayAdapter<String> {
         return convertView;
     }
 
+
+    /**
+     * Returns the dropdown view for each item in the spinner.
+     *
+     * @param position    The position of the item.
+     * @param convertView The recycled view.
+     * @param parent      The parent ViewGroup.
+     * @return The view for the dropdown item.
+     */
     @Override
     public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
@@ -45,6 +72,13 @@ public class CustomSpinnerAdapter extends ArrayAdapter<String> {
         return convertView;
     }
 
+
+    /**
+     * Returns the color corresponding to the mood at the given position.
+     *
+     * @param position The index of the mood in the list.
+     * @return The color code for the mood.
+     */
     private int getColorForPosition(int position) {
         switch (position) {
             case 1: return 0xFFFFC107; // Happy (Amber)
