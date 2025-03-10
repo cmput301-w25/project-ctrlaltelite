@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
@@ -261,7 +262,7 @@ public class AddFragment extends Fragment {
         String selectedEmotion = dropdownMood.getSelectedItem().toString().trim();
         String socialSituation = editSocialSituation.getSelectedItemPosition() == 0 ? null : editSocialSituation.getSelectedItem().toString();
         String trigger = editTrigger.getText().toString();
-        String timeStamp = String.valueOf(new Date());
+        Timestamp timeStamp = Timestamp.now();
         GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
 
 
@@ -307,7 +308,8 @@ public class AddFragment extends Fragment {
 
         MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username);
         if (imageRef != null) {
-            String imgPath = "images/" + userId + timeStamp + ".png";
+            String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
+
             StorageReference fileRef = storageRef.child(imgPath);
             fileRef.putFile(imageRef)
                     .addOnSuccessListener(taskSnapshot -> {
