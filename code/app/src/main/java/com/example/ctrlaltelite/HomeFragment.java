@@ -1,4 +1,6 @@
 package com.example.ctrlaltelite;
+
+
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -27,15 +29,18 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -44,6 +49,7 @@ import java.util.Objects;
  * Integrates with Firebase Firestore for data storage and Firebase Storage for image handling.
  */
 public class HomeFragment extends Fragment {
+    private boolean isSorted = false; // Tracks sorting state
 
     private ListView listView;
     private MoodEventAdapter adapter;
@@ -171,6 +177,18 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+
+    public void toggleSort() {
+        if (moodEvents == null || moodEvents.isEmpty()) return;
+
+
+        moodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
+
+        adapter.notifyDataSetChanged();
+    }
+
+
+
     /**
      * Fetches mood events associated with the current user from Firestore and updates the local
      * list and UI adapter. Clears the existing list before adding new data.
@@ -179,6 +197,7 @@ public class HomeFragment extends Fragment {
         db.collection("Mood Events")
                 .whereEqualTo("username", Username) // Matches Firestore field name
                 .get()
+
                 .addOnCompleteListener(task -> {
                     /**
                      * Processes the result of fetching mood events from Firestore.
@@ -194,6 +213,10 @@ public class HomeFragment extends Fragment {
                             Log.d("HomeFragment", "Fetched MoodEvent with ID: " + docId + " - " + moodEvent.toString());
                             moodEvents.add(moodEvent);
                         }
+
+                        toggleSort();
+
+
                         adapter.notifyDataSetChanged();
                         Log.d("HomeFragment", "Mood events fetched: " + moodEvents.size());
                     } else {
@@ -385,11 +408,14 @@ public class HomeFragment extends Fragment {
                         java.text.DateFormat.MEDIUM,
                         java.util.Locale.getDefault() // Use local formatting
                 );
-                String currentTimestamp = dateFormat.format(new java.util.Date());
+
+                Timestamp currentTimestamp = Timestamp.now();
                 moodEvent.setTimestamp(currentTimestamp);
+
                 Log.d("HomeFragment", "Saving MoodEvent with docId: " + moodEvent.getDocumentId());
                 if (newImageRef != null) {
-                    String newImgPath = "images/" + Username + currentTimestamp + ".png";
+                    String newImgPath = "images/" + Username + "_" + currentTimestamp.toDate().getTime() + ".png";
+
                     StorageReference fileRef = storageRef.child(newImgPath);
                     fileRef.putFile(newImageRef)
                             .addOnSuccessListener(taskSnapshot -> {
@@ -460,7 +486,23 @@ public class HomeFragment extends Fragment {
                         String emotionalState = snapshot.getString("emotionalState");
                         String reason = snapshot.getString("reason");
                         String socialSituation = snapshot.getString("socialSituation");
-                        String timeStamp = snapshot.getString("timestamp");
+
+                        Object timestampObj = snapshot.get("timestamp");
+                        Timestamp timestamp = null;
+
+
+                        if (timestampObj instanceof Timestamp) {
+                            timestamp = (Timestamp) timestampObj;
+                        } else if (timestampObj instanceof String) {
+                            try {
+                                timestamp = new Timestamp(new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", java.util.Locale.US)
+                                        .parse((String) timestampObj));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+
                         String trigger = snapshot.getString("trigger");
                         String username = snapshot.getString("username");
                         String imgPath = snapshot.getString("imgPath");
@@ -468,7 +510,7 @@ public class HomeFragment extends Fragment {
                         GeoPoint location = (GeoPoint) snapshot.get("location");
 
                         // Creating new mood event with the data obtained above
-                        MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timeStamp, location, imgPath, username);
+                        MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timestamp, location, imgPath, username);
 
                         // Add everything back into our mood events list
                         moodEvents.add(updatedMoodEvent);

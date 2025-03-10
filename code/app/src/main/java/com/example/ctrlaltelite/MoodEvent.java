@@ -2,7 +2,12 @@ package com.example.ctrlaltelite;
 
 import android.graphics.Picture;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.GeoPoint;
+
+import java.util.Locale;
+import java.text.SimpleDateFormat;
+
 
 /**
  * Represents a mood event recorded by a user.
@@ -17,7 +22,7 @@ public class MoodEvent {
     /** The social situation during the mood event */
     private String socialSituation;
     /** The timestamp when the event was recorded */
-    private String timestamp;
+    private Timestamp  timestamp;
     /** The username of the user who recorded the event */
     private String Username;
     /** The reason for the mood */
@@ -44,7 +49,7 @@ public class MoodEvent {
      */
     public MoodEvent(String emotionalState) {
         this.emotionalState = emotionalState;
-        this.timestamp = getTimestamp(); // Set current timestamp
+        this.timestamp = Timestamp.now(); // Set current timestamp
     }
 
     /**
@@ -58,7 +63,7 @@ public class MoodEvent {
      * @param imgPath The path to the uploaded image.
      * @param Username The username of the person recording the event.
      */
-    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, String timestamp, GeoPoint location, String imgPath, String Username) {
+    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, Timestamp timestamp, GeoPoint location, String imgPath, String Username) {
 
         this.emotionalState = emotionalState;
         this.reason = reason;
@@ -81,12 +86,20 @@ public class MoodEvent {
     }
 
     /** sets the timestamp of the event. */
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
     /** @return The timestamp of the event. */
-    public String getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
+    }
+
+
+    /**  Convert Timestamp to String for displaying in ListView. */
+    public String getFormattedTimestamp() {
+        if (timestamp == null) return "Unknown Date";
+        return new java.text.SimpleDateFormat("EEE, MMM d, yyyy hh:mm a", java.util.Locale.US)
+                .format(timestamp.toDate());
     }
 
     /** @return The location of the event. */
@@ -148,7 +161,7 @@ public class MoodEvent {
                 "emotionalState='" + emotionalState + '\'' +
                 ", trigger='" + trigger + '\'' +
                 ", socialSituation='" + socialSituation + '\'' +
-                ", timestamp='" + timestamp + '\'' +
+                ", timestamp='" + getFormattedTimestamp() + '\'' +
                 '}';
     }
 
