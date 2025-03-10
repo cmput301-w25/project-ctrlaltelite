@@ -106,9 +106,8 @@ public class AddFragment extends Fragment {
                     } else {
                         //check file size and ensure less than 65536 bytes
                         Cursor returnCursor = getContext().getContentResolver().query(uri, null, null, null, null);
-                        if (returnCursor != null) {
+                        if (returnCursor != null && returnCursor.moveToFirst()) {
                             int sizeIndex = returnCursor.getColumnIndex(OpenableColumns.SIZE);
-                            returnCursor.moveToFirst();
                             int imgSize = returnCursor.getInt(sizeIndex);
                             returnCursor.close();
                             if (imgSize < maxSize) {
