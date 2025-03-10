@@ -46,7 +46,9 @@ import java.util.HashMap;
 
 // Import the MoodEvent class
 
-
+/**
+* This class is for the Fragment which allows creation of a new Mood Event taking user input for emotional state, reason why, trigger and social situation, as well as images and geolocation
+ */
 public class AddFragment extends Fragment {
 
     private Spinner dropdownMood;
