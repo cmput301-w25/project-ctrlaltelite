@@ -161,7 +161,7 @@ public class MoodEventViewEditTest {
         fragment.updateMoodEventInFirestore(moodEvent, 0);
 
         verify(mockDocRef).set(moodEvent);
-        verify(mockAdapter).notifyDataSetChanged();
+        verify(mockAdapter, times(2)).notifyDataSetChanged();
         assert moodEventsList.get(0) == moodEvent;
     }
 
