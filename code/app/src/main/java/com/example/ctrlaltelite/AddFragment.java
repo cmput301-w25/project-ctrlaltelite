@@ -41,7 +41,9 @@ import com.google.firebase.storage.StorageReference;
 
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -180,28 +182,25 @@ public class AddFragment extends Fragment {
 
     /** Sets up the mood selection dropdown. */
     private void setupDropdown() {
-        // Selecting Mood Spinner setup
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                requireContext(),
-                R.array.mood_options,
-                android.R.layout.simple_spinner_item
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Convert the string-array to List<String>
+        List<String> moodOptions = Arrays.asList(getResources().getStringArray(R.array.mood_options));
+
+        // Use the custom adapter
+        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(requireContext(), moodOptions);
         dropdownMood.setAdapter(adapter);
 
     }
 
     /** Sets up the social situation dropdown. */
     private  void setupDropdownSocialSituation(){
-        // Social Situation Spinner setup
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                requireContext(),
-                R.array.social_situation_options,
-                android.R.layout.simple_spinner_item
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Convert the array to List<String>
+        List<String> socialOptions = Arrays.asList(getResources().getStringArray(R.array.social_situation_options));
+
+        // Use the custom adapter for colored items
+        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(requireContext(), socialOptions);
         editSocialSituation.setAdapter(adapter);
     }
+
 
     /** Sets up button click listeners. */
     private void setupButtons() {
