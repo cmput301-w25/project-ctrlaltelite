@@ -23,6 +23,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.Firebase;
@@ -80,6 +81,58 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap = googleMap;
         this.googleMap.getUiSettings().setZoomControlsEnabled(true);
+        // Set a custom info window adapter for displaying mood event details
+        googleMap.setInfoWindowAdapter(new InfoWindowAdapter() {
+            @Nullable
+            @Override
+            public View getInfoWindow(Marker marker) {
+                // Use default frame; return null so getInfoContents() is called.
+                return null;
+            }
+            @Override
+            public View getInfoContents(Marker marker) {
+                // Retrieve the MoodEvent from the marker's tag
+                Object tag = marker.getTag();
+                if (tag instanceof MoodEvent) {
+                    MoodEvent moodEvent = (MoodEvent) tag;
+                    // Create a vertical LinearLayout to hold the content
+                    LinearLayout infoLayout = new LinearLayout(getContext());
+                    infoLayout.setOrientation(LinearLayout.VERTICAL);
+                    infoLayout.setPadding(20, 20, 20, 20);
+
+                    // Title: Emotional State (with emoji)
+                    TextView title = new TextView(getContext());
+                    title.setText(moodEvent.getEmotionalState());
+                    title.setTextColor(Color.BLACK);
+                    title.setTextSize(16);
+                    title.setGravity(Gravity.CENTER);
+                    infoLayout.addView(title);
+
+                    // Description: Reason, Trigger, Social Situation, Timestamp
+                    TextView description = new TextView(getContext());
+                    StringBuilder descBuilder = new StringBuilder();
+                    if (moodEvent.getReason() != null && !moodEvent.getReason().isEmpty()) {
+                        descBuilder.append("Reason: ").append(moodEvent.getReason()).append("\n");
+                    }
+                    if (moodEvent.getTrigger() != null && !moodEvent.getTrigger().isEmpty()) {
+                        descBuilder.append("Trigger: ").append(moodEvent.getTrigger()).append("\n");
+                    }
+                    if (moodEvent.getSocialSituation() != null && !moodEvent.getSocialSituation().isEmpty()) {
+                        descBuilder.append("Social: ").append(moodEvent.getSocialSituation()).append("\n");
+                    }
+                    if (moodEvent.getTimestamp() != null) {
+                        descBuilder.append("Time: ").append(moodEvent.getFormattedTimestamp());
+                    }
+                    description.setText(descBuilder.toString());
+                    description.setTextColor(Color.DKGRAY);
+                    description.setTextSize(14);
+                    infoLayout.addView(description);
+
+                    return infoLayout;
+                }
+                return null;
+            }
+        });
         //Query Firebase for Mood Events with locations
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Mood Events").get().addOnCompleteListener(task -> {
@@ -106,7 +159,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     .position(moodLocation)
                                     .icon(getMarkerIcon(emoji));
 
-                            googleMap.addMarker(markerOptions);
+                            Marker marker = googleMap.addMarker(markerOptions);
+                            marker.setTag(moodEvent);
                         }
                     }catch (Exception e){
                         Log.e(TAG,"Error parsing Document: "+documentSnapshot.getId(),e);
