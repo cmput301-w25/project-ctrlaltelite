@@ -157,8 +157,6 @@ public class HomeFragment extends Fragment {
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions);
         moodFilter.setAdapter(moodAdapter);
 
-        moodFilter.setAdapter(moodAdapter);
-
         // Initialize ListView
         listView = view.findViewById(R.id.mood_list);
         if (listView == null) {
@@ -436,7 +434,7 @@ public class HomeFragment extends Fragment {
                                 }
                                 else
                                 {
-                                    if (moodEvent.getImgPath().equals("null"))
+                                    if (Objects.equals(moodEvent.getImgPath(), "null"))
                                     {
                                         imagePreview.setVisibility(View.GONE);
                                     }
