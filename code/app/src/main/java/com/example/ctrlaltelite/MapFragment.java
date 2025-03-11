@@ -1,22 +1,28 @@
 package com.example.ctrlaltelite;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 
-/**
- * The {@code MapFragment} displays a map interface where users can
- * view mood-related location data.
- */
+public class MapFragment extends Fragment implements OnMapReadyCallback {
+    private GoogleMap googleMap;
+    private static final String TAG = "MapFragment";
 
-public class MapFragment extends Fragment {
-    /**
-     * Default constructor required for fragment creation.
-     */
     public MapFragment() {
         // Required empty public constructor
     }
@@ -45,5 +51,22 @@ public class MapFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // Attempt to get the SupportMapFragment from the child FragmentManager
+        SupportMapFragment mapFragment = (SupportMapFragment)
+                getChildFragmentManager().findFragmentById(R.id.id_map);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        } else {
+            Log.e(TAG, "MapFragment is null.");
+        }
+    }
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
     }
 }
