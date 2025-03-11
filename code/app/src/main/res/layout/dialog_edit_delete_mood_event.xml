@@ -57,7 +57,8 @@
             android:layout_height="wrap_content"
             android:text="* Required"
             android:textColor="#F44336"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="40dp"/>
     </LinearLayout>
 
     <!-- Reason why for mood -->
