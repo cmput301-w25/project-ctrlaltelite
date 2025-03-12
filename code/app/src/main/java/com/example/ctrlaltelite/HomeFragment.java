@@ -268,10 +268,12 @@ public class HomeFragment extends AddFragment {
 
         if (!reasonFilter.isEmpty()) {
             List<MoodEvent> filteredList = moodEvents.stream()
-                    .filter(event -> event.getReason().toLowerCase().contains(reasonFilter))
+                    .filter(event -> Arrays.asList(event.getReason().toLowerCase().split("\\s+"))
+                    .contains(reasonFilter))
                     .collect(Collectors.toList());
             moodEvents.clear();
             moodEvents.addAll(filteredList);
+            Log.d("HomeFragment", "After reason filter: " + moodEvents.size() + " events");
         }
 
         moodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
