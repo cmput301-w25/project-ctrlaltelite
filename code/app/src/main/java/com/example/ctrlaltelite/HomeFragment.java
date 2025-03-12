@@ -193,27 +193,27 @@ public class HomeFragment extends Fragment {
 
 
     /**
-     * Fetches mood events associated with the current user from Firestore and updates the local
-     * list and UI adapter. Clears the existing list before adding new data.
+     * Listens for real-time updates to the mood events associated with the current user in Firestore.
+     * Automatically updates the local list and UI adapter whenever changes occur in the database.
      */
+
     public void fetchMoodEvents() {
         db.collection("Mood Events")
-                .whereEqualTo("username", Username) // Matches Firestore field name
-                .get()
+                .whereEqualTo("username", Username)
 
-                .addOnCompleteListener(task -> {
-                    /**
-                     * Processes the result of fetching mood events from Firestore.
-                     *
-                     * @param task The task containing the result of the Firestore query.
-                     */
-                    if (task.isSuccessful()) {
-                        moodEvents.clear();
-                        for (QueryDocumentSnapshot document : task.getResult()) {
+
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.e("HomeFragment", "Firestore Listen Failed: " + error.toString());
+                        return;
+                    }
+
+                    if (value != null) {
+                        moodEvents.clear(); // Clear the list before updating
+
+                        for (QueryDocumentSnapshot document : value) {
                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            String docId = document.getId();
-                            moodEvent.setDocumentId(docId);
-                            Log.d("HomeFragment", "Fetched MoodEvent with ID: " + docId + " - " + moodEvent.toString());
+                            moodEvent.setDocumentId(document.getId());
                             moodEvents.add(moodEvent);
                         }
 
@@ -221,10 +221,7 @@ public class HomeFragment extends Fragment {
 
 
                         adapter.notifyDataSetChanged();
-                        Log.d("HomeFragment", "Mood events fetched: " + moodEvents.size());
-                    } else {
-                        Log.w("HomeFragment", "Error fetching mood events", task.getException());
-                        Toast.makeText(getContext(), "Error loading mood events", Toast.LENGTH_SHORT).show();
+                        Log.d("HomeFragment", "Mood events updated in real-time: " + moodEvents.size());
                     }
                 });
     }
