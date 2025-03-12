@@ -1,6 +1,7 @@
 package com.example.ctrlaltelite;
 
 import android.content.Context;
+import android.util.Log;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -95,15 +96,24 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
-            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                Glide.with(getContext()).load(uri).into(moodImage);
-            }).addOnFailureListener(e -> {
-                moodImage.setVisibility(View.GONE);
-            });
+            Glide.with(getContext()).clear(moodImage); // Clear previous image to avoid recycling issues
+            imageRef.getDownloadUrl()
+                    .addOnSuccessListener(uri -> {
+                        Log.d("MoodEventAdapter", "Image URL fetched for " + moodEvent.getImgPath() + ": " + uri.toString());
+                        Glide.with(getContext())
+                                .load(uri)
+                                .into(moodImage);
+                        moodImage.setVisibility(View.VISIBLE); // Explicitly set visible on success
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("MoodEventAdapter", "Failed to fetch image URL for " + moodEvent.getImgPath() + ": " + e.getMessage());
+                        moodImage.setVisibility(View.GONE); // Hide on failure
+                    });
         } else {
-            moodImage.setVisibility(View.GONE);
+            Log.d("MoodEventAdapter", "No imgPath for mood event at position " + position);
+            Glide.with(getContext()).clear(moodImage); // Clear image if no path
+            moodImage.setVisibility(View.GONE); // Hide if no image
         }
-
         return convertView;
     }
 
