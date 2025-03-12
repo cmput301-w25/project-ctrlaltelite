@@ -36,6 +36,7 @@ android {
 dependencies {
 
     implementation(libs.espresso.intents)
+    implementation(libs.play.services.location)
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.fragment:fragment:1.6.2")

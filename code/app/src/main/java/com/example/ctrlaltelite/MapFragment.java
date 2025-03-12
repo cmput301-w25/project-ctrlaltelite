@@ -1,8 +1,13 @@
 package com.example.ctrlaltelite;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -11,9 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,11 +35,29 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.Firebase;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap googleMap;
     private static final String TAG = "MapFragment";
+    private int MAX_DISTANCE = 5000;    //MAX DISTANCE IN METRES
+    public static GeoPoint getUserLocation(Context context) {
+        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        // Remove previous updates if needed (optional)
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(context, "Location permission not granted", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        // Get last known location (this may be null)
+        Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (lastLocation != null) {
+            return new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude());
+        } else {
+            Toast.makeText(context, "Unable to retrieve location", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
 
     public MapFragment() {
         // Required empty public constructor
@@ -46,7 +71,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     /**
@@ -81,6 +105,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap = googleMap;
         this.googleMap.getUiSettings().setZoomControlsEnabled(true);
+        GeoPoint currentGeoPoint = getUserLocation(requireContext());
+        if (currentGeoPoint == null) {
+            Toast.makeText(getContext(),"No location retrieved",Toast.LENGTH_SHORT).show();
+        }
+        LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
         // Set a custom info window adapter for displaying mood event details
         googleMap.setInfoWindowAdapter(new InfoWindowAdapter() {
             @Nullable
@@ -108,7 +138,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     title.setGravity(Gravity.CENTER);
                     infoLayout.addView(title);
 
-                    // Description: Reason, Trigger, Social Situation, Timestamp
+                    // Description
                     TextView description = new TextView(getContext());
                     StringBuilder descBuilder = new StringBuilder();
                     if (moodEvent.getReason() != null && !moodEvent.getReason().isEmpty()) {
@@ -146,21 +176,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             double longitude = moodEvent.getLocation().getLongitude();
                             LatLng moodLocation = new LatLng(latitude,longitude);
 
-                            //Extract Emoji from mood Event
-                            String[] moodDesc = moodEvent.getEmotionalState().split(" ");
-                            String emoji = new String();
-                            if (moodDesc.length>0){
-                                emoji = moodDesc[0];
-                            }else{
-                                emoji = "";
-                            }
-                            //Change marker to the Mood Event Emoji
-                            MarkerOptions markerOptions = new MarkerOptions()
-                                    .position(moodLocation)
-                                    .icon(getMarkerIcon(emoji));
+                            //Calculate distance
+                            float[] results = new float[1];
+                            Location.distanceBetween(currentLatLng.latitude,currentLatLng.longitude,moodLocation.latitude,moodLocation.longitude,results);
+                            float distance = results[0];
+                            if (distance <= MAX_DISTANCE){
+                                //Extract Emoji from mood Event
+                                String[] moodDesc = moodEvent.getEmotionalState().split(" ");
+                                String emoji = new String();
+                                if (moodDesc.length>0){
+                                    emoji = moodDesc[0];
+                                }else{
+                                    emoji = "";
+                                }
+                                //Change marker to the Mood Event Emoji
+                                MarkerOptions markerOptions = new MarkerOptions()
+                                        .position(moodLocation)
+                                        .icon(getMarkerIcon(emoji));
 
-                            Marker marker = googleMap.addMarker(markerOptions);
-                            marker.setTag(moodEvent);
+                                Marker markers = googleMap.addMarker(markerOptions);
+                                markers.setTag(moodEvent);
+                            }
                         }
                     }catch (Exception e){
                         Log.e(TAG,"Error parsing Document: "+documentSnapshot.getId(),e);
