@@ -211,6 +211,7 @@ public class HomeFragment extends AddFragment {
                 reasonFilter = s.toString().trim().toLowerCase();
                 applyFilters(); // Apply filters immediately on text change
             }
+
             @Override
             public void afterTextChanged(Editable s) {}
         });
@@ -267,12 +268,10 @@ public class HomeFragment extends AddFragment {
 
         if (!reasonFilter.isEmpty()) {
             List<MoodEvent> filteredList = moodEvents.stream()
-                    .filter(event -> Arrays.asList(event.getReason().toLowerCase().split("\\s+"))
-                            .contains(reasonFilter))
+                    .filter(event -> event.getReason().toLowerCase().contains(reasonFilter))
                     .collect(Collectors.toList());
             moodEvents.clear();
             moodEvents.addAll(filteredList);
-            Log.d("HomeFragment", "After reason filter: " + moodEvents.size() + " events");
         }
 
         moodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
@@ -301,7 +300,7 @@ public class HomeFragment extends AddFragment {
                         allMoodEvents.clear(); // Reset full list
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            moodEvent.setDocumentId(document.getId()); // ✅ Ensure docId is set
+                            moodEvent.setDocumentId(document.getId()); // Ensure docId is set
                             allMoodEvents.add(moodEvent);
                         }
 
@@ -540,10 +539,10 @@ public class HomeFragment extends AddFragment {
                     requestLocationPermission();
                     return; // 🚨 Exit early, wait for permission result
                 } else {
-                    updatedLocation = getUserLocation(); // ✅ Fetch new location
+                    updatedLocation = getUserLocation(); // Fetch new location
                 }
             } else {
-                updatedLocation = null; // ✅ If switch is off, remove location
+                updatedLocation = null; // If switch is off, remove location
             }
 
 

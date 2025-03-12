@@ -15,7 +15,6 @@
         android:icon="@drawable/baseline_add_circle_outline_42"
         android:id="@+id/add" />
 
-
     <item
         android:icon="@drawable/following"
         android:id="@+id/following" />
