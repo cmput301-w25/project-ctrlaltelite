@@ -397,7 +397,7 @@ public class HomeFragment extends AddFragment {
 
 
 
-        AlertDialog dialog = builder.create();
+
 
         // Make upload button and image preview visible
         buttonUpload.setVisibility(View.VISIBLE);
@@ -474,6 +474,8 @@ public class HomeFragment extends AddFragment {
                 requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES);
             }
         });
+
+        AlertDialog dialog = builder.create();
 
 
         // Delete button
