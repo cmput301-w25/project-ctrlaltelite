@@ -4,6 +4,7 @@
     <string name="location_permission">Allow Sentio to access this device’s location while using the app?</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_maps">MapsActivity</string>
 
 
     <!--    <string-array name="mood_options">-->
