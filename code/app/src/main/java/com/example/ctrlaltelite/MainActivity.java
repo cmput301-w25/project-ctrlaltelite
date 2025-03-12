@@ -88,13 +88,19 @@ public class MainActivity extends AppCompatActivity {
                 else if (itemId == R.id.following) {
                     fragmentRepl(new FollowingFragment());
                 }
-                else if (itemId == R.id.profile) {
-                    ProfileFragment profileFragment = new ProfileFragment();
-                    Bundle args = new Bundle();
-                    args.putString("username", username); // Pass the username correctly
-                    profileFragment.setArguments(args);
-                    fragmentRepl(profileFragment);
+
+                else if (itemId == R.id.search) {
+                    fragmentRepl(new SearchFragment());
                 }
+
+
+//                else if (itemId == R.id.profile) {
+//                    ProfileFragment profileFragment = new ProfileFragment();
+//                    Bundle args = new Bundle();
+//                    args.putString("username", username); // Pass the username correctly
+//                    profileFragment.setArguments(args);
+//                    fragmentRepl(profileFragment);
+//                }
                 if (selectedFragment != null) {
                     fragmentRepl(selectedFragment);
                 }
