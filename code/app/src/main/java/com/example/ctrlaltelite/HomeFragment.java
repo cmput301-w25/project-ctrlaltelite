@@ -1,5 +1,6 @@
 package com.example.ctrlaltelite;
 
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.text.Editable;
@@ -56,7 +58,8 @@ import java.util.Calendar;
  * Home Fragment displays and manages a user's mood history - personal mood events, allowing viewing, editing and delete.
  * Integrates with Firebase Firestore for data storage and Firebase Storage for image handling.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends AddFragment {
+    private GeoPoint updatedLocation;
     private boolean isSorted = false; // Tracks sorting state
 
     private ListView listView;
@@ -357,6 +360,10 @@ public class HomeFragment extends Fragment {
                 !mood.equals("😐 Select Emotional State");
     }
 
+
+
+
+
     /**
      * Displays a dialog allowing the user to edit or delete a specific mood event.
      * Pre-populates the dialog with the mood event's current data and handles image uploads.
@@ -379,6 +386,18 @@ public class HomeFragment extends Fragment {
         Spinner socialSituationSpinner = dialogView.findViewById(R.id.edit_social_situation_spinner);
         Button saveButton = dialogView.findViewById(R.id.save_button);
         Button deleteButton = dialogView.findViewById(R.id.delete_button);
+        Switch switchLocation = dialogView.findViewById(R.id.edit_location_switch);
+
+        // Enable toggle by default if location exists
+        if (moodEvent.getLocation() != null) {
+            switchLocation.setChecked(true);
+        } else {
+            switchLocation.setChecked(false);
+        }
+
+
+
+        AlertDialog dialog = builder.create();
 
         // Make upload button and image preview visible
         buttonUpload.setVisibility(View.VISIBLE);
@@ -456,7 +475,6 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        AlertDialog dialog = builder.create();
 
         // Delete button
         deleteButton.setOnClickListener(v -> {
@@ -511,11 +529,30 @@ public class HomeFragment extends Fragment {
 
             String updatedTrigger = triggerEditText.getText().toString().trim();
             String updatedSocialSituation = socialSituationSpinner.getSelectedItemPosition() == 0 ? null : socialSituationSpinner.getSelectedItem().toString();
+
+            GeoPoint updatedLocation = moodEvent.getLocation();
+
+            if (switchLocation.isChecked()) {
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    requestLocationPermission();
+                    return; // 🚨 Exit early, wait for permission result
+                } else {
+                    updatedLocation = getUserLocation(); // ✅ Fetch new location
+                }
+            } else {
+                updatedLocation = null; // ✅ If switch is off, remove location
+            }
+
+
             if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
                 moodEvent.setReason(updatedReason);
                 moodEvent.setTrigger(updatedTrigger);
                 moodEvent.setSocialSituation(updatedSocialSituation);
+                moodEvent.setLocation(updatedLocation);
+
+
+
                 // Set the current timestamp when saving
                 java.text.DateFormat dateFormat = java.text.DateFormat.getDateTimeInstance(
                         java.text.DateFormat.MEDIUM,
@@ -567,6 +604,7 @@ public class HomeFragment extends Fragment {
         });
         dialog.show();
     }
+
 
     /**
      * Function to delete mood events and update firebase and our mood events list accordingly
