@@ -75,7 +75,9 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                 // Apply Gradient Background Styling
                 GradientDrawable gradientDrawable = new GradientDrawable(
                         GradientDrawable.Orientation.LEFT_RIGHT,
-                        new int[]{Color.parseColor("#A7ECEE"), Color.parseColor("#E3FDFD")} // Navy Blue → Teal Gradient
+
+                        new int[]{Color.parseColor("#FF9671"), Color.parseColor("#FDBEA6"), Color.parseColor("#FFE9DE")}
+
                 );
                 gradientDrawable.setCornerRadius(16); // Rounded corners
 
