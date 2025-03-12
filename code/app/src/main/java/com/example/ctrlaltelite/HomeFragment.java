@@ -35,12 +35,14 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -104,6 +106,7 @@ public class HomeFragment extends Fragment {
 
                 if (imgSize < MAX_SIZE) {
                     if (imagePreview != null) { // Ensure imagePreview is set
+                        // Use Glide to load the selected local image into imagePreview immediately
                         Glide.with(requireContext())
                                 .load(uri)
                                 .into(imagePreview);
@@ -119,6 +122,11 @@ public class HomeFragment extends Fragment {
 
         // Register permission request
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            /**
+             * Handles the result of the permission request for accessing media images.
+             *
+             * @param isGranted True if permission was granted, false otherwise.
+             */
             if (isGranted) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
@@ -269,7 +277,7 @@ public class HomeFragment extends Fragment {
      */
     public void fetchMoodEvents() {
         db.collection("Mood Events")
-                .whereEqualTo("username", Username)
+                .whereEqualTo("username", Username) // Matches Firestore field name
                 .get()
                 .addOnCompleteListener(task -> {
                     /**
