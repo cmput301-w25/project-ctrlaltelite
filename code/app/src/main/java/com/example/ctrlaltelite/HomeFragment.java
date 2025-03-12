@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +21,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -195,10 +199,18 @@ public class HomeFragment extends Fragment {
         });
 
         // Reason filter
-        reasonFilterEditText.setOnEditorActionListener((v, actionId, event) -> {
-            reasonFilter = reasonFilterEditText.getText().toString().trim().toLowerCase();
-            applyFilters();
-            return true;
+        reasonFilterEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                reasonFilter = s.toString().trim().toLowerCase();
+                applyFilters(); // Apply filters immediately on text change
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         // Set short click listener for editing
@@ -272,39 +284,67 @@ public class HomeFragment extends Fragment {
 
 
     /**
-     * Fetches mood events associated with the current user from Firestore and updates the local
-     * list and UI adapter. Clears the existing list before adding new data.
+     * Listens for real-time updates to the mood events associated with the current user in Firestore.
+     * Automatically updates the local list and UI adapter whenever changes occur in the database.
      */
+
     public void fetchMoodEvents() {
         db.collection("Mood Events")
-                .whereEqualTo("username", Username) // Matches Firestore field name
-                .get()
+                .whereEqualTo("username", Username)
+                .get() // Fetch data initially
                 .addOnCompleteListener(task -> {
-                    /**
-                     * Processes the result of fetching mood events from Firestore.
-                     *
-                     * @param task The task containing the result of the Firestore query.
-                     */
                     if (task.isSuccessful()) {
-                        allMoodEvents.clear();
-                        moodEvents.clear();
+                        allMoodEvents.clear(); // Reset full list
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            String docId = document.getId();
-                            moodEvent.setDocumentId(docId);
-                            Log.d("HomeFragment", "Fetched MoodEvent with ID: " + docId + " - " + moodEvent.toString());
+                            moodEvent.setDocumentId(document.getId()); // ✅ Ensure docId is set
                             allMoodEvents.add(moodEvent);
                         }
+
+                        // Populate moodEvents initially (before filtering)
+                        moodEvents.clear();
                         moodEvents.addAll(allMoodEvents);
+
+                        // 🔥 Sort and Refresh UI
                         toggleSort();
-                        Log.d("HomeFragment", "Mood events fetched: " + allMoodEvents.size());
-                        applyFilters(); // Apply filters after data is ready to ensure UI reflects filtered list
+                        adapter.notifyDataSetChanged();
+
+                        Log.d("HomeFragment", "Initial Mood events fetched: " + allMoodEvents.size());
                     } else {
                         Log.w("HomeFragment", "Error fetching mood events", task.getException());
-                        Toast.makeText(getContext(), "Error loading mood events", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        // 🔄 Listen for real-time changes in Firestore
+        db.collection("Mood Events")
+                .whereEqualTo("username", Username)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.e("HomeFragment", "Firestore Listen Failed: " + error.toString());
+                        return;
+                    }
+
+                    if (value != null) {
+                        allMoodEvents.clear(); // Reset full list
+                        for (QueryDocumentSnapshot document : value) {
+                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                            moodEvent.setDocumentId(document.getId()); // ✅ Set docId again (to ensure updates)
+                            allMoodEvents.add(moodEvent);
+                        }
+
+                        // Update displayed list
+                        moodEvents.clear();
+                        moodEvents.addAll(allMoodEvents);
+
+                        // 🔥 Sort and Refresh UI After Updating the List
+                        toggleSort();
+                        adapter.notifyDataSetChanged();
+
+                        Log.d("HomeFragment", "Mood events updated in real-time: " + allMoodEvents.size());
                     }
                 });
     }
+
 
     /**
      * Validates if the mood input is non-empty.
@@ -533,74 +573,21 @@ public class HomeFragment extends Fragment {
      * @param moodEvent - The mood event we want to delete
      */
     public void DeleteMoodEventAndUpdateDatabaseUponDeletion(MoodEvent moodEvent) {
-
-        // Getting the mood events collection in firestore
+        // Getting the mood events collection in Firestore
         CollectionReference moodEventRef = db.collection("Mood Events");
 
-        // Obtaining the User's mood events
-        fetchMoodEvents();
+        // Deleting the mood event reference in Firestore
+        DocumentReference docRef = moodEventRef.document(moodEvent.getDocumentId());
+        docRef.delete().addOnSuccessListener(aVoid -> {
+            Log.d("HomeFragment", "MoodEvent deleted: " + moodEvent.getDocumentId());
 
-        // Similar to what was done in lab 5
-        moodEventRef.addSnapshotListener((value, error) -> {
-            if (error != null) {
-                Log.e("Firestore", error.toString());
-            }
-            if (value != null) {
-                moodEvents.clear();
-
-                // Going through each snapshot to obtain the mood event info
-                for (QueryDocumentSnapshot snapshot : value) {
-
-                    // All mood event data of the user
-                    if (snapshot.getString("Username") == moodEvent.getUsername()) {
-                        String emotionalState = snapshot.getString("emotionalState");
-                        String reason = snapshot.getString("reason");
-                        String socialSituation = snapshot.getString("socialSituation");
-
-                        Object timestampObj = snapshot.get("timestamp");
-                        Timestamp timestamp = null;
-
-
-                        if (timestampObj instanceof Timestamp) {
-                            timestamp = (Timestamp) timestampObj;
-                        } else if (timestampObj instanceof String) {
-                            try {
-                                timestamp = new Timestamp(new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", java.util.Locale.US)
-                                        .parse((String) timestampObj));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-
-                        String trigger = snapshot.getString("trigger");
-                        String username = snapshot.getString("username");
-                        String imgPath = snapshot.getString("imgPath");
-                        String id = snapshot.getId();
-                        GeoPoint location = (GeoPoint) snapshot.get("location");
-
-                        // Creating new mood event with the data obtained above
-                        MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timestamp, location, imgPath, username);
-
-                        // Add everything back into our mood events list
-                        moodEvents.add(updatedMoodEvent);
-                        updatedMoodEvent.setDocumentId(id);
-                    }
-
-                }
-                // Updating display
-                adapter.notifyDataSetChanged();
-            }
+            Toast.makeText(getContext(), "Mood event deleted!", Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(e -> {
+            Log.w("HomeFragment", "Error deleting mood event", e);
+            Toast.makeText(getContext(), "Error deleting mood event", Toast.LENGTH_SHORT).show();
         });
-        if (moodEvents.isEmpty()) {
-            Toast.makeText(getContext(), "Zero length", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            // Deleting the mood event reference in the collection
-            DocumentReference docRef = moodEventRef.document(moodEvent.getDocumentId());
-            docRef.delete();
-        }
     }
+
     /**
      * Updates a mood event in Firestore with the provided MoodEvent data and refreshes the UI.
      * Logs success or failure and notifies the adapter of changes.

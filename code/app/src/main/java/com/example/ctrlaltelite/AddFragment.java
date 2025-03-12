@@ -449,17 +449,48 @@ public class AddFragment extends Fragment implements LocationListener {
         }
 
         locationManager = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
-        if (location != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
+        // Remove old location updates
+        locationManager.removeUpdates(this);
+
+        // Request fresh location updates
+        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                Log.d("Location Debug", "Updated Latitude: " + latitude + ", Longitude: " + longitude);
+
+                // Store the updated location
+                GeoPoint geoPoint = new GeoPoint(latitude, longitude);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            @Override
+            public void onProviderEnabled(@NonNull String provider) {}
+
+            @Override
+            public void onProviderDisabled(@NonNull String provider) {
+                Toast.makeText(getContext(), "GPS is turned off!", Toast.LENGTH_SHORT).show();
+            }
+        }, null);
+
+
+        // Get the last known location (may be outdated but prevents null return)
+        Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (lastLocation != null) {
+            double latitude = lastLocation.getLatitude();
+            double longitude = lastLocation.getLongitude();
+            Log.d("Location Debug", "Last Known Latitude: " + latitude + ", Longitude: " + longitude);
             return new GeoPoint(latitude, longitude);
         } else {
-            Toast.makeText(getContext(), "Unable to get location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Unable to get updated location", Toast.LENGTH_SHORT).show();
             return null;
         }
     }
+
 
 
     /**
@@ -482,6 +513,7 @@ public class AddFragment extends Fragment implements LocationListener {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
         Toast.makeText(getContext(), "New Location: " + latitude + ", " + longitude, Toast.LENGTH_SHORT).show();
+        Log.d("Location Debug", "Updated Latitude: " + latitude + ", Longitude: " + longitude);
     }
 
 }
