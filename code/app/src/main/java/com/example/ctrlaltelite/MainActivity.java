@@ -89,7 +89,11 @@ public class MainActivity extends AppCompatActivity {
                     fragmentRepl(new FollowingFragment());
                 }
                 else if (itemId == R.id.profile) {
-                    fragmentRepl(new ProfileFragment());
+                    ProfileFragment profileFragment = new ProfileFragment();
+                    Bundle args = new Bundle();
+                    args.putString("username", username); // Pass the username correctly
+                    profileFragment.setArguments(args);
+                    fragmentRepl(profileFragment);
                 }
                 if (selectedFragment != null) {
                     fragmentRepl(selectedFragment);

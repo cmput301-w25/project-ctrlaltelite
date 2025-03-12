@@ -3,11 +3,15 @@ package com.example.ctrlaltelite;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -40,6 +44,25 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 
+
+import java.util.Arrays;
+import java.util.List;
+
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.content.Context;
+import android.Manifest;
+import androidx.core.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import android.content.pm.PackageManager;
+import android.widget.Toast;
+
+
+
+
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Date;
@@ -54,7 +77,7 @@ import java.util.HashMap;
  * Fragment for adding a mood event.
  * Users can select a mood, provide a reason and a trigger, upload an image, specify a social situation, and choose to attach their location.
  */
-public class AddFragment extends Fragment {
+public class AddFragment extends Fragment implements LocationListener {
 
     /** Spinner for selecting mood */
     protected Spinner dropdownMood;
@@ -79,8 +102,8 @@ public class AddFragment extends Fragment {
     /** Firebase Storage instance for image uploads */
     protected FirebaseStorage storage;
     private StorageReference storageRef;
-    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
-    private ActivityResultLauncher<String> requestPermissionLauncher;
+    protected ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    protected ActivityResultLauncher<String> requestPermissionLauncher;
 
     /** Reference to the uploaded image */
     protected Uri imageRef = null;
@@ -90,6 +113,8 @@ public class AddFragment extends Fragment {
 
     /** Max allowed image size in bytes */
     private int maxSize = 65536;
+
+    private LocationManager locationManager;
 
 
 
@@ -218,7 +243,7 @@ public class AddFragment extends Fragment {
     /**
      * This is a function that checks for gallery access permissions and starts a photo picker
      */
-    private void selectPhoto() {
+    protected void selectPhoto() {
         //If app has permission
         if (ContextCompat.checkSelfPermission(
                 getContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
@@ -247,6 +272,61 @@ public class AddFragment extends Fragment {
         }
     }
 
+    protected void requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Explain why permission is needed and request it again
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Location Permission Required")
+                        .setMessage("This app requires location permission to track your mood location.")
+                        .setPositiveButton("OK", (dialog, which) ->
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100))
+                        .setNegativeButton("Cancel", (dialog, which) ->
+                                Toast.makeText(getContext(), "Location permission denied", Toast.LENGTH_SHORT).show())
+                        .show();
+            } else {
+                // Directly request permission
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+            }
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 100) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getContext(), "Location permission granted. Try saving again.", Toast.LENGTH_SHORT).show();
+            } else {
+                boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
+                if (!showRationale) {
+                    // User selected "Don't ask again," guide them to enable it manually
+                    new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle("Permission Required")
+                            .setMessage("Location permission is necessary to use this feature. Please enable it in settings.")
+                            .setPositiveButton("Go to Settings", (dialog, which) -> {
+                                Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
+                                intent.setData(uri);
+                                startActivity(intent);
+                            })
+                            .setNegativeButton("Cancel", (dialog, which) ->
+                                    Toast.makeText(getContext(), "Location permission denied permanently", Toast.LENGTH_SHORT).show())
+                            .show();
+                } else {
+                    Toast.makeText(getContext(), "Location permission denied. Try saving again to request permission.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+
+
+
+
     /**
      * Saves a mood event, ensuring a reason or image is provided.
      * @param uName The username of the logged-in user.
@@ -257,11 +337,26 @@ public class AddFragment extends Fragment {
             return;
         }
 
+        GeoPoint location = null;  // Default to null
+
+
+
+        // If location tracking is enabled, check for permission before fetching location
+        if (switchLocation.isChecked()) {
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                requestLocationPermission();  // Ask for permission
+                return;  // Exit, don't save yet
+            }
+            location = getUserLocation();  // Fetch location only if permission is granted
+        }
+
+
         String selectedEmotion = dropdownMood.getSelectedItem().toString().trim();
         String socialSituation = editSocialSituation.getSelectedItemPosition() == 0 ? null : editSocialSituation.getSelectedItem().toString();
         String trigger = editTrigger.getText().toString();
         Timestamp timeStamp = Timestamp.now();
-        GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
+//        GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
 
 
         // Obtaining the textual reason from the user
@@ -328,7 +423,7 @@ public class AddFragment extends Fragment {
      * Saves the mood event to Firestore.
      * @param moodEvent The mood event to save.
      */
-    private void saveToFirestore(MoodEvent moodEvent) {
+    protected void saveToFirestore(MoodEvent moodEvent) {
         db.collection("Mood Events")
                 .add(moodEvent)
                 .addOnSuccessListener(documentReference -> {
@@ -346,13 +441,57 @@ public class AddFragment extends Fragment {
      * Gets the user's current location as a GeoPoint.
      * @return The user's location.
      */
-    private GeoPoint getUserLocation() {
-        // Example latitude and longitude values
-        double latitude = 53.5;
-        double longitude = -113.5;
+    protected GeoPoint getUserLocation() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getContext(), "Location permission not granted", Toast.LENGTH_SHORT).show();
+            return null;
+        }
 
-        return new GeoPoint(latitude, longitude);
+        locationManager = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
+
+        // Remove old location updates
+        locationManager.removeUpdates(this);
+
+        // Request fresh location updates
+        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                Log.d("Location Debug", "Updated Latitude: " + latitude + ", Longitude: " + longitude);
+
+                // Store the updated location
+                GeoPoint geoPoint = new GeoPoint(latitude, longitude);
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            @Override
+            public void onProviderEnabled(@NonNull String provider) {}
+
+            @Override
+            public void onProviderDisabled(@NonNull String provider) {
+                Toast.makeText(getContext(), "GPS is turned off!", Toast.LENGTH_SHORT).show();
+            }
+        }, null);
+
+
+        // Get the last known location (may be outdated but prevents null return)
+        Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (lastLocation != null) {
+            double latitude = lastLocation.getLatitude();
+            double longitude = lastLocation.getLongitude();
+            Log.d("Location Debug", "Last Known Latitude: " + latitude + ", Longitude: " + longitude);
+            return new GeoPoint(latitude, longitude);
+        } else {
+            Toast.makeText(getContext(), "Unable to get updated location", Toast.LENGTH_SHORT).show();
+            return null;
+        }
     }
+
+
 
     /**
      * Method to determine if textual reason is valid (mainly beneficial for unit testing)
@@ -367,6 +506,14 @@ public class AddFragment extends Fragment {
         String[] separationArray = textualReason.split(separator);
 
         return !(textualReason.isEmpty() || separationArray.length >= 4 || textualReason.length() >= 20);
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        Toast.makeText(getContext(), "New Location: " + latitude + ", " + longitude, Toast.LENGTH_SHORT).show();
+        Log.d("Location Debug", "Updated Latitude: " + latitude + ", Longitude: " + longitude);
     }
 
 }
