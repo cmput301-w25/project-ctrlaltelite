@@ -1,6 +1,9 @@
 package com.example.ctrlaltelite;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -43,6 +47,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         TextView triggerText = convertView.findViewById(R.id.trigger_text);
         TextView socialSituationText = convertView.findViewById(R.id.social_situation_text);
         TextView timestampText = convertView.findViewById(R.id.timestamp_text);
+        TextView geolocationText = convertView.findViewById(R.id.geolocation);
         ImageView moodImage = convertView.findViewById(R.id.mood_image);
 
         moodText.setText(moodEvent.getEmotionalState());
@@ -52,6 +57,26 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         timestampText.setText(moodEvent.getFormattedTimestamp());
 
         moodText.setTextColor(getColorForMood(moodEvent.getEmotionalState()));
+
+
+        //Convert Coordinates to Address
+        if (moodEvent.getLocation() != null) {
+            double latitude = moodEvent.getLocation().getLatitude();
+            double longitude = moodEvent.getLocation().getLongitude();
+
+            // Call a method to get address from coordinates
+            String address = getAddressFromCoordinates(latitude, longitude);
+            if (address != null) {
+                geolocationText.setText("@ " + address);
+                geolocationText.setVisibility(View.VISIBLE);
+                geolocationText.setBackgroundColor(Color.parseColor("#E0E0E0"));
+            } else {
+                geolocationText.setText("at Unknown Location");
+                geolocationText.setVisibility(View.VISIBLE);
+            }
+        } else {
+            geolocationText.setVisibility(View.GONE);
+        }
 
 
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
@@ -67,6 +92,25 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 
         return convertView;
     }
+
+
+
+    // Convert Coordinates to Address (Using Geocoder)
+    private String getAddressFromCoordinates(double latitude, double longitude) {
+        Geocoder geocoder = new Geocoder(getContext());
+        List<Address> addresses;
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                return addresses.get(0).getAddressLine(0); // Get full address
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // Return null if address couldn't be found
+        return null;
+    }
+
 
     /**
      * Determines the text color for the mood text based on the mood type.
