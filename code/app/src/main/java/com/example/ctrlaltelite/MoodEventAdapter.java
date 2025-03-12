@@ -2,6 +2,8 @@ package com.example.ctrlaltelite;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.view.LayoutInflater;
@@ -69,8 +71,20 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             if (address != null) {
                 geolocationText.setText("@ " + address);
                 geolocationText.setVisibility(View.VISIBLE);
-                geolocationText.setBackgroundColor(Color.parseColor("#E0E0E0"));
-            } else {
+                // Apply Gradient Background Styling
+                GradientDrawable gradientDrawable = new GradientDrawable(
+                        GradientDrawable.Orientation.LEFT_RIGHT,
+                        new int[]{Color.parseColor("#A7ECEE"), Color.parseColor("#E3FDFD")} // Navy Blue → Teal Gradient
+                );
+                gradientDrawable.setCornerRadius(16); // Rounded corners
+
+                geolocationText.setBackground(gradientDrawable);
+                geolocationText.setTextColor(Color.BLACK); // White text for contrast
+                geolocationText.setPadding(12, 6, 12, 6); // Better spacing
+                geolocationText.setTypeface(null, Typeface.BOLD); // Bold text
+            }
+
+            else {
                 geolocationText.setText("at Unknown Location");
                 geolocationText.setVisibility(View.VISIBLE);
             }
