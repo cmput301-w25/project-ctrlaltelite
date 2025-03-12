@@ -10,8 +10,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -34,16 +36,16 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.Calendar;
 
 /**
  * Home Fragment displays and manages a user's mood history - personal mood events, allowing viewing, editing and delete.
@@ -54,7 +56,7 @@ public class HomeFragment extends Fragment {
 
     private ListView listView;
     private MoodEventAdapter adapter;
-    private List<MoodEvent> moodEvents;
+    private List<MoodEvent> moodEvents = new ArrayList<>();
     private FirebaseFirestore db;
     private String Username;
 
@@ -66,6 +68,10 @@ public class HomeFragment extends Fragment {
     private static final int MAX_SIZE = 65536; // Max image size in bytes
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private List<MoodEvent> allMoodEvents = new ArrayList<>();
+    private String moodFilter = "Mood"; // Default: no filter
+    private boolean weekFilter = false; // Default: all time
+    private String reasonFilter = "";   // Default: no search
 
     /**
      * This is called to do initial creation of the fragment. It initializes Firebase Storage and registers
@@ -99,7 +105,6 @@ public class HomeFragment extends Fragment {
 
                 if (imgSize < MAX_SIZE) {
                     if (imagePreview != null) { // Ensure imagePreview is set
-                        // Use Glide to load the selected local image into imagePreview immediately
                         Glide.with(requireContext())
                                 .load(uri)
                                 .into(imagePreview);
@@ -115,11 +120,6 @@ public class HomeFragment extends Fragment {
 
         // Register permission request
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-            /**
-             * Handles the result of the permission request for accessing media images.
-             *
-             * @param isGranted True if permission was granted, false otherwise.
-             */
             if (isGranted) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
@@ -148,14 +148,17 @@ public class HomeFragment extends Fragment {
         }
 
         // Initialize Spinner
-        Spinner moodFilter = view.findViewById(R.id.mood_filter);
+        Spinner moodFilterSpinner = view.findViewById(R.id.mood_filter);
+        CheckBox weekFilterCheckBox = view.findViewById(R.id.show_past_week);
+        EditText reasonFilterEditText = view.findViewById(R.id.search_mood_reason);
+
         // Get mood options from resources
         List<String> moodFilterOptions = new ArrayList<>();
         moodFilterOptions.add("Mood");  // Default text only for the filter
         moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 7)); // Skip "Select Emotional State"
 
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions);
-        moodFilter.setAdapter(moodAdapter);
+        moodFilterSpinner.setAdapter(moodAdapter);
 
         // Initialize ListView
         listView = view.findViewById(R.id.mood_list);
@@ -163,19 +166,96 @@ public class HomeFragment extends Fragment {
             Log.e("HomeFragment", "ListView is null, check fragment_home.xml");
             return view;
         }
-        moodEvents = new ArrayList<>();
+        //moodEvents = new ArrayList<>();
         adapter = new MoodEventAdapter(requireContext(), moodEvents);
+        //adapter = new MoodEventAdapter(requireContext(), allMoodEvents);
         listView.setAdapter(adapter);
+        fetchMoodEvents();
+        moodFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                moodFilter = moodFilterOptions.get(position);
+                Log.d("HomeFragment", "Mood filter set to: " + moodFilter);
+                applyFilters();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // Week filter
+        weekFilterCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            weekFilter = isChecked; // Update week filter state
+            applyFilters(); // Reapply all filters with new week setting
+            Log.d("HomeFragment", "Week filter set to: " + (weekFilter ? "Past Week" : "All Time"));
+        });
+
+        // Reason filter
+        reasonFilterEditText.setOnEditorActionListener((v, actionId, event) -> {
+            reasonFilter = reasonFilterEditText.getText().toString().trim().toLowerCase(); // Set reason filter from input
+            applyFilters(); // Reapply all filters with new reason search
+            Log.d("HomeFragment", "Reason filter set to: " + reasonFilter);
+            return true;
+        });
 
         // Set short click listener for editing
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             MoodEvent moodEvent = moodEvents.get(position);
             showDeleteEditMoodDialog(moodEvent, position);
         });
-        // Fetch mood events
-        fetchMoodEvents();
 
         return view;
+    }
+
+    private void applyFilters() {
+        if (allMoodEvents == null || allMoodEvents.isEmpty()) {
+            Log.d("HomeFragment", "No mood events to filter");
+            moodEvents.clear();
+            adapter.notifyDataSetChanged();
+            return;
+        }
+
+        Log.d("HomeFragment", "Applying filters to " + allMoodEvents.size() + " mood events");
+        for (MoodEvent event : allMoodEvents) {
+            Log.d("HomeFragment", "Pre-filter event: emotionalState='" + event.getEmotionalState() + "', reason='" + event.getReason() + "'");
+        }
+
+        moodEvents.clear();
+        moodEvents.addAll(allMoodEvents);
+
+        if (!moodFilter.equals("Mood")) {
+            Log.d("HomeFragment", "Filtering with moodFilter='" + moodFilter + "'");
+            moodEvents = moodEvents.stream()
+                    .filter(event -> {
+                        String emotionalState = event.getEmotionalState();
+                        boolean matches = emotionalState.trim().equals(moodFilter.trim()); // Normalize comparison
+                        Log.d("HomeFragment", "Checking mood: '" + emotionalState + "' vs '" + moodFilter + "' -> " + matches);
+                        return matches;
+                    })
+                    .collect(Collectors.toList());
+            Log.d("HomeFragment", "After mood filter: " + moodEvents.size() + " events");
+        }
+
+        if (weekFilter) {
+            Calendar oneWeekAgo = Calendar.getInstance();
+            oneWeekAgo.add(Calendar.DAY_OF_YEAR, -7);
+            long oneWeekAgoMillis = oneWeekAgo.getTimeInMillis();
+            moodEvents = moodEvents.stream()
+                    .filter(event -> event.getTimestamp().toDate().getTime() >= oneWeekAgoMillis)
+                    .collect(Collectors.toList());
+            Log.d("HomeFragment", "After week filter: " + moodEvents.size() + " events");
+        }
+
+        if (!reasonFilter.isEmpty()) {
+            moodEvents = moodEvents.stream()
+                    .filter(event -> event.getReason().toLowerCase().contains(reasonFilter))
+                    .collect(Collectors.toList());
+            Log.d("HomeFragment", "After reason filter: " + moodEvents.size() + " events");
+        }
+
+        moodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
+        Log.d("HomeFragment", "Final filtered list size: " + moodEvents.size());
+
+        adapter.notifyDataSetChanged();
     }
 
 
@@ -207,17 +287,17 @@ public class HomeFragment extends Fragment {
                      */
                     if (task.isSuccessful()) {
                         moodEvents.clear();
+                        allMoodEvents.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
                             String docId = document.getId();
                             moodEvent.setDocumentId(docId);
                             Log.d("HomeFragment", "Fetched MoodEvent with ID: " + docId + " - " + moodEvent.toString());
-                            moodEvents.add(moodEvent);
+                            allMoodEvents.add(moodEvent);
                         }
-
+                        moodEvents.addAll(allMoodEvents);
                         toggleSort();
-
-
+                        applyFilters();
                         adapter.notifyDataSetChanged();
                         Log.d("HomeFragment", "Mood events fetched: " + moodEvents.size());
                     } else {
@@ -567,7 +647,9 @@ public class HomeFragment extends Fragment {
                     Log.d("HomeFragment", "Successfully updated MoodEvent with ID: " + docId + " in Firestore");
                     moodEvents.set(position, moodEvent);
                     toggleSort();
-                    adapter.notifyDataSetChanged();
+                    Log.d("HomeFragment", "Mood events fetched: " + allMoodEvents.size());
+                    applyFilters();
+                    // adapter.notifyDataSetChanged();
                     Toast.makeText(getContext(), "Mood updated successfully", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
