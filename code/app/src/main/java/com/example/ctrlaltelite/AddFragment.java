@@ -272,7 +272,7 @@ public class AddFragment extends Fragment implements LocationListener {
         }
     }
 
-    private void requestLocationPermission() {
+    protected void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
@@ -423,7 +423,7 @@ public class AddFragment extends Fragment implements LocationListener {
      * Saves the mood event to Firestore.
      * @param moodEvent The mood event to save.
      */
-    private void saveToFirestore(MoodEvent moodEvent) {
+    protected void saveToFirestore(MoodEvent moodEvent) {
         db.collection("Mood Events")
                 .add(moodEvent)
                 .addOnSuccessListener(documentReference -> {
@@ -441,7 +441,7 @@ public class AddFragment extends Fragment implements LocationListener {
      * Gets the user's current location as a GeoPoint.
      * @return The user's location.
      */
-    private GeoPoint getUserLocation() {
+    protected GeoPoint getUserLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(getContext(), "Location permission not granted", Toast.LENGTH_SHORT).show();
