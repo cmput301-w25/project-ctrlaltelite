@@ -102,8 +102,8 @@ public class AddFragment extends Fragment implements LocationListener {
     /** Firebase Storage instance for image uploads */
     protected FirebaseStorage storage;
     private StorageReference storageRef;
-    private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
-    private ActivityResultLauncher<String> requestPermissionLauncher;
+    protected ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
+    protected ActivityResultLauncher<String> requestPermissionLauncher;
 
     /** Reference to the uploaded image */
     protected Uri imageRef = null;
@@ -243,7 +243,7 @@ public class AddFragment extends Fragment implements LocationListener {
     /**
      * This is a function that checks for gallery access permissions and starts a photo picker
      */
-    private void selectPhoto() {
+    protected void selectPhoto() {
         //If app has permission
         if (ContextCompat.checkSelfPermission(
                 getContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
