@@ -278,7 +278,7 @@ public class AddFragment extends Fragment implements LocationListener {
 
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // Explain why permission is needed and request it again
-                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
                         .setTitle("Location Permission Required")
                         .setMessage("This app requires location permission to track your mood location.")
                         .setPositiveButton("OK", (dialog, which) ->
@@ -304,7 +304,7 @@ public class AddFragment extends Fragment implements LocationListener {
                 boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
                 if (!showRationale) {
                     // User selected "Don't ask again," guide them to enable it manually
-                    new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
                             .setTitle("Permission Required")
                             .setMessage("Location permission is necessary to use this feature. Please enable it in settings.")
                             .setPositiveButton("Go to Settings", (dialog, which) -> {
