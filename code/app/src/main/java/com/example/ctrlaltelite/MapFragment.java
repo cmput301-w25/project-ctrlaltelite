@@ -2,12 +2,14 @@ package com.example.ctrlaltelite;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -21,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -101,10 +104,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+
+
+
+
+
+
+
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap = googleMap;
         this.googleMap.getUiSettings().setZoomControlsEnabled(true);
+
+        // Check if location permission is granted
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestLocationPermission();  // Ask for permission
+            return;
+        } else {
+            // If permission is granted, proceed with the location setup
+            proceedWithMapSetup();
+        }
+    }
+
+
+    private void proceedWithMapSetup() {
         GeoPoint currentGeoPoint = getUserLocation(requireContext());
         if (currentGeoPoint == null) {
             Toast.makeText(getContext(),"No location retrieved",Toast.LENGTH_SHORT).show();
@@ -163,6 +187,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 return null;
             }
         });
+
+
+
         //Query Firebase for Mood Events with locations
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Mood Events").get().addOnCompleteListener(task -> {
@@ -207,6 +234,78 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
     }
+
+
+    protected void requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // Explain why permission is needed and request it again
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Location Permission Required")
+                        .setPositiveButton("OK", (dialog, which) ->
+                                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100))
+                        .setNegativeButton("Cancel", (dialog, which) ->
+                                Toast.makeText(getContext(), "Location permission denied", Toast.LENGTH_SHORT).show())
+                        .show();
+            } else {
+                // Directly request permission
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+            }
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 100) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getContext(), "Location permission granted.", Toast.LENGTH_SHORT).show();
+                // Permission granted, proceed with the map setup
+                proceedWithMapSetup();
+            } else {
+                boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
+                if (!showRationale) {
+                    // User selected "Don't ask again" so redirect to settings
+                    new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                            .setTitle("Permission Required")
+                            .setMessage("Location permission is necessary to use this feature. Please enable it in settings.")
+                            .setPositiveButton("Go to Settings", (dialog, which) -> {
+                                Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
+                                intent.setData(uri);
+                                startActivity(intent);
+                            })
+                            .setNegativeButton("Cancel", (dialog, which) ->
+                                    Toast.makeText(getContext(), "Location permission denied, go to settings", Toast.LENGTH_SHORT).show())
+                            .show();
+                } else {
+                    Toast.makeText(getContext(), "Location permission denied.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Generates a BitmapDescriptor from an emoji string to be used as a marker icon.
      * @param emoji The emoji to display.
