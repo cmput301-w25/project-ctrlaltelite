@@ -310,7 +310,7 @@ public class HomeFragment extends AddFragment {
                         moodEvents.clear();
                         moodEvents.addAll(allMoodEvents);
 
-                        // 🔥 Sort and Refresh UI
+                        // Sort and Refresh UI
                         toggleSort();
                         adapter.notifyDataSetChanged();
 
@@ -333,7 +333,7 @@ public class HomeFragment extends AddFragment {
                         allMoodEvents.clear(); // Reset full list
                         for (QueryDocumentSnapshot document : value) {
                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            moodEvent.setDocumentId(document.getId()); // ✅ Set docId again (to ensure updates)
+                            moodEvent.setDocumentId(document.getId()); // Set docId again (to ensure updates)
                             allMoodEvents.add(moodEvent);
                         }
 
@@ -341,7 +341,7 @@ public class HomeFragment extends AddFragment {
                         moodEvents.clear();
                         moodEvents.addAll(allMoodEvents);
 
-                        // 🔥 Sort and Refresh UI After Updating the List
+                        // Sort and Refresh UI After Updating the List
                         toggleSort();
                         adapter.notifyDataSetChanged();
 
