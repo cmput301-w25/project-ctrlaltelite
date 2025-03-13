@@ -1,64 +1,113 @@
 package com.example.ctrlaltelite;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link SearchFragment#newInstance} factory method to
+ * Use the {@link SearchFragment#} factory method to
  * create an instance of this fragment.
  */
 public class SearchFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public SearchFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SearchFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SearchFragment newInstance(String param1, String param2) {
-        SearchFragment fragment = new SearchFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private FirebaseFirestore db;
+    private ListView userListView;
+    private UserAdapter userAdapter;
+    private List<User> userList = new ArrayList<>();
+    private EditText searchUserInput;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        db = FirebaseFirestore.getInstance();
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
+
+        searchUserInput = view.findViewById(R.id.search_user_input);
+        userListView = view.findViewById(R.id.user_list);
+
+        userAdapter = new UserAdapter(requireContext(), userList);
+        userListView.setAdapter(userAdapter);
+
+        // Fetch all users (empty query shows all)
+        fetchUsers("");
+
+        // Real-time search as user types
+        searchUserInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String query = s.toString().trim().toLowerCase();
+                fetchUsers(query);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
+        // Go to OtherUserProfileFragment on user clicking on the user in search list
+        userListView.setOnItemClickListener((parent, view1, position, id) -> {
+            User selectedUser = userList.get(position);
+            OtherUserProfileFragment userProfileFragment = new OtherUserProfileFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("displayName", selectedUser.getUsername()); // Im using username as name for now (TO DO: add name in signup)
+            bundle.putString("clickedUsername", selectedUser.getUsername()); // Put clicked user's username in the bundle
+            userProfileFragment.setArguments(bundle);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).fragmentRepl(userProfileFragment);
+            }
+        });
+
+        return view;
+    }
+
+    private void fetchUsers(String query) {
+        db.collection("users")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        userList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String username = document.getString("username");
+                            String email = document.getString("email");
+                            String mobile = document.getString("mobile");
+                            User user = new User(username, username, null); // Username as name, no profilePhotoUrl yet
+                            user.setEmail(email);
+                            user.setMobile(mobile);
+
+                            String usernameLower = username.toLowerCase();
+                            if (query.isEmpty() || usernameLower.contains(query)) {
+                                userList.add(user);
+                            }
+                        }
+                        userAdapter.notifyDataSetChanged();
+                        Log.d("SearchFragment", "Fetched " + userList.size() + " users for query: " + query);
+                    } else {
+                        Log.w("SearchFragment", "Error fetching users", task.getException());
+                        Toast.makeText(getContext(), "Error loading users", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

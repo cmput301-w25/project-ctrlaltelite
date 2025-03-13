@@ -116,7 +116,10 @@ public class MainActivity extends AppCompatActivity {
      */
 
     protected void fragmentRepl(Fragment fragment){
-        Bundle bundle = new Bundle();
+        Bundle bundle = fragment.getArguments();
+        if (bundle == null) {
+            bundle = new Bundle();
+        }
         bundle.putString("username", username);
         fragment.setArguments(bundle);
         FragmentManager fragmentManager = getSupportFragmentManager();
