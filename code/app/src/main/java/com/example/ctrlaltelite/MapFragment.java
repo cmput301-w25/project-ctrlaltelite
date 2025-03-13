@@ -242,7 +242,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                 // Explain why permission is needed and request it again
-                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
                         .setTitle("Location Permission Required")
                         .setPositiveButton("OK", (dialog, which) ->
                                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100))
@@ -269,7 +269,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
                 if (!showRationale) {
                     // User selected "Don't ask again" so redirect to settings
-                    new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    new androidx.appcompat.app.AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
                             .setTitle("Permission Required")
                             .setMessage("Location permission is necessary to use this feature. Please enable it in settings.")
                             .setPositiveButton("Go to Settings", (dialog, which) -> {
