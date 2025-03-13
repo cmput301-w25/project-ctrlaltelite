@@ -8,8 +8,8 @@
         />
 
     <item
-        android:icon="@drawable/ic_baseline_map_45"
-        android:id="@+id/map" />
+        android:id="@+id/search"
+        android:icon="@drawable/search3" />
 
     <item
         android:icon="@drawable/baseline_add_circle_outline_42"
@@ -18,10 +18,9 @@
     <item
         android:icon="@drawable/following"
         android:id="@+id/following" />
-
     <item
-        android:icon="@drawable/search"
-        android:id="@+id/search" />
+        android:id="@+id/map"
+        android:icon="@drawable/ic_baseline_map_45" />
 
 
 </menu>
