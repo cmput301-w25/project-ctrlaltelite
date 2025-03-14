@@ -185,7 +185,6 @@ public class AddFragment extends Fragment implements LocationListener {
 
         }
 
-
         // Initialize UI elements
         dropdownMood = view.findViewById(R.id.dropdown_mood);
         editSocialSituation = view.findViewById(R.id.social_situation_spinner);

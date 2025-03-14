@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 else if (itemId == R.id.search) {
-                    fragmentRepl(new SearchFragment());
+                    fragmentRepl(new SearchFragment(username));
                 }
 
 

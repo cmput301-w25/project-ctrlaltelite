@@ -33,6 +33,13 @@ public class SearchFragment extends Fragment {
     private UserAdapter userAdapter;
     private List<User> userList = new ArrayList<>();
     private EditText searchUserInput;
+    private String currentUserUsername;
+    private User currentUser;
+
+
+    public SearchFragment(String currentUserUsername) {
+        this.currentUserUsername = currentUserUsername;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,7 +77,7 @@ public class SearchFragment extends Fragment {
         // Go to OtherUserProfileFragment on user clicking on the user in search list
         userListView.setOnItemClickListener((parent, view1, position, id) -> {
             User selectedUser = userList.get(position);
-            OtherUserProfileFragment userProfileFragment = new OtherUserProfileFragment();
+            OtherUserProfileFragment userProfileFragment = new OtherUserProfileFragment(currentUser, selectedUser);
             Bundle bundle = new Bundle();
             bundle.putString("displayName", selectedUser.getUsername()); // Im using username as name for now (TO DO: add name in signup)
             bundle.putString("clickedUsername", selectedUser.getUsername()); // Put clicked user's username in the bundle
@@ -96,6 +103,10 @@ public class SearchFragment extends Fragment {
                             User user = new User(username, username, null); // Username as name, no profilePhotoUrl yet
                             user.setEmail(email);
                             user.setMobile(mobile);
+
+                            if (username.equals(currentUserUsername)) {
+                                currentUser = user;
+                            }
 
                             String usernameLower = username.toLowerCase();
                             if (query.isEmpty() || usernameLower.contains(query)) {
