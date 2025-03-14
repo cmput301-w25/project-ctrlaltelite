@@ -1,23 +1,30 @@
 package com.example.ctrlaltelite;
 
-
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
@@ -44,17 +51,20 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.Calendar;
 
 /**
  * Home Fragment displays and manages a user's mood history - personal mood events, allowing viewing, editing and delete.
  * Integrates with Firebase Firestore for data storage and Firebase Storage for image handling.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends AddFragment {
+    private GeoPoint updatedLocation;
     private boolean isSorted = false; // Tracks sorting state
 
     private ListView listView;
     private MoodEventAdapter adapter;
-    private List<MoodEvent> moodEvents;
+    private List<MoodEvent> moodEvents = new ArrayList<>();
     private FirebaseFirestore db;
     private String Username;
 
@@ -66,6 +76,10 @@ public class HomeFragment extends Fragment {
     private static final int MAX_SIZE = 65536; // Max image size in bytes
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private List<MoodEvent> allMoodEvents = new ArrayList<>();
+    private String moodFilter = "Mood"; // Default: no filter
+    private boolean weekFilter = false; // Default: all time
+    private String reasonFilter = "";   // Default: no search
 
     /**
      * This is called to do initial creation of the fragment. It initializes Firebase Storage and registers
@@ -148,16 +162,17 @@ public class HomeFragment extends Fragment {
         }
 
         // Initialize Spinner
-        Spinner moodFilter = view.findViewById(R.id.mood_filter);
+        Spinner moodFilterSpinner = view.findViewById(R.id.mood_filter);
+        CheckBox weekFilterCheckBox = view.findViewById(R.id.show_past_week);
+        EditText reasonFilterEditText = view.findViewById(R.id.search_mood_reason);
+
         // Get mood options from resources
         List<String> moodFilterOptions = new ArrayList<>();
         moodFilterOptions.add("Mood");  // Default text only for the filter
         moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 7)); // Skip "Select Emotional State"
 
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions);
-        moodFilter.setAdapter(moodAdapter);
-
-        moodFilter.setAdapter(moodAdapter);
+        moodFilterSpinner.setAdapter(moodAdapter);
 
         // Initialize ListView
         listView = view.findViewById(R.id.mood_list);
@@ -165,69 +180,176 @@ public class HomeFragment extends Fragment {
             Log.e("HomeFragment", "ListView is null, check fragment_home.xml");
             return view;
         }
-        moodEvents = new ArrayList<>();
+        //moodEvents = new ArrayList<>();
         adapter = new MoodEventAdapter(requireContext(), moodEvents);
         listView.setAdapter(adapter);
+        fetchMoodEvents(); // Start fetching data first to ensure data is available before UI interactions
+        // Moved Spinner listener after fetchMoodEvents() to avoid applyFilters() running before data is fetched
+        moodFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                moodFilter = moodFilterOptions.get(position);
+                applyFilters();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        // Week filter
+        weekFilterCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            weekFilter = isChecked;
+            applyFilters();
+        });
+
+        // Reason filter
+        reasonFilterEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                reasonFilter = s.toString().trim().toLowerCase();
+                applyFilters(); // Apply filters immediately on text change
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         // Set short click listener for editing
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             MoodEvent moodEvent = moodEvents.get(position);
             showDeleteEditMoodDialog(moodEvent, position);
         });
-        // Fetch mood events
-        fetchMoodEvents();
 
         return view;
     }
 
+    private void applyFilters() {
+        if (allMoodEvents == null || allMoodEvents.isEmpty()) {
+            moodEvents.clear();
+            adapter.notifyDataSetChanged();
+            return;
+        }
+
+        for (MoodEvent event : allMoodEvents) {
+            Log.d("HomeFragment", "Pre-filter event: emotionalState='" + event.getEmotionalState() + "', reason='" + event.getReason() + "'");
+        }
+
+        // Modify the existing moodEvents list in place instead of reassigning
+        moodEvents.clear();
+        moodEvents.addAll(allMoodEvents);
+
+        if (!moodFilter.equals("Mood")) {
+            Log.d("HomeFragment", "Filtering with moodFilter='" + moodFilter + "'");
+            List<MoodEvent> filteredList = moodEvents.stream()
+                    .filter(event -> {
+                        String emotionalState = event.getEmotionalState();
+                        boolean matches = emotionalState.trim().equals(moodFilter.trim());
+                        Log.d("HomeFragment", "Checking mood: '" + emotionalState + "' vs '" + moodFilter + "' -> " + matches);
+                        return matches;
+                    })
+                    .collect(Collectors.toList());
+            moodEvents.clear();
+            moodEvents.addAll(filteredList);
+            Log.d("HomeFragment", "After mood filter: " + moodEvents.size() + " events");
+        }
+
+        if (weekFilter) {
+            Calendar oneWeekAgo = Calendar.getInstance();
+            oneWeekAgo.add(Calendar.DAY_OF_YEAR, -7);
+            long oneWeekAgoMillis = oneWeekAgo.getTimeInMillis();
+            List<MoodEvent> filteredList = moodEvents.stream()
+                    .filter(event -> event.getTimestamp().toDate().getTime() >= oneWeekAgoMillis)
+                    .collect(Collectors.toList());
+            moodEvents.clear();
+            moodEvents.addAll(filteredList);
+        }
+
+        if (!reasonFilter.isEmpty()) {
+            List<MoodEvent> filteredList = moodEvents.stream()
+                    .filter(event -> Arrays.asList(event.getReason().toLowerCase().split("\\s+"))
+                    .contains(reasonFilter))
+                    .collect(Collectors.toList());
+            moodEvents.clear();
+            moodEvents.addAll(filteredList);
+            Log.d("HomeFragment", "After reason filter: " + moodEvents.size() + " events");
+        }
+
+        moodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
+        adapter.notifyDataSetChanged(); // Notify adapter of changes to the existing list
+    }
 
     public void toggleSort() {
         if (moodEvents == null || moodEvents.isEmpty()) return;
-
-
         moodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
-
         adapter.notifyDataSetChanged();
     }
 
 
 
     /**
-     * Fetches mood events associated with the current user from Firestore and updates the local
-     * list and UI adapter. Clears the existing list before adding new data.
+     * Listens for real-time updates to the mood events associated with the current user in Firestore.
+     * Automatically updates the local list and UI adapter whenever changes occur in the database.
      */
+
     public void fetchMoodEvents() {
         db.collection("Mood Events")
-                .whereEqualTo("username", Username) // Matches Firestore field name
-                .get()
-
+                .whereEqualTo("username", Username)
+                .get() // Fetch data initially
                 .addOnCompleteListener(task -> {
-                    /**
-                     * Processes the result of fetching mood events from Firestore.
-                     *
-                     * @param task The task containing the result of the Firestore query.
-                     */
                     if (task.isSuccessful()) {
-                        moodEvents.clear();
+                        allMoodEvents.clear(); // Reset full list
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                            String docId = document.getId();
-                            moodEvent.setDocumentId(docId);
-                            Log.d("HomeFragment", "Fetched MoodEvent with ID: " + docId + " - " + moodEvent.toString());
-                            moodEvents.add(moodEvent);
+                            moodEvent.setDocumentId(document.getId()); // Ensure docId is set
+                            allMoodEvents.add(moodEvent);
                         }
 
+                        // Populate moodEvents initially (before filtering)
+                        moodEvents.clear();
+                        moodEvents.addAll(allMoodEvents);
+
+                        // Sort and Refresh UI
                         toggleSort();
-
-
                         adapter.notifyDataSetChanged();
-                        Log.d("HomeFragment", "Mood events fetched: " + moodEvents.size());
+
+                        Log.d("HomeFragment", "Initial Mood events fetched: " + allMoodEvents.size());
                     } else {
                         Log.w("HomeFragment", "Error fetching mood events", task.getException());
-                        Toast.makeText(getContext(), "Error loading mood events", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        // 🔄 Listen for real-time changes in Firestore
+        db.collection("Mood Events")
+                .whereEqualTo("username", Username)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Log.e("HomeFragment", "Firestore Listen Failed: " + error.toString());
+                        return;
+                    }
+
+                    if (value != null) {
+                        allMoodEvents.clear(); // Reset full list
+                        for (QueryDocumentSnapshot document : value) {
+                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                            moodEvent.setDocumentId(document.getId()); // Set docId again (to ensure updates)
+                            allMoodEvents.add(moodEvent);
+                        }
+
+                        // Update displayed list
+                        moodEvents.clear();
+                        moodEvents.addAll(allMoodEvents);
+
+                        // Sort and Refresh UI After Updating the List
+                        toggleSort();
+                        adapter.notifyDataSetChanged();
+
+                        Log.d("HomeFragment", "Mood events updated in real-time: " + allMoodEvents.size());
                     }
                 });
     }
+
 
     /**
      * Validates if the mood input is non-empty.
@@ -239,6 +361,10 @@ public class HomeFragment extends Fragment {
         return mood != null && !mood.trim().isEmpty() &&
                 !mood.equals("😐 Select Emotional State");
     }
+
+
+
+
 
     /**
      * Displays a dialog allowing the user to edit or delete a specific mood event.
@@ -262,6 +388,18 @@ public class HomeFragment extends Fragment {
         Spinner socialSituationSpinner = dialogView.findViewById(R.id.edit_social_situation_spinner);
         Button saveButton = dialogView.findViewById(R.id.save_button);
         Button deleteButton = dialogView.findViewById(R.id.delete_button);
+        Switch switchLocation = dialogView.findViewById(R.id.edit_location_switch);
+
+        // Enable toggle by default if location exists
+        if (moodEvent.getLocation() != null) {
+            switchLocation.setChecked(true);
+        } else {
+            switchLocation.setChecked(false);
+        }
+
+
+
+
 
         // Make upload button and image preview visible
         buttonUpload.setVisibility(View.VISIBLE);
@@ -299,15 +437,8 @@ public class HomeFragment extends Fragment {
             Log.d("NoImg", "Fetched MoodEvent: " + moodEvent.toString());
         }
 
-        // Populate Mood Spinner
-        // Get mood options from resources
         List<String> moodOptionsList = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.mood_options)));
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodOptionsList);
-
-        moodSpinner.setAdapter(moodAdapter);
-
-
-        moodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         moodSpinner.setAdapter(moodAdapter);
         int moodPosition = moodAdapter.getPosition(moodEvent.getEmotionalState());
         if (moodPosition >= 0) {
@@ -348,6 +479,7 @@ public class HomeFragment extends Fragment {
 
         AlertDialog dialog = builder.create();
 
+
         // Delete button
         deleteButton.setOnClickListener(v -> {
             DeleteMoodEventAndUpdateDatabaseUponDeletion(moodEvent);
@@ -373,7 +505,6 @@ public class HomeFragment extends Fragment {
                 return;
             }
 
-
             String updatedReason = reasonEditText.getText().toString().trim();
 
             // Separator
@@ -390,25 +521,42 @@ public class HomeFragment extends Fragment {
             }
 
             // Adding the conditions for the textual reason
-            if (updatedReason.length() > 20) {
-                reasonEditText.setError("Reason cannot have more than 20 characters");
+            if (updatedReason.length() > 200) {
+                reasonEditText.setError("Reason cannot have more than 200 characters");
                 //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
                 return;
-            }
-            else if (separationArray.length >= 4) {
-                reasonEditText.setError("Reason cannot be more than 3 words");
+            } //else if (separationArray.length >= 4) {
+                //reasonEditText.setError("Reason cannot be more than 3 words");
                 //Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
+                //return;
+            //}
 
             String updatedTrigger = triggerEditText.getText().toString().trim();
             String updatedSocialSituation = socialSituationSpinner.getSelectedItemPosition() == 0 ? null : socialSituationSpinner.getSelectedItem().toString();
+
+            GeoPoint updatedLocation = moodEvent.getLocation();
+
+            if (switchLocation.isChecked()) {
+                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    requestLocationPermission();
+                    return; // 🚨 Exit early, wait for permission result
+                } else {
+                    updatedLocation = getUserLocation(); // Fetch new location
+                }
+            } else {
+                updatedLocation = null; // If switch is off, remove location
+            }
+
+
             if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
                 moodEvent.setReason(updatedReason);
                 moodEvent.setTrigger(updatedTrigger);
                 moodEvent.setSocialSituation(updatedSocialSituation);
+                moodEvent.setLocation(updatedLocation);
+
+
+
                 // Set the current timestamp when saving
                 java.text.DateFormat dateFormat = java.text.DateFormat.getDateTimeInstance(
                         java.text.DateFormat.MEDIUM,
@@ -422,7 +570,6 @@ public class HomeFragment extends Fragment {
                 Log.d("HomeFragment", "Saving MoodEvent with docId: " + moodEvent.getDocumentId());
                 if (newImageRef != null) {
                     String newImgPath = "images/" + Username + "_" + currentTimestamp.toDate().getTime() + ".png";
-
                     StorageReference fileRef = storageRef.child(newImgPath);
                     fileRef.putFile(newImageRef)
                             .addOnSuccessListener(taskSnapshot -> {
@@ -433,11 +580,8 @@ public class HomeFragment extends Fragment {
                                  */
                                 if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
                                     storageRef.child(moodEvent.getImgPath()).delete();
-                                }
-                                else
-                                {
-                                    if (moodEvent.getImgPath().equals("null"))
-                                    {
+                                } else {
+                                    if (Objects.equals(moodEvent.getImgPath(), "null")) {
                                         imagePreview.setVisibility(View.GONE);
                                     }
                                     imagePreview.setVisibility(View.GONE);
@@ -465,81 +609,27 @@ public class HomeFragment extends Fragment {
         dialog.show();
     }
 
+
     /**
      * Function to delete mood events and update firebase and our mood events list accordingly
      * @param moodEvent - The mood event we want to delete
      */
     public void DeleteMoodEventAndUpdateDatabaseUponDeletion(MoodEvent moodEvent) {
-
-        // Getting the mood events collection in firestore
+        // Getting the mood events collection in Firestore
         CollectionReference moodEventRef = db.collection("Mood Events");
 
-        // Obtaining the User's mood events
-        fetchMoodEvents();
+        // Deleting the mood event reference in Firestore
+        DocumentReference docRef = moodEventRef.document(moodEvent.getDocumentId());
+        docRef.delete().addOnSuccessListener(aVoid -> {
+            Log.d("HomeFragment", "MoodEvent deleted: " + moodEvent.getDocumentId());
 
-        // Similar to what was done in lab 5
-        moodEventRef.addSnapshotListener((value, error) -> {
-            if (error != null) {
-                Log.e("Firestore", error.toString());
-            }
-            if (value != null) {
-                moodEvents.clear();
-
-                // Going through each snapshot to obtain the mood event info
-                for (QueryDocumentSnapshot snapshot : value) {
-
-                    // All mood event data of the user
-                    if (snapshot.getString("Username") == moodEvent.getUsername()) {
-                        String emotionalState = snapshot.getString("emotionalState");
-                        String reason = snapshot.getString("reason");
-                        String socialSituation = snapshot.getString("socialSituation");
-
-                        Object timestampObj = snapshot.get("timestamp");
-                        Timestamp timestamp = null;
-
-
-                        if (timestampObj instanceof Timestamp) {
-                            timestamp = (Timestamp) timestampObj;
-                        } else if (timestampObj instanceof String) {
-                            try {
-                                timestamp = new Timestamp(new java.text.SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", java.util.Locale.US)
-                                        .parse((String) timestampObj));
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-
-                        String trigger = snapshot.getString("trigger");
-                        String username = snapshot.getString("username");
-                        String imgPath = snapshot.getString("imgPath");
-                        String id = snapshot.getId();
-                        GeoPoint location = (GeoPoint) snapshot.get("location");
-
-                        // Creating new mood event with the data obtained above
-                        MoodEvent updatedMoodEvent = new MoodEvent(emotionalState, reason, trigger, socialSituation, timestamp, location, imgPath, username);
-
-                        // Add everything back into our mood events list
-                        moodEvents.add(updatedMoodEvent);
-                        updatedMoodEvent.setDocumentId(id);
-                    }
-
-                }
-                // Updating display
-                adapter.notifyDataSetChanged();
-            }
+            Toast.makeText(getContext(), "Mood event deleted!", Toast.LENGTH_SHORT).show();
+        }).addOnFailureListener(e -> {
+            Log.w("HomeFragment", "Error deleting mood event", e);
+            Toast.makeText(getContext(), "Error deleting mood event", Toast.LENGTH_SHORT).show();
         });
-        if (moodEvents.isEmpty()) {
-            Toast.makeText(getContext(), "Zero length", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            // Deleting the mood event reference in the collection
-            DocumentReference docRef = moodEventRef.document(moodEvent.getDocumentId());
-            docRef.delete();
-        }
     }
 
-    // Update the mood event in Firebase
     /**
      * Updates a mood event in Firestore with the provided MoodEvent data and refreshes the UI.
      * Logs success or failure and notifies the adapter of changes.
@@ -569,6 +659,7 @@ public class HomeFragment extends Fragment {
                     Log.d("HomeFragment", "Successfully updated MoodEvent with ID: " + docId + " in Firestore");
                     moodEvents.set(position, moodEvent);
                     toggleSort();
+                    applyFilters();
                     adapter.notifyDataSetChanged();
                     Toast.makeText(getContext(), "Mood updated successfully", Toast.LENGTH_SHORT).show();
                 })

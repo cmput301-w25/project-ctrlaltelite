@@ -46,18 +46,19 @@
         android:orientation="horizontal">
         <!-- Select an Emotional State -->
         <Spinner
-        android:id="@+id/edit_mood_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Select Mood"
-        android:layout_marginBottom="16dp" />
+            android:id="@+id/edit_mood_spinner"
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:hint="Select Mood"
+            android:layout_marginBottom="16dp" />
         <!-- * Required (to let user know) -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="* Required"
             android:textColor="#F44336"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"
+            android:layout_marginLeft="0dp"/>
     </LinearLayout>
 
     <!-- Reason why for mood -->

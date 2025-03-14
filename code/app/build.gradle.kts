@@ -36,6 +36,7 @@ android {
 dependencies {
 
     implementation(libs.espresso.intents)
+    implementation(libs.play.services.location)
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.fragment:fragment:1.6.2")
@@ -66,7 +67,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
     implementation("com.google.firebase:firebase-storage")
-
-
+    implementation("com.google.android.gms:play-services-maps:19.1.0")
 
 }

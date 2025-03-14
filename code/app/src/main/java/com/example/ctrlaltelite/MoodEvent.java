@@ -34,6 +34,8 @@ public class MoodEvent {
     /** The geographical location where the mood event was recorded */
     private GeoPoint location;
 
+    private String formattedTimestamp;
+
     /**
      * Default constructor required for Firestore deserialization.
      */

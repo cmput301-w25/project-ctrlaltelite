@@ -49,15 +49,26 @@
             android:id="@+id/mood_image"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="2dp" />
+
+
 
         <TextView
             android:id="@+id/timestamp_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="#757575"
-            android:layout_marginTop="4dp" />
+            android:textColor="#757575" />
+
+
+        <TextView
+            android:id="@+id/geolocation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="#FF000000" />
+
+
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
