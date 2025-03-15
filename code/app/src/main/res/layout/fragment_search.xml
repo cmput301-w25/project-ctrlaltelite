@@ -70,7 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:background="@drawable/rounded_edittext_background"
-        android:hint="Search for a user"
+        android:hint="🔍 Search for a user"
         android:paddingStart="16dp"
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
