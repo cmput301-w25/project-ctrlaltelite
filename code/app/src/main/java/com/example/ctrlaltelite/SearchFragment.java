@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -57,6 +58,18 @@ public class SearchFragment extends Fragment {
 
         userAdapter = new UserAdapter(requireContext(), userList);
         userListView.setAdapter(userAdapter);
+
+        ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
+
+        // Get a reference to the MainActivity so we can call openDrawer()
+        MainActivity mainActivity = (MainActivity) getActivity();
+
+        if (buttonDrawerToggle != null && mainActivity != null) {
+            buttonDrawerToggle.setOnClickListener(v -> {
+                mainActivity.openDrawer();
+            });
+        }
+
 
         // Fetch all users (empty query shows all)
         fetchUsers("");

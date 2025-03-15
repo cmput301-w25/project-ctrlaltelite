@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -178,6 +179,17 @@ public class AddFragment extends Fragment implements LocationListener {
 
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();  // Firebase Authentication instance
+        ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
+
+        // Get a reference to the MainActivity so we can call openDrawer()
+        MainActivity mainActivity = (MainActivity) getActivity();
+
+        if (buttonDrawerToggle != null && mainActivity != null) {
+            buttonDrawerToggle.setOnClickListener(v -> {
+                mainActivity.openDrawer();
+            });
+        }
+
 
 
         if (getArguments() != null) {

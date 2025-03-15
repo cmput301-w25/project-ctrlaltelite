@@ -5,15 +5,18 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowInsets;
+import android.widget.ImageButton;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -36,6 +39,10 @@ public class MainActivity extends AppCompatActivity {
     private String username;
     BottomNavigationView bottomNavigationView;
 
+    DrawerLayout drawerLayout;
+
+
+
     /**
      * Called when the activity is first created. It initializes the UI, retrieves
      * user information, and sets up the bottom navigation.
@@ -51,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         db = FirebaseFirestore.getInstance();
         bottomNavigationView = findViewById(R.id.btnNav);
+
+        // This finds the DrawerLayout in activity_main.xml
+        drawerLayout = findViewById(R.id.drawerLayout);
+
+
+
 
 
         View decoreView = getWindow().getDecorView();
@@ -75,6 +88,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         fragmentRepl(new HomeFragment());
+
+
+
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             /**
@@ -126,6 +142,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void openDrawer() {
+        drawerLayout.openDrawer(GravityCompat.START);
+    }
+
+
 
     /**
      * Replaces the current fragment with a new one and passes the username to the fragment.
