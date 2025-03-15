@@ -14,7 +14,8 @@ import java.util.List;
 /**
  * Custom adapter for a spinner that changes text color based on the selected mood.
  */
-public class CustomSpinnerAdapter extends ArrayAdapter<String> {
+public class
+CustomSpinnerAdapter extends ArrayAdapter<String> {
     private Context context;
     private List<String> items;
 

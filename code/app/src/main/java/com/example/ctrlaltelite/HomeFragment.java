@@ -347,7 +347,7 @@ public class HomeFragment extends AddFragment {
                     }
                 });
 
-        // 🔄 Listen for real-time changes in Firestore
+        // Listen for real-time changes in Firestore
         db.collection("Mood Events")
                 .whereEqualTo("username", Username)
                 .addSnapshotListener((value, error) -> {
