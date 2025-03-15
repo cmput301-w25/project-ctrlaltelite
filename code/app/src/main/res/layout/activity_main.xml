@@ -8,6 +8,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:openDrawer="start"
+    android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -53,6 +54,7 @@
         android:layout_height="match_parent"
         app:menu="@menu/side_nav_menu"
         app:headerLayout="@layout/side_drawer_header"
+        app:dividerInsetStart="60dp"
         android:layout_gravity="start"/>
 
 

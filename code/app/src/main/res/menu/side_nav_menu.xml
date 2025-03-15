@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <group
+        android:id="@+id/group1">
 
-    <item
-        android:id="@+id/profile_picture"
-        android:icon="@drawable/profile"
-        android:title="Profile"/>
+        <item
+            android:id="@+id/profile_picture"
+            android:icon="@drawable/profile"
+            android:title="Profile"/>
 
-    <item
-        android:id="@+id/map"
-        android:icon="@drawable/ic_baseline_map_45"
-        android:title="Map"/>
 
-    <item
-        android:icon="@drawable/logout"
-        android:id="@+id/logout"
-        android:title="Logout"/>
+    </group>
+
+    <group
+        android:id="@+id/group2">
+        <item
+            android:icon="@drawable/logout"
+            android:id="@+id/logout"
+            android:title="Logout"/>
+
+
+    </group>
 
 
 

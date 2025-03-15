@@ -47,7 +47,7 @@ public class FollowingFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_add, container, false);
+        View view = inflater.inflate(R.layout.fragment_following, container, false);
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
 
         // Get a reference to the MainActivity so we can call openDrawer()
