@@ -2,27 +2,35 @@ package com.example.ctrlaltelite;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowInsets;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.graphics.Insets;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import java.util.ArrayList;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 /**
  * The {@code MainActivity} serves as the entry point of the application and manages
@@ -34,7 +42,15 @@ public class MainActivity extends AppCompatActivity {
 
     /** Stores the logged-in user's username. */
     private String username;
+
+    private TextView usernameTextView, emailTextView, phoneTextView;
+
     BottomNavigationView bottomNavigationView;
+
+    DrawerLayout drawerLayout;
+    NavigationView navigationView;
+
+
 
     /**
      * Called when the activity is first created. It initializes the UI, retrieves
@@ -52,6 +68,88 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         bottomNavigationView = findViewById(R.id.btnNav);
 
+        // This finds the DrawerLayout in activity_main.xml
+        drawerLayout = findViewById(R.id.drawerLayout);
+        navigationView = findViewById(R.id.navigationView);
+        NavigationView navigationView = findViewById(R.id.navigationView);
+
+        // Get the inflated header layout
+        View headerView = navigationView.getHeaderView(0);
+
+        //finding text views in that header layout
+        TextView usernameTextView = headerView.findViewById(R.id.text_username);
+        TextView emailTextView = headerView.findViewById(R.id.text_email);
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            username = bundle.getString("username");
+        }
+
+        if (username != null && !username.isEmpty()) {
+            db.collection("users")
+                    .whereEqualTo("username", username)
+                    .get()
+                    .addOnSuccessListener(querySnapshot -> {
+                        if (!querySnapshot.isEmpty()) {
+                            // Get the first matching document
+                            DocumentSnapshot document = querySnapshot.getDocuments().get(0);
+
+                            // Extract fields (make sure these fields exist in your Firestore 'users' collection)
+                            String email = document.getString("email");
+                            String mobile = document.getString("mobile");
+
+                            // Fill your TextViews
+                            usernameTextView.setText(username);  // or from Firestore if you store it there
+                            emailTextView.setText(email != null ? email : "N/A");
+                            if (phoneTextView != null) {
+                                phoneTextView.setText(mobile != null ? mobile : "N/A");
+                            }
+                        } else {
+                            Toast.makeText(MainActivity.this, "User not found", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e("MainActivity", "Firestore error fetching user data", e);
+                    });
+        } else {
+            Toast.makeText(MainActivity.this, "Username not provided", Toast.LENGTH_SHORT).show();
+        }
+
+
+
+
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                int itemid = item.getItemId();
+
+                if (itemid == R.id.profile_picture) {
+                    Toast.makeText(MainActivity.this, "Profile Clicked", Toast.LENGTH_SHORT).show();
+
+                    // This replaces the current fragment with a new instance of ProfileFragment
+                    fragmentRepl(new ProfileFragment());
+                }
+
+                if (itemid == R.id.logout) {
+                    Toast.makeText(MainActivity.this, "Logged Out", Toast.LENGTH_SHORT).show();
+                    // Redirect to Login Screen
+                    Intent intent = new Intent(MainActivity.this, Login.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear back stack
+                    startActivity(intent);
+
+                }
+
+                //whenever a method is called from here the side drawer will close
+                drawerLayout.close();
+                return false;
+            }
+        });
+
+
+
+
 
         View decoreView = getWindow().getDecorView();
         decoreView.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
@@ -68,13 +166,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            // Get username and password from the Bundle
-            username = bundle.getString("username");
-        }
 
         fragmentRepl(new HomeFragment());
+
+
+
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             /**
@@ -126,6 +222,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void openDrawer() {
+        drawerLayout.openDrawer(GravityCompat.START);
+    }
+
+
 
     /**
      * Replaces the current fragment with a new one and passes the username to the fragment.

@@ -5,6 +5,7 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="colorPrimary">#AFFAFD</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
 
     </style>
     <style name="Theme.CtrlAltElite" parent="Base.Theme.CtrlAltElite" />

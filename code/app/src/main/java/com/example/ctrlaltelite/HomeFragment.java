@@ -1,5 +1,7 @@
 package com.example.ctrlaltelite;
 
+import com.example.ctrlaltelite.MainActivity;
+
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -18,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -35,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -83,6 +87,8 @@ public class HomeFragment extends AddFragment {
     private boolean weekFilter = false; // Default: all time
     private String reasonFilter = "";   // Default: no search
 
+    ImageButton buttonDrawerToggle;
+
     /**
      * This is called to do initial creation of the fragment. It initializes Firebase Storage and registers
      * the image picker and permission request handlers.
@@ -97,6 +103,7 @@ public class HomeFragment extends AddFragment {
         // Initialize Firebase Storage
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+
 
 
 
@@ -156,6 +163,19 @@ public class HomeFragment extends AddFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         db = FirebaseFirestore.getInstance();
+
+
+        ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
+
+        // Get a reference to the MainActivity so we can call openDrawer()
+        MainActivity mainActivity = (MainActivity) getActivity();
+
+        if (buttonDrawerToggle != null && mainActivity != null) {
+            buttonDrawerToggle.setOnClickListener(v -> {
+                mainActivity.openDrawer();
+            });
+        }
+
 
         // Retrieve username from Bundle
         Bundle args = getArguments();
