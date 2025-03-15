@@ -180,7 +180,6 @@ public class OtherUserProfileFragment extends Fragment {
     }
 
     private User getUser(String username) {
-
         Log.d("OtherUserProfileFragment", "Obtaining the User object for username: " + username);
         db.collection("users")
                 .whereEqualTo("username", username)
@@ -197,6 +196,5 @@ public class OtherUserProfileFragment extends Fragment {
         else {
             return desiredUser;
         }
-
     }
 }
