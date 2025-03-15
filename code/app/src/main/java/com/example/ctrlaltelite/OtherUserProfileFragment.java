@@ -36,8 +36,7 @@ public class OtherUserProfileFragment extends Fragment {
 
     private List<FollowRequest> followRequestList = new ArrayList<>();
 
-    private ListView followRequestListView;
-    private FollowRequestAdapter followRequestAdapter;
+    private User desiredUser;
 
     public OtherUserProfileFragment(User currentUser, User searchedUser) {
         this.currentUser = currentUser;
@@ -61,9 +60,6 @@ public class OtherUserProfileFragment extends Fragment {
 
         moodAdapter = new MoodEventAdapter(requireContext(), moodEvents);
         moodListView.setAdapter(moodAdapter);
-
-        // followRequestAdapter = new FollowRequestAdapter(requireContext(), followRequestList);
-        // followRequestListView.setAdapter(followRequestAdapter);
 
         Bundle args = getArguments();
         if (args != null) {
@@ -94,7 +90,7 @@ public class OtherUserProfileFragment extends Fragment {
                             }
 
                             if (!alreadyRequested) {
-                                FollowRequest newFollowRequest = new FollowRequest(currentUser, searchedUser);
+                                FollowRequest newFollowRequest = new FollowRequest(currentUser, searchedUser, "Pending");
                                 saveToFirestore(newFollowRequest);
                                 requestButton.setText("Requested");
                                 Toast.makeText(getContext(), "Successfully requested to follow " + searchedUser.getDisplayName(), Toast.LENGTH_SHORT).show();
@@ -142,18 +138,20 @@ public class OtherUserProfileFragment extends Fragment {
     private void fetchFollowRequests(String username) {
         Log.d("OtherUserProfileFragment", "Fetching follow requests for username: " + username);
         db.collection("FollowRequests")
-                .whereEqualTo("username", username)
+                .whereEqualTo("Following", username)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         followRequestList.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            FollowRequest followRequest = document.toObject(FollowRequest.class);
+                            String followerUserName = document.getString("Follower");
+                            String followingUserName = document.getString("Following");
+                            String status = document.getString("Status");
                             String docId = document.getId();
+                            FollowRequest followRequest = new FollowRequest(getUser(followerUserName), getUser(followingUserName), status);
                             followRequest.setDocumentId(docId);
                             followRequestList.add(followRequest);
                         }
-                        // followRequestAdapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(getContext(), "Error loading follow requests for username: " + username, Toast.LENGTH_SHORT).show();
                     }
@@ -161,7 +159,6 @@ public class OtherUserProfileFragment extends Fragment {
     }
 
     protected void saveToFirestore(FollowRequest followRequest) {
-
         String currentUserUsername = followRequest.getRequester().getUsername();
         String searchedUserUsername = followRequest.getRequestedUser().getUsername();
         String status = followRequest.getStatus();
@@ -176,14 +173,30 @@ public class OtherUserProfileFragment extends Fragment {
                 .addOnSuccessListener(documentReference -> {
                     followRequest.setDocumentId(documentReference.getId());
                     Log.d("AddFragment", "Saved Follow Request with docId: " + followRequest.getDocumentId());
-                    Toast.makeText(getContext(), "Error", Toast.LENGTH_SHORT).show();
-
                 })
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Error making follow request", Toast.LENGTH_SHORT).show();
                 });
     }
 
+    private User getUser(String username) {
 
+        Log.d("OtherUserProfileFragment", "Obtaining the User object for username: " + username);
+        db.collection("users")
+                .whereEqualTo("username", username)
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        desiredUser = document.toObject(User.class);
+                    }
+                });
 
+        if (desiredUser == null) {
+            return null;
+        }
+        else {
+            return desiredUser;
+        }
+
+    }
 }

@@ -6,10 +6,10 @@ public class FollowRequest {
     private String status;
     private String documentId;
 
-    public FollowRequest(User requester, User requestedUser) {
+    public FollowRequest(User requester, User requestedUser, String status) {
         this.requester = requester;
         this.requestedUser = requestedUser;
-        this.status = "Pending";
+        this.status = status;
     }
 
     public User getRequester() {
