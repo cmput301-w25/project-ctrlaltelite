@@ -31,9 +31,9 @@
             android:id="@+id/buttonDrawerToggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="start|center_vertical"
             android:background="@android:color/transparent"
-            android:src="@drawable/menu">
-        </ImageButton>
+            android:src="@drawable/menu"/>
 
         <TextView
             android:id="@+id/title_text"
@@ -45,10 +45,10 @@
             android:text="Mood History"
             android:textColor="@color/black"
             android:textSize="24sp"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="5"
             app:layout_constraintStart_toStartOf="parent"
+            android:fontFamily="@font/font9"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
@@ -57,9 +57,8 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:src="@drawable/bell3"
-            tools:layout_editor_absoluteX="276dp"
-            android:layout_marginLeft="90dp"
-            tools:layout_editor_absoluteY="13dp"></ImageButton>
+            android:layout_gravity="end|center_vertical"
+            android:layout_marginEnd="16dp"/>
 
 
     </Toolbar>
@@ -81,6 +80,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
+    android:fontFamily="@font/font3"
 
     <Spinner
         android:id="@+id/mood_filter"

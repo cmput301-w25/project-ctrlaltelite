@@ -6,7 +6,7 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
         <item name="colorPrimary">#AFFAFD</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-
+        <item name="android:fontFamily">@font/font7</item>
     </style>
     <style name="Theme.CtrlAltElite" parent="Base.Theme.CtrlAltElite" />
 </resources>
