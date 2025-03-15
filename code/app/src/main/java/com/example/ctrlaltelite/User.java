@@ -1,11 +1,15 @@
 package com.example.ctrlaltelite;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     private String displayName;
     private String username;
     private String email;
     private String mobile;
     private String profilePhotoUrl; // Optional, null if not present
+
     public User() {}
     public User(String displayName, String username, String profilePhotoUrl) {
         this.displayName = displayName;
