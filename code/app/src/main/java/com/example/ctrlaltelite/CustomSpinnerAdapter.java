@@ -64,12 +64,22 @@ CustomSpinnerAdapter extends ArrayAdapter<String> {
     @Override
     public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(android.R.layout.simple_spinner_dropdown_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.spinner_dropdown_item, parent, false);
         }
-        TextView textView = (TextView) convertView;
+        TextView textView = convertView.findViewById(R.id.spinner_dropdown_text);
         textView.setText(items.get(position));
         textView.setTextColor(getColorForPosition(position));
         textView.setTextSize(18);
+
+        // For the first item, adding "drop-up" arrow
+        if (position == 0) {
+            textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.baseline_arrow_drop_up_24, 0);
+            textView.setCompoundDrawablePadding(8);
+        } else {
+            // To ensure other items have no compound drawable in case views are recycled
+            textView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+        }
+
         return convertView;
     }
 
