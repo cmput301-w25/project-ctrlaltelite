@@ -60,7 +60,7 @@ public class ProfileFragment extends AddFragment {
 
         Log.d("ProfileFragment", "Fetching user data for username: " + username);
 
-        // 🔥 Fetch user details from Firestore using "username"
+        // Fetch user details from Firestore using "username"
         db.collection("users")
                 .whereEqualTo("username", username)
                 .get()
@@ -85,7 +85,7 @@ public class ProfileFragment extends AddFragment {
                     Toast.makeText(getContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
                 });
 
-        // 🔥 Logout Button Click
+        // Logout Button Click
         logoutButton.setOnClickListener(v -> {
             Toast.makeText(getContext(), "Logged out", Toast.LENGTH_SHORT).show();
 
