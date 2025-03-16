@@ -14,6 +14,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.res.ResourcesCompat;
+
 import com.bumptech.glide.Glide;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -61,6 +63,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 
         moodText.setTextColor(getColorForMood(moodEvent.getEmotionalState()));
 
+        Glide.with(getContext()).clear(moodImage);
+
 
         //Convert Coordinates to Address
         if (moodEvent.getLocation() != null) {
@@ -70,21 +74,24 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             // Call a method to get address from coordinates
             String address = getAddressFromCoordinates(latitude, longitude);
             if (address != null) {
-                geolocationText.setText("@ " + address);
+                geolocationText.setText("\uD83D\uDCCC" + address);
                 geolocationText.setVisibility(View.VISIBLE);
                 // Apply Gradient Background Styling
                 GradientDrawable gradientDrawable = new GradientDrawable(
                         GradientDrawable.Orientation.LEFT_RIGHT,
 
-                        new int[]{Color.parseColor("#FF9671"), Color.parseColor("#FDBEA6"), Color.parseColor("#FFE9DE")}
+                        new int[]{Color.parseColor("#FFE9DE"), Color.parseColor("#FDBEA6"), Color.parseColor("#FF9671")}
+
 
                 );
                 gradientDrawable.setCornerRadius(16); // Rounded corners
+                Typeface customFont = ResourcesCompat.getFont(this.getContext(), R.font.font7);
+                geolocationText.setTypeface(customFont, Typeface.BOLD);
 
                 geolocationText.setBackground(gradientDrawable);
                 geolocationText.setTextColor(Color.BLACK); // White text for contrast
                 geolocationText.setPadding(12, 6, 12, 6); // Better spacing
-                geolocationText.setTypeface(null, Typeface.BOLD); // Bold text
+
             }
 
             else {

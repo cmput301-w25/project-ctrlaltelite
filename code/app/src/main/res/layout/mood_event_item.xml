@@ -5,8 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="8dp">
+    app:cardCornerRadius="10dp"
+    app:cardBackgroundColor="#F5F5F5"
+    app:cardUseCompatPadding="true"
+    android:descendantFocusability="blocksDescendants">
+    app:cardElevation="5dp">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,16 +19,18 @@
         <TextView
             android:id="@+id/mood_text"
             android:layout_width="wrap_content"
+            android:fontFamily="@font/font9"
             android:layout_height="wrap_content"
             android:textColor="#757575"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textSize="20sp"
+             />
 
         <TextView
             android:id="@+id/reason_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#757575"
+            android:fontFamily="@font/font7"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
 
@@ -34,6 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#757575"
+            android:fontFamily="@font/font7"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
 
@@ -42,6 +48,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#757575"
+            android:fontFamily="@font/font7"
             android:textSize="14sp"
             android:layout_marginTop="4dp" />
 
@@ -67,6 +74,18 @@
             android:layout_height="wrap_content"
             android:textSize="12sp"
             android:textColor="#FF000000" />
+
+        <ImageButton
+            android:id="@+id/comments_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/comment2"
+            android:background="@android:color/transparent"
+            android:tint="@color/mood_confusion"
+            android:layout_marginTop="8dp"
+            android:focusable="false"
+            android:clickable="true"
+            />
 
 
 

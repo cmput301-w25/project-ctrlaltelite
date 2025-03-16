@@ -33,7 +33,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-            android:id="@+id/toolbar_img"
+            android:id="@+id/buttonDrawerToggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -49,24 +49,28 @@
             android:layout_marginTop="10dp"
             android:layout_marginRight="50dp"
             android:text="Add Mood Event"
+            android:fontFamily="@font/font9"
             android:textColor="@color/black"
             android:textSize="24sp"
-            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
 
-        <ImageButton
+        <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/notif"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:src="@drawable/bell3"
-            tools:layout_editor_absoluteX="276dp"
-            android:layout_marginLeft="60dp"
-            tools:layout_editor_absoluteY="13dp"></ImageButton>
+            android:layout_gravity="end|center_vertical"
+            android:elevation="5dp"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/lottie8"
+            tools:layout_editor_absoluteX="375dp"
+            tools:layout_editor_absoluteY="0dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:layout_marginEnd="0dp"
+            android:padding="0dp"/>
 
     </Toolbar>
 
@@ -87,6 +91,7 @@
         android:layout_height="wrap_content"
         android:hint="Select an emotional state *"
         app:layout_constraintTop_toBottomOf="@id/Required"
+        android:background="@drawable/rounded_add_background"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"
@@ -121,6 +126,7 @@
         android:id="@+id/social_situation_spinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_add_background"
         android:hint="Select social situation *"
         app:layout_constraintTop_toBottomOf="@id/edit_trigger"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,5 +1,7 @@
 package com.example.ctrlaltelite;
 
+import com.example.ctrlaltelite.MainActivity;
+
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,7 +27,10 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.text.Editable;
+import android.text.TextWatcher;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -32,6 +38,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.Timestamp;
@@ -39,15 +47,15 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.Calendar;
@@ -65,8 +73,6 @@ public class HomeFragment extends AddFragment {
     private List<MoodEvent> moodEvents = new ArrayList<>();
     private FirebaseFirestore db;
     private String Username;
-    private User currentUser;
-
 
     // Image picking variables
     private ActivityResultLauncher<PickVisualMediaRequest> pickMedia;
@@ -80,6 +86,8 @@ public class HomeFragment extends AddFragment {
     private String moodFilter = "Mood"; // Default: no filter
     private boolean weekFilter = false; // Default: all time
     private String reasonFilter = "";   // Default: no search
+
+    ImageButton buttonDrawerToggle;
 
     /**
      * This is called to do initial creation of the fragment. It initializes Firebase Storage and registers
@@ -95,6 +103,11 @@ public class HomeFragment extends AddFragment {
         // Initialize Firebase Storage
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+
+
+
+
+
 
         // Register image picker in onCreate (only once)
         pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
@@ -151,6 +164,19 @@ public class HomeFragment extends AddFragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         db = FirebaseFirestore.getInstance();
 
+
+        ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
+
+        // Get a reference to the MainActivity so we can call openDrawer()
+        MainActivity mainActivity = (MainActivity) getActivity();
+
+        if (buttonDrawerToggle != null && mainActivity != null) {
+            buttonDrawerToggle.setOnClickListener(v -> {
+                mainActivity.openDrawer();
+            });
+        }
+
+
         // Retrieve username from Bundle
         Bundle args = getArguments();
         if (args != null) {
@@ -194,19 +220,6 @@ public class HomeFragment extends AddFragment {
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        ImageButton bellIcon = view.findViewById(R.id.notif);
-
-        // Go to ViewFollowRequestFragment when user clicks on the notification bell
-        bellIcon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ViewFollowRequestsFragment followRequestsFragment = new ViewFollowRequestsFragment(Username);
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).fragmentRepl(followRequestsFragment);
-                }
-            }
         });
 
         // Week filter
@@ -283,7 +296,7 @@ public class HomeFragment extends AddFragment {
         if (!reasonFilter.isEmpty()) {
             List<MoodEvent> filteredList = moodEvents.stream()
                     .filter(event -> Arrays.asList(event.getReason().toLowerCase().split("\\s+"))
-                    .contains(reasonFilter))
+                            .contains(reasonFilter))
                     .collect(Collectors.toList());
             moodEvents.clear();
             moodEvents.addAll(filteredList);
@@ -334,7 +347,7 @@ public class HomeFragment extends AddFragment {
                     }
                 });
 
-        // 🔄 Listen for real-time changes in Firestore
+        // Listen for real-time changes in Firestore
         db.collection("Mood Events")
                 .whereEqualTo("username", Username)
                 .addSnapshotListener((value, error) -> {
@@ -411,6 +424,10 @@ public class HomeFragment extends AddFragment {
             switchLocation.setChecked(false);
         }
 
+
+
+
+
         // Make upload button and image preview visible
         buttonUpload.setVisibility(View.VISIBLE);
         Glide.with(requireContext()).clear(imagePreview);
@@ -477,13 +494,13 @@ public class HomeFragment extends AddFragment {
              *
              * @param v The view that was clicked (the upload button).
              */
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) ==
+            if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
                     PackageManager.PERMISSION_GRANTED) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                         .build());
             } else {
-                requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
+                requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES);
             }
         });
 
@@ -536,9 +553,9 @@ public class HomeFragment extends AddFragment {
                 //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
                 return;
             } //else if (separationArray.length >= 4) {
-                //reasonEditText.setError("Reason cannot be more than 3 words");
-                //Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
-                //return;
+            //reasonEditText.setError("Reason cannot be more than 3 words");
+            //Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
+            //return;
             //}
 
             String updatedTrigger = triggerEditText.getText().toString().trim();
@@ -568,10 +585,10 @@ public class HomeFragment extends AddFragment {
 
 
                 // Set the current timestamp when saving
-                DateFormat dateFormat = DateFormat.getDateTimeInstance(
-                        DateFormat.MEDIUM,
-                        DateFormat.MEDIUM,
-                        Locale.getDefault() // Use local formatting
+                java.text.DateFormat dateFormat = java.text.DateFormat.getDateTimeInstance(
+                        java.text.DateFormat.MEDIUM,
+                        java.text.DateFormat.MEDIUM,
+                        java.util.Locale.getDefault() // Use local formatting
                 );
 
                 Timestamp currentTimestamp = Timestamp.now();
@@ -683,5 +700,5 @@ public class HomeFragment extends AddFragment {
                     Toast.makeText(getContext(), "Failed to update mood in Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
-}
 
+}

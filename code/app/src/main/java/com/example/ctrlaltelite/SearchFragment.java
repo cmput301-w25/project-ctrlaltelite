@@ -59,6 +59,18 @@ public class SearchFragment extends Fragment {
         userAdapter = new UserAdapter(requireContext(), userList);
         userListView.setAdapter(userAdapter);
 
+        ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
+
+        // Get a reference to the MainActivity so we can call openDrawer()
+        MainActivity mainActivity = (MainActivity) getActivity();
+
+        if (buttonDrawerToggle != null && mainActivity != null) {
+            buttonDrawerToggle.setOnClickListener(v -> {
+                mainActivity.openDrawer();
+            });
+        }
+
+
         // Fetch all users (empty query shows all)
         fetchUsers("");
 
