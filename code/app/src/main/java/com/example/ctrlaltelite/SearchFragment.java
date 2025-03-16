@@ -100,6 +100,20 @@ public class SearchFragment extends Fragment {
             }
         });
 
+        ImageButton bellIcon = view.findViewById(R.id.notif);
+
+        // Go to ViewFollowRequestFragment when user clicks on the notification bell
+        bellIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ViewFollowRequestsFragment followRequestsFragment = new ViewFollowRequestsFragment(currentUserUsername);
+                Bundle bundle = new Bundle();
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).fragmentRepl(followRequestsFragment);
+                }
+            }
+        });
+
         return view;
     }
 

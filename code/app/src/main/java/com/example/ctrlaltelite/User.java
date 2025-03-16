@@ -11,6 +11,7 @@ public class User {
     private String profilePhotoUrl; // Optional, null if not present
 
     public User() {}
+
     public User(String displayName, String username, String profilePhotoUrl) {
         this.displayName = displayName;
         this.username = username;
