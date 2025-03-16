@@ -25,14 +25,12 @@ public class FollowRequestAdapter extends ArrayAdapter<FollowRequest> {
         }
 
         FollowRequest followRequest = getItem(position);
-        TextView followerDisplayName = convertView.findViewById(R.id.follower_username);
-        TextView followingDisplayName = convertView.findViewById(R.id.following_username);
-        TextView status = convertView.findViewById(R.id.status);
+        TextView followingUsernameName = convertView.findViewById(R.id.following_username);
+        TextView followingDisplayName = convertView.findViewById(R.id.following_display_name);
 
         if (followRequest != null) {
-            followerDisplayName.setText(followRequest.getRequestedUserName());
-            followingDisplayName.setText(followRequest.getRequesterUserName());
-            status.setText(followRequest.getStatus());
+            followingUsernameName.setText(followRequest.getRequesterUserName());
+            followingDisplayName.setText(followRequest.getRequesterDisplayName());
         }
         return convertView;
     }

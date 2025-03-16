@@ -70,11 +70,13 @@ public class ViewFollowRequestsFragment extends Fragment {
                     if (task.isSuccessful()) {
                         followRequestList.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            String followerUserName = document.getString("Follower");
-                            String followingUserName = document.getString("Following");
+                            String followerUserName = document.getString(" Resquester's Username");
+                            String followingUserName = document.getString("Requestee's Username");
+                            String followerDisplayName = document.getString("Requester's Display Name");
+                            String followingDisplayName = document.getString("Requestee's Display Name");
                             String status = document.getString("Status");
                             String docId = document.getId();
-                            FollowRequest followRequest = new FollowRequest(followerUserName, followingUserName, status);
+                            FollowRequest followRequest = new FollowRequest(followerUserName, followingUserName, followerDisplayName,followingDisplayName, status);
                             followRequest.setDocumentId(docId);
                             followRequestList.add(followRequest);
                             
