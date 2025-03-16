@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -84,6 +85,20 @@ public class SearchFragment extends Fragment {
             userProfileFragment.setArguments(bundle);
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).fragmentRepl(userProfileFragment);
+            }
+        });
+
+        ImageButton bellIcon = view.findViewById(R.id.notif);
+
+        // Go to ViewFollowRequestFragment when user clicks on the notification bell
+        bellIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ViewFollowRequestsFragment followRequestsFragment = new ViewFollowRequestsFragment(currentUserUsername);
+                Bundle bundle = new Bundle();
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).fragmentRepl(followRequestsFragment);
+                }
             }
         });
 

@@ -1,32 +1,33 @@
 package com.example.ctrlaltelite;
 
 public class FollowRequest {
-    private User requester;
-    private User requestedUser;
+    private String requesterUserName;
+    private String requestedUserName;
     private String status;
     private String documentId;
 
-    public FollowRequest(User requester, User requestedUser, String status) {
-        this.requester = requester;
-        this.requestedUser = requestedUser;
+    public FollowRequest(String requesterUserName, String requestedUserName, String status) {
+        this.requestedUserName = requestedUserName;
+        this.requesterUserName = requesterUserName;
         this.status = status;
     }
 
-    public User getRequester() {
-        return requester;
+    public String getRequesterUserName() {
+        return requesterUserName;
     }
 
-    public void setRequester(User requester) {
-        this.requester = requester;
+    public void setRequesterUserName(String requesterUserName) {
+        this.requesterUserName = requesterUserName;
     }
 
-    public User getRequestedUser() {
-        return requestedUser;
+    public String getRequestedUserName() {
+        return requestedUserName;
     }
 
-    public void setRequestedUser(User requestedUser) {
-        this.requestedUser = requestedUser;
+    public void setRequestedUserName(String requestedUserName) {
+        this.requestedUserName = requestedUserName;
     }
+
     public String getStatus() {
         return this.status;
     }

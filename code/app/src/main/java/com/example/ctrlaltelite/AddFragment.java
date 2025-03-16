@@ -40,6 +40,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -115,7 +116,6 @@ public class AddFragment extends Fragment implements LocationListener {
     private int maxSize = 65536;
 
     private LocationManager locationManager;
-
 
 
     /**
@@ -322,10 +322,6 @@ public class AddFragment extends Fragment implements LocationListener {
         }
     }
 
-
-
-
-
     /**
      * Saves a mood event, ensuring a reason or image is provided.
      * @param uName The username of the logged-in user.
@@ -514,5 +510,4 @@ public class AddFragment extends Fragment implements LocationListener {
         Toast.makeText(getContext(), "New Location: " + latitude + ", " + longitude, Toast.LENGTH_SHORT).show();
         Log.d("Location Debug", "Updated Latitude: " + latitude + ", Longitude: " + longitude);
     }
-
 }
