@@ -1,15 +1,19 @@
 package com.example.ctrlaltelite;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.airbnb.lottie.LottieAnimationView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +26,8 @@ import java.util.List;
 
 
 public class FollowingFragment extends Fragment {
+
+    private String Username;
 
     /**
      * Default constructor.
@@ -66,14 +72,44 @@ public class FollowingFragment extends Fragment {
         moodFilterSpinner.setAdapter(moodAdapter);
 
 
+
         // Get a reference to the MainActivity so we can call openDrawer()
         MainActivity mainActivity = (MainActivity) getActivity();
+
+        // Retrieve username from Bundle
+        Bundle args = getArguments();
+        if (args != null) {
+            Username = args.getString("username");
+            Log.d("MoodHistoryFragment", "Fetching mood events for Username: " + Username);
+        }
+        if (Username == null) {
+            Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
+            return view;
+        }
 
         if (buttonDrawerToggle != null && mainActivity != null) {
             buttonDrawerToggle.setOnClickListener(v -> {
                 mainActivity.openDrawer();
             });
         }
+
+        //Pressing on the notification button
+
+        LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
+        notifButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Username != null) { // Ensure Username is retrieved before navigating
+                    ViewFollowRequestsFragment followRequestsFragment = new ViewFollowRequestsFragment(Username);
+
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).fragmentRepl(followRequestsFragment);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Error: Username not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         return view;
     }
 

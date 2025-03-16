@@ -1,5 +1,6 @@
 package com.example.ctrlaltelite;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.ctrlaltelite.MainActivity;
 
 import android.Manifest;
@@ -247,6 +248,24 @@ public class HomeFragment extends AddFragment {
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             MoodEvent moodEvent = moodEvents.get(position);
             showDeleteEditMoodDialog(moodEvent, position);
+        });
+
+        //Pressing on the notification button
+
+        LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
+        notifButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Username != null) { // Ensure Username is retrieved before navigating
+                    ViewFollowRequestsFragment followRequestsFragment = new ViewFollowRequestsFragment(Username);
+
+                    if (getActivity() instanceof MainActivity) {
+                        ((MainActivity) getActivity()).fragmentRepl(followRequestsFragment);
+                    }
+                } else {
+                    Toast.makeText(getContext(), "Error: Username not found", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
         return view;

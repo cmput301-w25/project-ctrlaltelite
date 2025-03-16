@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -39,10 +40,24 @@ public class ViewFollowRequestsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_view_follow_requests, container, false);
+
+        ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
+
         ListView followRequestListView = view.findViewById(R.id.follow_request_list);
         followRequestAdapter = new FollowRequestAdapter(requireContext(), followRequestList);
         followRequestListView.setAdapter(followRequestAdapter);
         fetchFollowRequests(username);
+
+        // Get a reference to the MainActivity so we can call openDrawer()
+        MainActivity mainActivity = (MainActivity) getActivity();
+
+        if (buttonDrawerToggle != null && mainActivity != null) {
+            buttonDrawerToggle.setOnClickListener(v -> {
+                mainActivity.openDrawer();
+            });
+        }
+
+
         return view;
     }
 
