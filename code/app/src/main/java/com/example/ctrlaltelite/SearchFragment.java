@@ -16,11 +16,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.airbnb.lottie.LottieAnimationView;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -100,20 +103,19 @@ public class SearchFragment extends Fragment {
             }
         });
 
-        ImageButton bellIcon = view.findViewById(R.id.notif);
+        LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
 
-        // Go to ViewFollowRequestFragment when user clicks on the notification bell
-        bellIcon.setOnClickListener(new View.OnClickListener() {
+        notifButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ViewFollowRequestsFragment followRequestsFragment = new ViewFollowRequestsFragment(currentUserUsername);
                 Bundle bundle = new Bundle();
+
                 if (getActivity() instanceof MainActivity) {
                     ((MainActivity) getActivity()).fragmentRepl(followRequestsFragment);
                 }
             }
         });
-
         return view;
     }
 
