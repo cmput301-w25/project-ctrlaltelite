@@ -408,10 +408,6 @@ public class HomeFragment extends AddFragment {
                 !mood.equals("😐 Select Emotional State");
     }
 
-
-
-
-
     /**
      * Displays a dialog allowing the user to edit or delete a specific mood event.
      * Pre-populates the dialog with the mood event's current data and handles image uploads.

@@ -2,28 +2,69 @@ package com.example.ctrlaltelite;
 
 import static android.view.View.INVISIBLE;
 
+import com.airbnb.lottie.LottieAnimationView;
+import com.example.ctrlaltelite.MainActivity;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.text.Editable;
+import android.text.TextWatcher;
 
+import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.Calendar;
 
 public class OtherUserProfileFragment extends Fragment {
 
@@ -88,7 +129,7 @@ public class OtherUserProfileFragment extends Fragment {
                                    hasUserAlreadyRequested[0] = task.getResult();
 
                                    if (!hasUserAlreadyRequested[0]) {
-                                       FollowRequest newFollowRequest = new FollowRequest(currentUser.getUsername(), searchedUser.getUsername(), "Pending");
+                                       FollowRequest newFollowRequest = new FollowRequest(currentUser.getUsername(), searchedUser.getUsername(), currentUser.getDisplayName(), searchedUser.getDisplayName(), "Pending");
                                        saveToFirestore(newFollowRequest);
                                        requestButton.setText("Requested");
                                        Toast.makeText(getContext(), "Successfully requested to follow " + searchedUser.getDisplayName(), Toast.LENGTH_SHORT).show();
@@ -153,11 +194,15 @@ public class OtherUserProfileFragment extends Fragment {
     protected void saveToFirestore(FollowRequest followRequest) {
         String currentUserUsername = followRequest.getRequestedUserName();
         String searchedUserUsername = followRequest.getRequesterUserName();
+        String currentUserDisplayName = followRequest.getRequesterDisplayName();
+        String searchedUserDisplayName = followRequest.getRequestedDisplayName();
         String status = followRequest.getStatus();
 
         Map<String, Object> followRequestToBeAdded = new HashMap<>();
-        followRequestToBeAdded.put("Follower", currentUserUsername);
-        followRequestToBeAdded.put("Following", searchedUserUsername);
+        followRequestToBeAdded.put("Requester's Username", currentUserUsername);
+        followRequestToBeAdded.put("Requestee's Username", searchedUserUsername);
+        followRequestToBeAdded.put("Requester's Display Name", currentUserDisplayName);
+        followRequestToBeAdded.put("Requestee's Display Name", searchedUserDisplayName);
         followRequestToBeAdded.put("Status", status);
 
         db.collection("FollowRequests")

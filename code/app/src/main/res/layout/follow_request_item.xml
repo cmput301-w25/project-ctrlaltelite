@@ -12,25 +12,21 @@
         android:layout_weight="1"
         android:orientation="vertical"
         android:layout_marginStart="8dp">
-        <TextView
-            android:id="@+id/follower_username"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/following_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:textColor="@android:color/darker_gray"/>
 
         <TextView
-            android:id="@+id/status"
+            android:id="@+id/following_display_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"/>
+            android:textColor="@android:color/primary_text_light"/>
+
     </LinearLayout>
 </LinearLayout>
