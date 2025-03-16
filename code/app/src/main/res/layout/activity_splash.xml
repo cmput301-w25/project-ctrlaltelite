@@ -28,5 +28,18 @@
         app:lottie_rawRes="@raw/lottie_splash"
         android:elevation="5dp"/>
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/lottie2"
+        android:layout_width="400dp"
+        android:layout_height="400dp"
+        android:layout_below="@+id/logo"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="-103dp"
+        android:layout_marginBottom="-14dp"
+        android:elevation="5dp"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/lottie3" />
+
 
 </RelativeLayout>

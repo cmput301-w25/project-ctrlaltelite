@@ -23,6 +23,8 @@ import android.os.Looper;
 public class SplashActivity extends AppCompatActivity {
 
     LottieAnimationView lottie1;
+    LottieAnimationView lottie2;
+
     /**
      * Called when the activity is created.
      * Initializes the splash screen and starts a timer to transition to the main activity.
@@ -36,13 +38,16 @@ public class SplashActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
         lottie1 = findViewById(R.id.lottie1);
+        lottie2 = findViewById(R.id.lottie2);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        lottie1.animate().translationX(2000).setDuration(2700).setStartDelay(2800);
+        lottie1.animate().translationX(2000).setDuration(2900).setStartDelay(2750);
+//        lottie2.animate().setDuration(2900).setStartDelay(2800);
 
         // Use a Handler to delay redirection instead of a separate Thread
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
@@ -51,6 +56,6 @@ public class SplashActivity extends AppCompatActivity {
             Intent intent = new Intent(SplashActivity.this, SignUp.class);
             startActivity(intent);
             finish();  // Close SplashActivity so the user cannot go back to it
-        }, 5000);
+        }, 4500);
     }
 }
