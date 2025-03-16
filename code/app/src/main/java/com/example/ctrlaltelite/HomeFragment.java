@@ -296,7 +296,7 @@ public class HomeFragment extends AddFragment {
         if (!reasonFilter.isEmpty()) {
             List<MoodEvent> filteredList = moodEvents.stream()
                     .filter(event -> Arrays.asList(event.getReason().toLowerCase().split("\\s+"))
-                    .contains(reasonFilter))
+                            .contains(reasonFilter))
                     .collect(Collectors.toList());
             moodEvents.clear();
             moodEvents.addAll(filteredList);
@@ -553,9 +553,9 @@ public class HomeFragment extends AddFragment {
                 //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
                 return;
             } //else if (separationArray.length >= 4) {
-                //reasonEditText.setError("Reason cannot be more than 3 words");
-                //Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
-                //return;
+            //reasonEditText.setError("Reason cannot be more than 3 words");
+            //Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
+            //return;
             //}
 
             String updatedTrigger = triggerEditText.getText().toString().trim();

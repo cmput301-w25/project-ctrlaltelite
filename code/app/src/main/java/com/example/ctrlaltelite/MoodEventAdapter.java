@@ -63,6 +63,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 
         moodText.setTextColor(getColorForMood(moodEvent.getEmotionalState()));
 
+        Glide.with(getContext()).clear(moodImage);
+
 
         //Convert Coordinates to Address
         if (moodEvent.getLocation() != null) {
@@ -89,7 +91,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                 geolocationText.setBackground(gradientDrawable);
                 geolocationText.setTextColor(Color.BLACK); // White text for contrast
                 geolocationText.setPadding(12, 6, 12, 6); // Better spacing
-                geolocationText.setTypeface(null, Typeface.BOLD); // Bold text
+
             }
 
             else {
