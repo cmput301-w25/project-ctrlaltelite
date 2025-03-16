@@ -62,6 +62,7 @@ public class ViewFollowRequestsFragment extends Fragment {
                             FollowRequest followRequest = new FollowRequest(followerUserName, followingUserName, status);
                             followRequest.setDocumentId(docId);
                             followRequestList.add(followRequest);
+                            
                         }
                         followRequestAdapter.notifyDataSetChanged();
                     } else {
