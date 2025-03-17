@@ -166,6 +166,11 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                         Log.e("MoodEventAdapter", "Failed to fetch image URL for " + moodEvent.getImgPath() + ": " + e.getMessage());
                         holder.moodImage.setVisibility(View.GONE); // Hide on failure
                     });
+
+        } else {
+            Log.d("MoodEventAdapter", "No imgPath for mood event at position " + position);
+            Glide.with(getContext()).clear(holder.moodImage); // Clear image if no path
+            holder.moodImage.setVisibility(View.GONE); // Hide if no image
         }
 
         return convertView;
