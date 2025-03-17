@@ -235,7 +235,7 @@ public class AddFragment extends Fragment implements LocationListener {
 
 
 
-        LottieAnimationView lottiemap = view.findViewById(R.id.lottiemap);
+        LottieAnimationView lottiemapclear = view.findViewById(R.id.lottiemapclear);
         //Pressing on the notification button
 
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
