@@ -66,6 +66,7 @@ public class SearchFragment extends Fragment {
 
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
 
+
         // Get a reference to the MainActivity so we can call openDrawer()
         MainActivity mainActivity = (MainActivity) getActivity();
 
