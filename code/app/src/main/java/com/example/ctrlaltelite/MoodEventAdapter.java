@@ -166,6 +166,11 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                         Log.e("MoodEventAdapter", "Failed to fetch image URL for " + moodEvent.getImgPath() + ": " + e.getMessage());
                         holder.moodImage.setVisibility(View.GONE); // Hide on failure
                     });
+
+        } else {
+            Log.d("MoodEventAdapter", "No imgPath for mood event at position " + position);
+            Glide.with(getContext()).clear(holder.moodImage); // Clear image if no path
+            holder.moodImage.setVisibility(View.GONE); // Hide if no image
         }
 
         return convertView;
@@ -184,12 +189,12 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
             if (addresses != null && !addresses.isEmpty()) {
-                return addresses.get(0).getAddressLine(0);
+                return addresses.get(0).getAddressLine(0);  // Get full address
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return null; // Return null if address couldn't be found
     }
 
 
