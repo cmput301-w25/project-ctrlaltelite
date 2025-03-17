@@ -67,6 +67,8 @@
             android:padding="0dp"/>
     </Toolbar>
 
+
+
     <EditText
         android:id="@+id/search_user_input"
         android:layout_width="300dp"

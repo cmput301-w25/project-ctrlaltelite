@@ -76,6 +76,8 @@ public class SearchFragment extends Fragment {
         }
 
 
+
+
         // Fetch all users (empty query shows all)
         fetchUsers("");
 

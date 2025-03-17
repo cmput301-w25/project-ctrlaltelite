@@ -185,7 +185,7 @@
             android:layout_marginTop="16dp"
             android:layout_marginStart="0dp"
             android:layout_marginEnd="35dp"
-            android:text="Keep track of your current geolocation"
+            android:text="Keep track of my current geolocation"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@id/lottiemapclear"

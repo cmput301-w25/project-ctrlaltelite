@@ -202,6 +202,8 @@ public class HomeFragment extends AddFragment {
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions);
         moodFilterSpinner.setAdapter(moodAdapter);
 
+
+
         // Initialize ListView
         listView = view.findViewById(R.id.mood_list);
         if (listView == null) {
