@@ -208,7 +208,6 @@ public class HomeFragment extends AddFragment {
             Log.e("HomeFragment", "ListView is null, check fragment_home.xml");
             return view;
         }
-        //moodEvents = new ArrayList<>();
         adapter = new MoodEventAdapter(requireContext(), moodEvents);
         listView.setAdapter(adapter);
         fetchMoodEvents(); // Start fetching data first to ensure data is available before UI interactions
