@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -34,6 +35,7 @@ import java.util.regex.Pattern;
  *
  */
 public class SignUp extends AppCompatActivity {
+    LottieAnimationView lottielogo;
 
     private EditText SUsername, SEmail, SMobile, SPassword;
     private Button btnCreateAccount;
@@ -53,6 +55,7 @@ public class SignUp extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_signup);
+        lottielogo = findViewById(R.id.lottielogo);
 
         // Initialize views from the sign-up layout
         SUsername = findViewById(R.id.SUsername);
