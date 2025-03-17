@@ -103,6 +103,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Get a reference to the MainActivity so we can call openDrawer()
         MainActivity mainActivity = (MainActivity) getActivity();
+        LottieAnimationView lottiemapclear = view.findViewById(R.id.lottiemapclear);
 
         // Retrieve username from Bundle
         Bundle args = getArguments();

@@ -165,32 +165,31 @@
             app:layout_constraintTop_toBottomOf="@id/social_situation_spinner" />
 
 
-
-
         <ImageView
             android:id="@+id/uploaded_image"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintTop_toBottomOf="@id/button_upload"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp"
             android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"/>
-
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="15dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button_upload" />
 
 
         <Switch
             android:id="@+id/switch_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Keep track of users' geolocation"
-            app:layout_constraintTop_toBottomOf="@id/uploaded_image"
-            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="16dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"/>
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="35dp"
+            android:text="Keep track of my current geolocation"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/lottiemapclear"
+            app:layout_constraintTop_toBottomOf="@+id/uploaded_image" />
 
         <Button
             android:id="@+id/button_cancel"
@@ -222,6 +221,22 @@
             app:layout_constraintTop_toBottomOf="@id/switch_location"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintWidth_percent="0.45" />
+
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottiemapclear"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="0dp"
+            android:elevation="1dp"
+            android:layout_marginRight="0dp"
+            app:layout_constraintEnd_toStartOf="@id/switch_location"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uploaded_image"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/lottiemapclear" />
+
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

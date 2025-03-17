@@ -2,6 +2,7 @@ package com.example.ctrlaltelite;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import com.airbnb.lottie.LottieAnimationView;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -121,6 +122,7 @@ public class AddFragment extends Fragment implements LocationListener {
     private String Username;
 
 
+
     /**
      * Initializes fragment and registers media pickers.
      * @param savedInstanceState The saved state of the fragment.
@@ -130,6 +132,8 @@ public class AddFragment extends Fragment implements LocationListener {
         super.onCreate(savedInstanceState);
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+
+
         pickMedia =
                 registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                     if (uri == null) {
@@ -186,6 +190,8 @@ public class AddFragment extends Fragment implements LocationListener {
         // Get a reference to the MainActivity so we can call openDrawer()
         MainActivity mainActivity = (MainActivity) getActivity();
 
+
+
         // Retrieve username from Bundle
         Bundle args = getArguments();
         if (args != null) {
@@ -227,6 +233,9 @@ public class AddFragment extends Fragment implements LocationListener {
         setupButtons();
         setupDropdownSocialSituation();
 
+
+
+        LottieAnimationView lottiemapclear = view.findViewById(R.id.lottiemapclear);
         //Pressing on the notification button
 
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
