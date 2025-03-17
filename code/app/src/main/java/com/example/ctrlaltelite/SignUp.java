@@ -57,6 +57,7 @@ public class SignUp extends AppCompatActivity {
         setContentView(R.layout.fragment_signup);
         lottielogo = findViewById(R.id.lottielogo);
 
+
         // Initialize views from the sign-up layout
         SUsername = findViewById(R.id.SUsername);
         SEmail = findViewById(R.id.SEmail);
