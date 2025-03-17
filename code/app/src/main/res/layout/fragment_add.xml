@@ -5,207 +5,225 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddFragment"
-    android:background="@color/white">
+    >
 
-
-<FrameLayout
-        android:id="@+id/frameLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-    </FrameLayout>
-
-
-    <Toolbar
-        android:id="@+id/toolbar"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#AFFAFD"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        tools:context=".AddFragment"
+        android:background="@color/white">
 
-        <ImageButton
-            android:id="@+id/buttonDrawerToggle"
-            android:layout_width="wrap_content"
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+        </FrameLayout>
+
+
+        <Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:src="@drawable/menu">
+            android:background="#AFFAFD"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        </ImageButton>
+            <ImageButton
+                android:id="@+id/buttonDrawerToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:src="@drawable/menu">
+
+            </ImageButton>
+
+            <TextView
+                android:id="@+id/title_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="50dp"
+                android:text="Add Mood Event"
+                android:fontFamily="@font/font9"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/notif"
+                android:layout_gravity="end|center_vertical"
+                android:elevation="5dp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/lottie8"
+                tools:layout_editor_absoluteX="375dp"
+                tools:layout_editor_absoluteY="0dp"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_marginEnd="0dp"
+                android:padding="0dp"/>
+
+        </Toolbar>
 
         <TextView
-            android:id="@+id/title_text"
+            android:id="@+id/prompt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="50dp"
-            android:text="Add Mood Event"
-            android:fontFamily="@font/font9"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="5"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="15dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/font3"
+            android:text="How are you feeling today?"
+            android:textColor="#9C27B0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
+        <TextView
+            android:id="@+id/Required"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:text="* Required"
+            android:textColor="#F44336"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/prompt" />
 
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/notif"
-            android:layout_gravity="end|center_vertical"
-            android:elevation="5dp"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            app:lottie_rawRes="@raw/lottie8"
-            tools:layout_editor_absoluteX="375dp"
-            tools:layout_editor_absoluteY="0dp"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_marginEnd="0dp"
-            android:padding="0dp"/>
+        <Spinner
+            android:id="@+id/dropdown_mood"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select an emotional state *"
+            app:layout_constraintTop_toBottomOf="@id/Required"
+            android:background="@drawable/rounded_add_background"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:theme="@style/SpinnerTextStyle"/>
+        <EditText
+            android:id="@+id/edit_reason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Reason for mood"
+            app:layout_constraintTop_toBottomOf="@id/dropdown_mood"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"/>
 
-    </Toolbar>
+        <EditText
+            android:id="@+id/edit_trigger"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Trigger"
+            app:layout_constraintTop_toBottomOf="@id/edit_reason"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"/>
 
-    <TextView
-        android:id="@+id/Required"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:text="* Required"
-        android:textColor="#F44336"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        <Spinner
+            android:id="@+id/social_situation_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_add_background"
+            android:hint="Select social situation *"
+            app:layout_constraintTop_toBottomOf="@id/edit_trigger"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"/>
 
-    <Spinner
-        android:id="@+id/dropdown_mood"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Select an emotional state *"
-        app:layout_constraintTop_toBottomOf="@id/Required"
-        android:background="@drawable/rounded_add_background"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:theme="@style/SpinnerTextStyle"/>
-    <EditText
-        android:id="@+id/edit_reason"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Reason for mood"
-        app:layout_constraintTop_toBottomOf="@id/dropdown_mood"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"/>
-
-    <EditText
-        android:id="@+id/edit_trigger"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Trigger"
-        app:layout_constraintTop_toBottomOf="@id/edit_reason"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"/>
-
-    <Spinner
-        android:id="@+id/social_situation_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_add_background"
-        android:hint="Select social situation *"
-        app:layout_constraintTop_toBottomOf="@id/edit_trigger"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"/>
-
-    <Button
-        android:id="@+id/button_upload"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="15dp"
-        android:backgroundTint="#FF8E6F"
-        android:text="Upload media"
-        app:cornerRadius="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/social_situation_spinner" />
-
-
-    <ImageView
-        android:id="@+id/uploaded_image"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintTop_toBottomOf="@id/button_upload"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"/>
-
-    <Switch
-        android:id="@+id/switch_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Keep track of users' geolocation"
-        app:layout_constraintTop_toBottomOf="@id/uploaded_image"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"/>
-
-    <Button
-        android:id="@+id/button_cancel"
-        android:layout_width="165dp"
-        android:layout_height="43dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="15dp"
-        android:backgroundTint="#FF8E6F"
-        android:text="Cancel"
-        app:cornerRadius="30dp"
-        app:layout_constraintEnd_toStartOf="@id/button_save"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/switch_location"
-        app:layout_constraintWidth_percent="0.45" />
-
-    <Button
-        android:id="@+id/button_save"
-        android:layout_width="157dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="#FF8E6F"
-        android:text="Save"
-        android:textColor="#FFFFFF"
-        app:cornerRadius="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/button_cancel"
-
-        app:layout_constraintTop_toBottomOf="@id/switch_location"
-        app:layout_constraintWidth_percent="0.45" />
+        <Button
+            android:id="@+id/button_upload"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="15dp"
+            android:backgroundTint="#FF8E6F"
+            android:text="Upload media"
+            app:cornerRadius="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/social_situation_spinner" />
 
 
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <ImageView
+            android:id="@+id/uploaded_image"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            app:layout_constraintTop_toBottomOf="@id/button_upload"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"/>
+
+
+
+        <Switch
+            android:id="@+id/switch_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Keep track of users' geolocation"
+            app:layout_constraintTop_toBottomOf="@id/uploaded_image"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"/>
+
+        <Button
+            android:id="@+id/button_cancel"
+            android:layout_width="165dp"
+            android:layout_height="43dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="15dp"
+            android:backgroundTint="#FF8E6F"
+            android:text="Cancel"
+            app:cornerRadius="30dp"
+            app:layout_constraintEnd_toStartOf="@id/button_save"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/switch_location"
+            app:layout_constraintWidth_percent="0.45" />
+
+        <Button
+            android:id="@+id/button_save"
+            android:layout_width="157dp"
+            android:layout_height="43dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#FF8E6F"
+            android:text="Save"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/button_cancel"
+
+            app:layout_constraintTop_toBottomOf="@id/switch_location"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintWidth_percent="0.45" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

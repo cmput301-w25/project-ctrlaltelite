@@ -24,46 +24,89 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Custom adapter for displaying MoodEvent objects in a ListView.
- * This adapter binds mood event details, including mood, reason, trigger, timestamp,
- * social situation, and an optional image.
+ * Custom Adapter for displaying mood events in a ListView.
+ * This adapter binds data from a list of MoodEvent objects to the ListView items.
+ * It handles setting text, loading images from Firebase Storage, and displaying geolocation information.
  */
 
 public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
+    /**
+     * Constructor for the MoodEventAdapter.
+     *
+     * @param context The context in which the adapter is created
+     * @param moodEvents The list of MoodEvent objects to be displayed.
+     */
     public MoodEventAdapter(Context context, List<MoodEvent> moodEvents) {
-        super(context, 0, moodEvents);
+        super(context,
+                0,
+                moodEvents);
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
     }
 
+
+    /**
+     * ViewHolder class to cache view references and improve performance by avoiding
+     * repeated calls to findViewById.
+     */
+    // The ViewHolder is used to improve the performance of ListView.
+    // It helps avoid repeatedly finding views during scrolling by holding references to the UI components
+    static class ViewHolder {
+        TextView moodText;
+        TextView reasonText;
+        TextView triggerText;
+        TextView socialSituationText;
+        TextView timestampText;
+        TextView geolocationText;
+        ImageView moodImage;
+    }
+
+
+    /**
+     * Called to create or reuse a view for an item in the list. This method binds the data
+     * from the MoodEvent object to the views in the layout.
+     *
+     * @param position The position of the item in the list.
+     * @param convertView The recycled view that can be reused (or null if no view is available).
+     * @param parent The parent ViewGroup that will contain the returned view.
+     * @return The view representing the list item at the given position.
+     */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.mood_event_item, parent, false);
+            holder = new ViewHolder();
+            holder.moodText = convertView.findViewById(R.id.mood_text);
+            holder.reasonText = convertView.findViewById(R.id.reason_text);
+            holder.triggerText = convertView.findViewById(R.id.trigger_text);
+            holder.socialSituationText = convertView.findViewById(R.id.social_situation_text);
+            holder.timestampText = convertView.findViewById(R.id.timestamp_text);
+            holder.geolocationText = convertView.findViewById(R.id.geolocation);
+            holder.moodImage = convertView.findViewById(R.id.mood_image);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
         }
 
         MoodEvent moodEvent = getItem(position);
+        if (moodEvent == null) return convertView;
 
-        TextView moodText = convertView.findViewById(R.id.mood_text);
-        TextView reasonText = convertView.findViewById(R.id.reason_text);
-        TextView triggerText = convertView.findViewById(R.id.trigger_text);
-        TextView socialSituationText = convertView.findViewById(R.id.social_situation_text);
-        TextView timestampText = convertView.findViewById(R.id.timestamp_text);
-        TextView geolocationText = convertView.findViewById(R.id.geolocation);
-        ImageView moodImage = convertView.findViewById(R.id.mood_image);
+        // Bind data to views
+        holder.moodText.setText(moodEvent.getEmotionalState());
+        holder.reasonText.setText(moodEvent.getReason() != null ? moodEvent.getReason() : "");
+        holder.triggerText.setText(moodEvent.getTrigger() != null ? moodEvent.getTrigger() : "");
+        holder.socialSituationText.setText(moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "");
+        holder.timestampText.setText(moodEvent.getFormattedTimestamp());
+        holder.moodText.setTextColor(getColorForMood(moodEvent.getEmotionalState()));
 
-        moodText.setText(moodEvent.getEmotionalState());
-        reasonText.setText(moodEvent.getReason() != null ? moodEvent.getReason() : "");
-        triggerText.setText(moodEvent.getTrigger() != null ? moodEvent.getTrigger() : "");
-        socialSituationText.setText(moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "");
-        timestampText.setText(moodEvent.getFormattedTimestamp());
-
-        moodText.setTextColor(getColorForMood(moodEvent.getEmotionalState()));
-
-        Glide.with(getContext()).clear(moodImage);
+        // Clear image for recycled views
+        Glide.with(getContext()).clear(holder.moodImage);
+        holder.moodImage.setVisibility(View.GONE); // Hide initially
 
 
         //Convert Coordinates to Address
@@ -74,8 +117,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             // Call a method to get address from coordinates
             String address = getAddressFromCoordinates(latitude, longitude);
             if (address != null) {
-                geolocationText.setText("\uD83D\uDCCC" + address);
-                geolocationText.setVisibility(View.VISIBLE);
+                holder.geolocationText.setText("\uD83D\uDCCC" + address);
+                holder.geolocationText.setVisibility(View.VISIBLE);
                 // Apply Gradient Background Styling
                 GradientDrawable gradientDrawable = new GradientDrawable(
                         GradientDrawable.Orientation.LEFT_RIGHT,
@@ -86,61 +129,66 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                 );
                 gradientDrawable.setCornerRadius(16); // Rounded corners
                 Typeface customFont = ResourcesCompat.getFont(this.getContext(), R.font.font7);
-                geolocationText.setTypeface(customFont, Typeface.BOLD);
+                holder.geolocationText.setTypeface(customFont, Typeface.BOLD);
 
-                geolocationText.setBackground(gradientDrawable);
-                geolocationText.setTextColor(Color.BLACK); // White text for contrast
-                geolocationText.setPadding(12, 6, 12, 6); // Better spacing
+                holder.geolocationText.setBackground(gradientDrawable);
+                holder.geolocationText.setTextColor(Color.BLACK); // White text for contrast
+                holder.geolocationText.setPadding(12, 6, 12, 6); // Better spacing
 
             }
 
             else {
-                geolocationText.setText("at Unknown Location");
-                geolocationText.setVisibility(View.VISIBLE);
+                holder.geolocationText.setText("at Unknown Location");
+                holder.geolocationText.setVisibility(View.VISIBLE);
             }
         } else {
-            geolocationText.setVisibility(View.GONE);
+            holder.geolocationText.setVisibility(View.GONE);
         }
 
 
+        String currentImgPath = moodEvent.getImgPath();
+        holder.moodImage.setTag(currentImgPath);
+        // Load image using Glide if available
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
-            Glide.with(getContext()).clear(moodImage); // Clear previous image to avoid recycling issues
             imageRef.getDownloadUrl()
                     .addOnSuccessListener(uri -> {
                         Log.d("MoodEventAdapter", "Image URL fetched for " + moodEvent.getImgPath() + ": " + uri.toString());
+                        if (currentImgPath.equals(holder.moodImage.getTag())) {
                         Glide.with(getContext())
                                 .load(uri)
-                                .into(moodImage);
-                        moodImage.setVisibility(View.VISIBLE); // Explicitly set visible on success
+                                .into(holder.moodImage);
+                        holder.moodImage.setVisibility(View.VISIBLE);} // Explicitly set visible on success
+
                     })
+
                     .addOnFailureListener(e -> {
                         Log.e("MoodEventAdapter", "Failed to fetch image URL for " + moodEvent.getImgPath() + ": " + e.getMessage());
-                        moodImage.setVisibility(View.GONE); // Hide on failure
+                        holder.moodImage.setVisibility(View.GONE); // Hide on failure
                     });
-        } else {
-            Log.d("MoodEventAdapter", "No imgPath for mood event at position " + position);
-            Glide.with(getContext()).clear(moodImage); // Clear image if no path
-            moodImage.setVisibility(View.GONE); // Hide if no image
         }
+
         return convertView;
     }
 
 
-
-    // Convert Coordinates to Address (Using Geocoder)
+    /**
+     * Converts latitude and longitude to an address string.
+     *
+     * @param latitude The latitude of the location.
+     * @param longitude The longitude of the location.
+     * @return The address corresponding to the latitude and longitude, or null if no address is found.
+     */
     private String getAddressFromCoordinates(double latitude, double longitude) {
         Geocoder geocoder = new Geocoder(getContext());
-        List<Address> addresses;
         try {
-            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
             if (addresses != null && !addresses.isEmpty()) {
-                return addresses.get(0).getAddressLine(0); // Get full address
+                return addresses.get(0).getAddressLine(0);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // Return null if address couldn't be found
         return null;
     }
 
@@ -161,8 +209,5 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             case "😕 Confusion": return 0xFF9C27B0; // Purple
             default: return 0xFF616161; // Default Gray
         }
-
-
-
-}
+    }
 }

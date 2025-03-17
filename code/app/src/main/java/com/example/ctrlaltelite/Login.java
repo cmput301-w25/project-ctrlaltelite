@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 /**
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
  *
  */
 public class Login extends AppCompatActivity {
+    LottieAnimationView lottielogo;
 
     private EditText Username;
     private EditText Password;
@@ -45,6 +47,8 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_login);
+        lottielogo = findViewById(R.id.lottielogo);
+
 
         Username = findViewById(R.id.username);
         Password = findViewById(R.id.password);
