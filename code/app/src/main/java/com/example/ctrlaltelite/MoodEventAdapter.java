@@ -189,12 +189,12 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
             if (addresses != null && !addresses.isEmpty()) {
-                return addresses.get(0).getAddressLine(0);
+                return addresses.get(0).getAddressLine(0);  // Get full address
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return null; // Return null if address couldn't be found
     }
 
 
