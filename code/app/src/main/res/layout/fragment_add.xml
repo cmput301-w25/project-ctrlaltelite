@@ -155,14 +155,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_marginRight="15dp"
             android:backgroundTint="#FF8E6F"
             android:text="Upload media"
             app:cornerRadius="30dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/social_situation_spinner" />
+            app:layout_constraintTop_toBottomOf="@id/radioGroupVisibility" />
 
 
         <ImageView
@@ -189,7 +189,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@id/lottiemapclear"
-            app:layout_constraintTop_toBottomOf="@+id/uploaded_image" />
+            app:layout_constraintTop_toBottomOf="@+id/uploaded_image"/>
 
         <Button
             android:id="@+id/button_cancel"
@@ -237,6 +237,51 @@
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/lottiemapclear" />
 
+
+        <TextView
+            android:id="@+id/visibility_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select visibility:"
+            android:textColor="#9C27B0"
+            android:fontFamily="@font/font3"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="12dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/radioGroupVisibility"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/radioGroupVisibility" />
+
+        <RadioGroup
+            android:id="@+id/radioGroupVisibility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:textStyle="bold"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toEndOf="@id/visibility_prompt"
+            app:layout_constraintTop_toBottomOf="@+id/social_situation_spinner"
+            android:layout_marginTop="10dp"
+            tools:layout_editor_absoluteX="43dp" >
+
+            <RadioButton
+                android:id="@+id/radioPublic"
+                android:layout_width="match_parent"
+                android:layout_marginRight="50dp"
+                android:fontFamily="@font/font3"
+                android:textStyle="bold"
+                android:layout_height="wrap_content"
+                android:text="Public" />
+
+            <RadioButton
+                android:id="@+id/radioPrivate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font3"
+                android:textStyle="bold"
+                android:text="Private" />
+        </RadioGroup>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
