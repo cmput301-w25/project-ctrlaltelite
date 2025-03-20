@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -186,6 +187,11 @@ public class AddFragment extends Fragment implements LocationListener {
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();  // Firebase Authentication instance
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
+        LottieAnimationView lottiemapclear = view.findViewById(R.id.lottiemapclear);
+
+        RadioGroup radioGroupVisibility = view.findViewById(R.id.radioGroupVisibility);
+
+
 
         // Get a reference to the MainActivity so we can call openDrawer()
         MainActivity mainActivity = (MainActivity) getActivity();
@@ -234,8 +240,25 @@ public class AddFragment extends Fragment implements LocationListener {
         setupDropdownSocialSituation();
 
 
+        // This will store the visibility choice (true for public, false for private)
+        boolean isPublic = false;
 
-        LottieAnimationView lottiemapclear = view.findViewById(R.id.lottiemapclear);
+        // Set a listener to capture selection changes
+        radioGroupVisibility.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == R.id.radioPublic) {
+                    // Public is selected
+                    isPublic = true;
+                } else if (checkedId == R.id.radioPrivate) {
+                    // Private is selected
+                    isPublic = false;
+                }
+            }
+        });
+
+
+
         //Pressing on the notification button
 
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
