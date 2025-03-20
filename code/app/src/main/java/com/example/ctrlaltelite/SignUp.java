@@ -42,8 +42,10 @@ public class SignUp extends AppCompatActivity {
     private TextView tvLoginPrompt;
     private FirebaseFirestore db;
     // Email regex pattern for validating email addresses
-    private String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+    private String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    private String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
     private Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+    private Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REGEX);
 
     /**
      * Called when the activity is first created.
@@ -107,12 +109,25 @@ public class SignUp extends AppCompatActivity {
                         Toast.makeText(SignUp.this, "Please enter a valid numeric phone number", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    // Validate the email address format using regex
-                    Matcher matcher = EMAIL_PATTERN.matcher(email);
-                    if (!matcher.matches()) {
-                        SEmail.setError("Please enter a valid email address");
-                        return;
-                    }
+                }
+                // Validate the email address format using regex
+                Matcher matcher = EMAIL_PATTERN.matcher(email);
+                if (!matcher.matches()) {
+                    SEmail.setError("Please enter a valid email address");
+                    return;
+                }
+                if (mobile.length() != 10) {
+                    SMobile.setError("Phone number must be 10 digits long");
+                    return;
+                }
+                // Validate Password using regex
+                Matcher matcherPass = PASSWORD_PATTERN.matcher(password);
+                if (!matcherPass.matches()) {
+                    SPassword.setError("Invalid Password, Must contain:\n" +
+                            "- At least one letter\n" +
+                            "- At least one digit\n" +
+                            "- Minimum 8 characters");
+                    return;
                 }
                 // Check if the username already exists in the "users" collection
                 db.collection("users")
