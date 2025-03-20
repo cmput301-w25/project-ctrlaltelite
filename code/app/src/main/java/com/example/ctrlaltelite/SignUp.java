@@ -89,13 +89,9 @@ public class SignUp extends AppCompatActivity {
                 String password = SPassword.getText().toString().trim();
 
                 // Validation Check
-                if (!isSignUpDataValid(username,displayName, email, mobile, password)) {
+                if (!isSignUpDataValid(username, email, mobile, password)) {
                     if (username.isEmpty()) {
                         SUsername.setError("Username cannot be empty!");
-                        return;
-                    }
-                    if (displayName.isEmpty()) {
-                        SDisplayName.setError("Display name cannot be empty!");
                         return;
                     }
                     if (email.isEmpty()) {
@@ -115,6 +111,10 @@ public class SignUp extends AppCompatActivity {
                         Toast.makeText(SignUp.this, "Please enter a valid numeric phone number", Toast.LENGTH_SHORT).show();
                         return;
                     }
+                }
+                if (displayName.isEmpty()) {
+                    SDisplayName.setError("Display name cannot be empty!");
+                    return;
                 }
                 // Validate the email address format using regex
                 Matcher matcher = EMAIL_PATTERN.matcher(email);
@@ -205,11 +205,8 @@ public class SignUp extends AppCompatActivity {
         tvLoginPrompt.setText(spannableString);
         tvLoginPrompt.setMovementMethod(LinkMovementMethod.getInstance());
     }
-    public static boolean isSignUpDataValid(String username, String displayName, String email, String mobile, String password) {
+    public static boolean isSignUpDataValid(String username, String email, String mobile, String password) {
         if (username == null || username.trim().isEmpty()) {
-            return false;
-        }
-        if (displayName == null || displayName.trim().isEmpty()){
             return false;
         }
         if (email == null || email.trim().isEmpty() || !email.contains("@")) {
