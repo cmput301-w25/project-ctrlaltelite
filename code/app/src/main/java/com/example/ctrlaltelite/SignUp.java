@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 public class SignUp extends AppCompatActivity {
     LottieAnimationView lottielogo;
 
-    private EditText SUsername, SEmail, SMobile, SPassword;
+    private EditText SUsername, SEmail, SMobile, SPassword,SDisplayName;
     private Button btnCreateAccount;
     private TextView tvLoginPrompt;
     private FirebaseFirestore db;
@@ -62,6 +62,7 @@ public class SignUp extends AppCompatActivity {
 
         // Initialize views from the sign-up layout
         SUsername = findViewById(R.id.SUsername);
+        SDisplayName = findViewById(R.id.SDisplayName);
         SEmail = findViewById(R.id.SEmail);
         SMobile = findViewById(R.id.SMobile);
         SPassword = findViewById(R.id.SPassword);
@@ -82,14 +83,19 @@ public class SignUp extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String username = SUsername.getText().toString().trim();
+                String displayName = SDisplayName.getText().toString().trim();
                 String email = SEmail.getText().toString().trim();
                 String mobile = SMobile.getText().toString().trim();
                 String password = SPassword.getText().toString().trim();
 
                 // Validation Check
-                if (!isSignUpDataValid(username, email, mobile, password)) {
+                if (!isSignUpDataValid(username,displayName, email, mobile, password)) {
                     if (username.isEmpty()) {
                         SUsername.setError("Username cannot be empty!");
+                        return;
+                    }
+                    if (displayName.isEmpty()) {
+                        SDisplayName.setError("Display name cannot be empty!");
                         return;
                     }
                     if (email.isEmpty()) {
@@ -141,6 +147,7 @@ public class SignUp extends AppCompatActivity {
                                 // Username is unique
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("username", username);
+                                user.put("displayName", displayName);
                                 user.put("email", email);
                                 user.put("mobile", mobile);
                                 user.put("password", password);
@@ -198,8 +205,11 @@ public class SignUp extends AppCompatActivity {
         tvLoginPrompt.setText(spannableString);
         tvLoginPrompt.setMovementMethod(LinkMovementMethod.getInstance());
     }
-    public static boolean isSignUpDataValid(String username, String email, String mobile, String password) {
+    public static boolean isSignUpDataValid(String username, String displayName, String email, String mobile, String password) {
         if (username == null || username.trim().isEmpty()) {
+            return false;
+        }
+        if (displayName == null || displayName.trim().isEmpty()){
             return false;
         }
         if (email == null || email.trim().isEmpty() || !email.contains("@")) {
