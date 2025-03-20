@@ -223,9 +223,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     if (moodEvent.getReason() != null && !moodEvent.getReason().isEmpty()) {
                         descBuilder.append("Reason: ").append(moodEvent.getReason()).append("\n");
                     }
-                    if (moodEvent.getTrigger() != null && !moodEvent.getTrigger().isEmpty()) {
-                        descBuilder.append("Trigger: ").append(moodEvent.getTrigger()).append("\n");
-                    }
                     if (moodEvent.getSocialSituation() != null && !moodEvent.getSocialSituation().isEmpty()) {
                         descBuilder.append("Social: ").append(moodEvent.getSocialSituation()).append("\n");
                     }

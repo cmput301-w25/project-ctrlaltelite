@@ -68,14 +68,6 @@
         android:layout_height="wrap_content"
         android:hint="Reason why for mood" />
 
-    <!-- Trigger -->
-    <EditText
-        android:id="@+id/edit_trigger"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Trigger"
-        android:layout_marginBottom="16dp"/>
-
     <!-- Select a social situation -->
     <Spinner
         android:id="@+id/edit_social_situation_spinner"

@@ -17,8 +17,6 @@ public class MoodEvent {
 
     /** The emotional state of the user */
     private String emotionalState;
-    /** The trigger causing the mood */
-    private String trigger;
     /** The social situation during the mood event */
     private String socialSituation;
     /** The timestamp when the event was recorded */
@@ -58,18 +56,16 @@ public class MoodEvent {
      * Constructor to initialize all fields.
      * @param emotionalState The emotional state of the user.
      * @param reason The reason for the mood event.
-     * @param trigger The trigger for the mood event.
      * @param socialSituation The social situation during the event.
      * @param timestamp The timestamp of when the event occurred.
      * @param location The geographical location of the event.
      * @param imgPath The path to the uploaded image.
      * @param Username The username of the person recording the event.
      */
-    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, Timestamp timestamp, GeoPoint location, String imgPath, String Username) {
+    public MoodEvent(String emotionalState, String reason, String socialSituation, Timestamp timestamp, GeoPoint location, String imgPath, String Username) {
 
         this.emotionalState = emotionalState;
         this.reason = reason;
-        this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.timestamp = timestamp;
         this.location = location;
@@ -122,15 +118,6 @@ public class MoodEvent {
         this.emotionalState = emotionalState;
     }
 
-    /** @return The trigger causing the mood. */
-    public String getTrigger() {
-        return trigger;
-    }
-    /** set the trigger causing the mood. */
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
-    }
-
     /** @return The social situation at the time of the event. */
     public String getSocialSituation() {
         return socialSituation;
@@ -161,7 +148,6 @@ public class MoodEvent {
                 "Username='" + Username + '\'' +
                 "DocID='" + documentId + '\'' +
                 "emotionalState='" + emotionalState + '\'' +
-                ", trigger='" + trigger + '\'' +
                 ", socialSituation='" + socialSituation + '\'' +
                 ", timestamp='" + getFormattedTimestamp() + '\'' +
                 '}';

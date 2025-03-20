@@ -79,7 +79,7 @@ import java.util.HashMap;
 
 /**
  * Fragment for adding a mood event.
- * Users can select a mood, provide a reason and a trigger, upload an image, specify a social situation, and choose to attach their location.
+ * Users can select a mood, provide a reason, upload an image, specify a social situation, and choose to attach their location.
  */
 public class AddFragment extends Fragment implements LocationListener {
 
@@ -89,8 +89,6 @@ public class AddFragment extends Fragment implements LocationListener {
     protected Spinner editSocialSituation;
     /** EditText for entering reason */
     protected EditText editReason;
-    /** EditText for entering reason */
-    protected EditText editTrigger;
     /** Switch for enabling location tracking */
     protected Switch switchLocation;
     /** Buttons for saving, canceling, and uploading an image */
@@ -221,7 +219,6 @@ public class AddFragment extends Fragment implements LocationListener {
         dropdownMood = view.findViewById(R.id.dropdown_mood);
         editSocialSituation = view.findViewById(R.id.social_situation_spinner);
         editReason = view.findViewById(R.id.edit_reason);
-        editTrigger = view.findViewById(R.id.edit_trigger);
         switchLocation = view.findViewById(R.id.switch_location);
         buttonSave = view.findViewById(R.id.button_save);
         buttonCancel = view.findViewById(R.id.button_cancel);
@@ -401,7 +398,6 @@ public class AddFragment extends Fragment implements LocationListener {
 
         String selectedEmotion = dropdownMood.getSelectedItem().toString().trim();
         String socialSituation = editSocialSituation.getSelectedItemPosition() == 0 ? null : editSocialSituation.getSelectedItem().toString();
-        String trigger = editTrigger.getText().toString();
         Timestamp timeStamp = Timestamp.now();
 //        GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
 
@@ -446,7 +442,7 @@ public class AddFragment extends Fragment implements LocationListener {
             return;
         }
 
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, socialSituation, timeStamp, location, null, username);
         if (imageRef != null) {
             String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
 

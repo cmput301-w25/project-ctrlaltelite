@@ -105,11 +105,6 @@ public class HomeFragment extends AddFragment {
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
-
-
-
-
-
         // Register image picker in onCreate (only once)
         pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
             /**
@@ -176,8 +171,6 @@ public class HomeFragment extends AddFragment {
                 mainActivity.openDrawer();
             });
         }
-
-
         // Retrieve username from Bundle
         Bundle args = getArguments();
         if (args != null) {
@@ -201,8 +194,6 @@ public class HomeFragment extends AddFragment {
 
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions);
         moodFilterSpinner.setAdapter(moodAdapter);
-
-
 
         // Initialize ListView
         listView = view.findViewById(R.id.mood_list);
@@ -234,13 +225,11 @@ public class HomeFragment extends AddFragment {
         reasonFilterEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 reasonFilter = s.toString().trim().toLowerCase();
                 applyFilters(); // Apply filters immediately on text change
             }
-
             @Override
             public void afterTextChanged(Editable s) {}
         });
@@ -427,7 +416,6 @@ public class HomeFragment extends AddFragment {
         ImageView imagePreview = dialogView.findViewById(R.id.edit_uploaded_image);
         Spinner moodSpinner = dialogView.findViewById(R.id.edit_mood_spinner);
         EditText reasonEditText = dialogView.findViewById(R.id.edit_reason_edittext);
-        EditText triggerEditText = dialogView.findViewById(R.id.edit_trigger);
         Spinner socialSituationSpinner = dialogView.findViewById(R.id.edit_social_situation_spinner);
         Button saveButton = dialogView.findViewById(R.id.save_button);
         Button deleteButton = dialogView.findViewById(R.id.delete_button);
@@ -501,7 +489,6 @@ public class HomeFragment extends AddFragment {
 
         // Pre-fill EditText fields
         reasonEditText.setText(moodEvent.getReason());
-        triggerEditText.setText(moodEvent.getTrigger());
 
         // Upload button listener (uses existing pickMedia)
         buttonUpload.setOnClickListener(v -> {
@@ -574,7 +561,6 @@ public class HomeFragment extends AddFragment {
             //return;
             //}
 
-            String updatedTrigger = triggerEditText.getText().toString().trim();
             String updatedSocialSituation = socialSituationSpinner.getSelectedItemPosition() == 0 ? null : socialSituationSpinner.getSelectedItem().toString();
 
             GeoPoint updatedLocation = moodEvent.getLocation();
@@ -594,7 +580,6 @@ public class HomeFragment extends AddFragment {
             if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
                 moodEvent.setReason(updatedReason);
-                moodEvent.setTrigger(updatedTrigger);
                 moodEvent.setSocialSituation(updatedSocialSituation);
                 moodEvent.setLocation(updatedLocation);
 
