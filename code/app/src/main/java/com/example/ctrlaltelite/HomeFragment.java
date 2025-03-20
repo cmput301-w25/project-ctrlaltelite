@@ -386,7 +386,6 @@ public class HomeFragment extends AddFragment {
                 });
     }
 
-
     /**
      * Validates if the mood input is non-empty.
      *
@@ -410,10 +409,12 @@ public class HomeFragment extends AddFragment {
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_delete_mood_event, null);
         builder.setView(dialogView);
 
+        imagePreview = dialogView.findViewById(R.id.edit_uploaded_image);
+
         // Bind views
         TextView closeButton = dialogView.findViewById(R.id.close_button);
         Button buttonUpload = dialogView.findViewById(R.id.edit_upload_media_button);
-        ImageView imagePreview = dialogView.findViewById(R.id.edit_uploaded_image);
+        // ImageView imagePreview = dialogView.findViewById(R.id.edit_uploaded_image);
         Spinner moodSpinner = dialogView.findViewById(R.id.edit_mood_spinner);
         EditText reasonEditText = dialogView.findViewById(R.id.edit_reason_edittext);
         Spinner socialSituationSpinner = dialogView.findViewById(R.id.edit_social_situation_spinner);
@@ -427,10 +428,6 @@ public class HomeFragment extends AddFragment {
         } else {
             switchLocation.setChecked(false);
         }
-
-
-
-
 
         // Make upload button and image preview visible
         buttonUpload.setVisibility(View.VISIBLE);
@@ -467,6 +464,15 @@ public class HomeFragment extends AddFragment {
             imagePreview.setVisibility(View.GONE);
             Log.d("NoImg", "Fetched MoodEvent: " + moodEvent.toString());
         }
+
+        // Long-click listener for photo removal
+        AlertDialog dialog = builder.create(); // Moved up to pass to showPhotoRemovalDialog
+        imagePreview.setOnLongClickListener(v -> {
+            if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
+                showPhotoRemovalDialog(moodEvent, position, dialog); // Pass dialog for UI update
+            }
+            return true; // Consume the long click
+        });
 
         List<String> moodOptionsList = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.mood_options)));
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodOptionsList);
@@ -507,9 +513,6 @@ public class HomeFragment extends AddFragment {
             }
         });
 
-        AlertDialog dialog = builder.create();
-
-
         // Delete button
         deleteButton.setOnClickListener(v -> {
             DeleteMoodEventAndUpdateDatabaseUponDeletion(moodEvent);
@@ -527,7 +530,6 @@ public class HomeFragment extends AddFragment {
              *
              * @param v The view that was clicked (the save button).
              */
-
             String updatedMood = moodSpinner.getSelectedItem().toString();
             // Validate mood selection
             if (!isMoodValid(updatedMood)) {
@@ -543,23 +545,28 @@ public class HomeFragment extends AddFragment {
             // Separating the reason by spaces
             String[] separationArray = updatedReason.split(separator);
 
-            // Ensure either text reason or image is provided
-            if (updatedReason.isEmpty()) {
-                reasonEditText.setError("Reason must be provided");
-                //Toast.makeText(getContext(), "Reason must be provided", Toast.LENGTH_SHORT).show();
+            // Check if either reason or photo is provided - New validation
+            boolean hasReason = !updatedReason.isEmpty(); // True if reason text exists
+            boolean hasPhoto = (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) || newImageRef != null; // True if photo exists or new one uploaded
+            if (!hasReason && !hasPhoto) { // Block save if neither present
+                reasonEditText.setError("Either a reason or a photo is required");
+                Toast.makeText(getContext(), "Please provide a reason or upload a photo", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            // Ensure either text reason or image is provided - Replaced with new validation above
+            // if (updatedReason.isEmpty()) {
+            //     reasonEditText.setError("Reason must be provided");
+            //     //Toast.makeText(getContext(), "Reason must be provided", Toast.LENGTH_SHORT).show();
+            //     return;
+            // } -> I think this code only checked for reason not either reason or image
 
             // Adding the conditions for the textual reason
             if (updatedReason.length() > 200) {
                 reasonEditText.setError("Reason cannot have more than 200 characters");
                 //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
                 return;
-            } //else if (separationArray.length >= 4) {
-            //reasonEditText.setError("Reason cannot be more than 3 words");
-            //Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
-            //return;
-            //}
+            }
 
             String updatedSocialSituation = socialSituationSpinner.getSelectedItemPosition() == 0 ? null : socialSituationSpinner.getSelectedItem().toString();
 
@@ -568,7 +575,7 @@ public class HomeFragment extends AddFragment {
             if (switchLocation.isChecked()) {
                 if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     requestLocationPermission();
-                    return; // 🚨 Exit early, wait for permission result
+                    return; // Exit early, wait for permission result
                 } else {
                     updatedLocation = getUserLocation(); // Fetch new location
                 }
@@ -576,14 +583,11 @@ public class HomeFragment extends AddFragment {
                 updatedLocation = null; // If switch is off, remove location
             }
 
-
             if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
                 moodEvent.setReason(updatedReason);
                 moodEvent.setSocialSituation(updatedSocialSituation);
                 moodEvent.setLocation(updatedLocation);
-
-
 
                 // Set the current timestamp when saving
                 java.text.DateFormat dateFormat = java.text.DateFormat.getDateTimeInstance(
@@ -701,5 +705,30 @@ public class HomeFragment extends AddFragment {
                     Toast.makeText(getContext(), "Failed to update mood in Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
+    private void showPhotoRemovalDialog(MoodEvent moodEvent, int position, AlertDialog editDialog) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Remove Photo");
+        builder.setMessage("Do you want to delete this photo?");
+        builder.setPositiveButton("Delete", (dialog, which) -> {
+            if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
+                StorageReference oldImageRef = storageRef.child(moodEvent.getImgPath());
+                oldImageRef.delete()
+                        .addOnSuccessListener(aVoid -> {
+                            moodEvent.setImgPath(null); // Clear the image path
+                            updateMoodEventInFirestore(moodEvent, position); // Update Firestore
+                            if (imagePreview != null && imagePreview.getContext() != null) {
+                                Glide.with(requireContext()).clear(imagePreview); // Clear the preview
+                                imagePreview.setVisibility(View.GONE); // Hide the ImageView
+                            }
+                            Toast.makeText(getContext(), "Photo removed", Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Failed to remove photo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
 
+    }
 }
