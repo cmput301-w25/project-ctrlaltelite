@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     /** Stores the logged-in user's username. */
     private String username;
 
-    private TextView usernameTextView, emailTextView, phoneTextView;
+    private TextView displaynameTextView,usernameTextView, emailTextView, phoneTextView;
 
     BottomNavigationView bottomNavigationView;
 
@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
         View headerView = navigationView.getHeaderView(0);
 
         //finding text views in that header layout
+        TextView displaynameTextView = headerView.findViewById(R.id.text_display_name);
         TextView usernameTextView = headerView.findViewById(R.id.text_username);
         TextView emailTextView = headerView.findViewById(R.id.text_email);
 
@@ -95,10 +96,12 @@ public class MainActivity extends AppCompatActivity {
                             DocumentSnapshot document = querySnapshot.getDocuments().get(0);
 
                             // Extract fields (make sure these fields exist in your Firestore 'users' collection)
+                            String displayName = document.getString("displayName");
                             String email = document.getString("email");
                             String mobile = document.getString("mobile");
 
                             // Fill your TextViews
+                            displaynameTextView.setText(displayName);
                             usernameTextView.setText(username);  // or from Firestore if you store it there
                             emailTextView.setText(email != null ? email : "N/A");
                             if (phoneTextView != null) {

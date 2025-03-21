@@ -177,8 +177,9 @@ public class OtherUserProfileFragment extends Fragment {
         Log.d("OtherUserProfileFragment", "Checking to see if a request has already been made to " + followingUsername + " from " + followerUsername);
 
         return db.collection("FollowRequests")
-                .whereEqualTo("Following", followingUsername)
-                .whereEqualTo("Follower", followerUsername)
+                .whereEqualTo("Requestee's Username", followingUsername)
+                .whereEqualTo("Requester's Username", followerUsername)
+                .whereEqualTo("Status", "Pending")
                 .get()
                 .continueWith(task -> {
                     if (task.isSuccessful()) {
@@ -192,8 +193,8 @@ public class OtherUserProfileFragment extends Fragment {
                 });
     }
     protected void saveToFirestore(FollowRequest followRequest) {
-        String currentUserUsername = followRequest.getRequestedUserName();
-        String searchedUserUsername = followRequest.getRequesterUserName();
+        String currentUserUsername = followRequest.getRequesterUserName();
+        String searchedUserUsername = followRequest.getRequestedUserName();
         String currentUserDisplayName = followRequest.getRequesterDisplayName();
         String searchedUserDisplayName = followRequest.getRequestedDisplayName();
         String status = followRequest.getStatus();

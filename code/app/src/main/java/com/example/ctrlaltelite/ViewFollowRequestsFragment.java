@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -57,20 +58,20 @@ public class ViewFollowRequestsFragment extends Fragment {
             });
         }
 
-
         return view;
     }
 
     private void fetchFollowRequests(String username) {
         Log.d("OtherUserProfileFragment", "Fetching follow requests for username: " + username);
         db.collection("FollowRequests")
-                .whereEqualTo("Following", username)
+                .whereEqualTo("Requestee's Username", username)
+                .whereEqualTo("Status", "Pending")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         followRequestList.clear();
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            String followerUserName = document.getString(" Resquester's Username");
+                            String followerUserName = document.getString("Requester's Username");
                             String followingUserName = document.getString("Requestee's Username");
                             String followerDisplayName = document.getString("Requester's Display Name");
                             String followingDisplayName = document.getString("Requestee's Display Name");
