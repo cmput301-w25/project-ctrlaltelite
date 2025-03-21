@@ -84,6 +84,10 @@ import java.util.HashMap;
  */
 public class AddFragment extends Fragment implements LocationListener {
 
+    // This will store the visibility choice (true for public, false for private)
+    //this a member varriable, so we can change it anytime in the class
+    private boolean isPublic = false;
+
     /** Spinner for selecting mood */
     protected Spinner dropdownMood;
     /** Spinner for selecting social situation (optional) */
@@ -241,9 +245,9 @@ public class AddFragment extends Fragment implements LocationListener {
 
 
         // This will store the visibility choice (true for public, false for private)
-        boolean isPublic = false;
 
-        // Set a listener to capture selection changes
+
+        // Listener to capture selection changes
         radioGroupVisibility.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -469,7 +473,7 @@ public class AddFragment extends Fragment implements LocationListener {
             return;
         }
 
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username, isPublic);
         if (imageRef != null) {
             String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
 
