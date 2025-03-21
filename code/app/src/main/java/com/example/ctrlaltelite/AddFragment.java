@@ -13,6 +13,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -282,6 +284,18 @@ public class AddFragment extends Fragment implements LocationListener {
         return view;
     }
 
+    /**
+     * Checks if there is Internet Connectivity
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
+    }
+
     /** Sets up the mood selection dropdown. */
     private void setupDropdown() {
         // Convert the string-array to List<String>
@@ -473,21 +487,27 @@ public class AddFragment extends Fragment implements LocationListener {
         }
 
         MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username, isPublic);
-        if (imageRef != null) {
-            String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
-
-            StorageReference fileRef = storageRef.child(imgPath);
-            fileRef.putFile(imageRef)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        moodEvent.setImgPath(imgPath);
-                        saveToFirestore(moodEvent);
-                    })
-                    .addOnFailureListener(error -> {
-                        Toast.makeText(getContext(), "Error uploading image, saving without image", Toast.LENGTH_SHORT).show();
-                        saveToFirestore(moodEvent);
-                    });
-        } else {
+        if (!isNetworkAvailable()) {
+            // If Offline: Save and immediately navigate to home
             saveToFirestore(moodEvent);
+            navigateToHome();
+        }else{
+            if (imageRef != null) {
+                String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
+
+                StorageReference fileRef = storageRef.child(imgPath);
+                fileRef.putFile(imageRef)
+                        .addOnSuccessListener(taskSnapshot -> {
+                            moodEvent.setImgPath(imgPath);
+                            saveToFirestore(moodEvent);
+                        })
+                        .addOnFailureListener(error -> {
+                            Toast.makeText(getContext(), "Error uploading image, saving without image", Toast.LENGTH_SHORT).show();
+                            saveToFirestore(moodEvent);
+                        });
+            } else {
+                saveToFirestore(moodEvent);
+            }
         }
     }
 
@@ -502,11 +522,18 @@ public class AddFragment extends Fragment implements LocationListener {
                 .addOnSuccessListener(documentReference -> {
                     moodEvent.setDocumentId(documentReference.getId());
                     Log.d("AddFragment", "Saved MoodEvent with docId: " + moodEvent.getDocumentId() + ", imgPath: " + moodEvent.getImgPath());
-                    Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
-                    navigateToHome();
+                    // Show the Toast only if the fragment is attached
+                    if (isAdded()){
+                        Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
+                    }
+                    if (isAdded()){
+                        navigateToHome();
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
+                    if (isAdded()){
+                        Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
