@@ -187,7 +187,6 @@ public class AddFragment extends Fragment implements LocationListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add, container, false);
-        isPublic = true;
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();  // Firebase Authentication instance
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
