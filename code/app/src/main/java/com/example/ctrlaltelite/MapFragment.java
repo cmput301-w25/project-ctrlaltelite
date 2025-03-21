@@ -224,7 +224,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     TextView description = new TextView(getContext());
                     StringBuilder descBuilder = new StringBuilder();
                     if (moodEvent.getEmotionalState() != null && !moodEvent.getEmotionalState().isEmpty()){
-                        descBuilder.append("Emotional State: ").append(moodEvent.getEmotionalState()).append("\n");g
+                        descBuilder.append("Emotional State: ").append(moodEvent.getEmotionalState()).append("\n");
                     }
                     if (moodEvent.getReason() != null && !moodEvent.getReason().isEmpty()) {
                         descBuilder.append("Reason: ").append(moodEvent.getReason()).append("\n");
