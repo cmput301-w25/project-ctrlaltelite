@@ -37,13 +37,15 @@ import java.util.regex.Pattern;
 public class SignUp extends AppCompatActivity {
     LottieAnimationView lottielogo;
 
-    private EditText SUsername, SEmail, SMobile, SPassword;
+    private EditText SUsername, SEmail, SMobile, SPassword,SDisplayName;
     private Button btnCreateAccount;
     private TextView tvLoginPrompt;
     private FirebaseFirestore db;
     // Email regex pattern for validating email addresses
-    private String EMAIL_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+    private String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    private String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$";
     private Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_REGEX);
+    private Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_REGEX);
 
     /**
      * Called when the activity is first created.
@@ -60,6 +62,7 @@ public class SignUp extends AppCompatActivity {
 
         // Initialize views from the sign-up layout
         SUsername = findViewById(R.id.SUsername);
+        SDisplayName = findViewById(R.id.SDisplayName);
         SEmail = findViewById(R.id.SEmail);
         SMobile = findViewById(R.id.SMobile);
         SPassword = findViewById(R.id.SPassword);
@@ -80,6 +83,7 @@ public class SignUp extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String username = SUsername.getText().toString().trim();
+                String displayName = SDisplayName.getText().toString().trim();
                 String email = SEmail.getText().toString().trim();
                 String mobile = SMobile.getText().toString().trim();
                 String password = SPassword.getText().toString().trim();
@@ -107,12 +111,29 @@ public class SignUp extends AppCompatActivity {
                         Toast.makeText(SignUp.this, "Please enter a valid numeric phone number", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    // Validate the email address format using regex
-                    Matcher matcher = EMAIL_PATTERN.matcher(email);
-                    if (!matcher.matches()) {
-                        SEmail.setError("Please enter a valid email address");
-                        return;
-                    }
+                }
+                if (displayName.isEmpty()) {
+                    SDisplayName.setError("Display name cannot be empty!");
+                    return;
+                }
+                // Validate the email address format using regex
+                Matcher matcher = EMAIL_PATTERN.matcher(email);
+                if (!matcher.matches()) {
+                    SEmail.setError("Please enter a valid email address");
+                    return;
+                }
+                if (mobile.length() != 10) {
+                    SMobile.setError("Phone number must be 10 digits long");
+                    return;
+                }
+                // Validate Password using regex
+                Matcher matcherPass = PASSWORD_PATTERN.matcher(password);
+                if (!matcherPass.matches()) {
+                    SPassword.setError("Invalid Password, Must contain:\n" +
+                            "- At least one letter\n" +
+                            "- At least one digit\n" +
+                            "- Minimum 8 characters");
+                    return;
                 }
                 // Check if the username already exists in the "users" collection
                 db.collection("users")
@@ -126,6 +147,7 @@ public class SignUp extends AppCompatActivity {
                                 // Username is unique
                                 Map<String, Object> user = new HashMap<>();
                                 user.put("username", username);
+                                user.put("displayName", displayName);
                                 user.put("email", email);
                                 user.put("mobile", mobile);
                                 user.put("password", password);
