@@ -55,6 +55,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap googleMap;
     private static final String TAG = "MapFragment";
     private int MAX_DISTANCE = 5000;    //MAX DISTANCE IN METRES
+
+    /**
+     * Retrieves the user's current location as a GeoPoint (if permission granted).
+     */
     public static GeoPoint getUserLocation(Context context) {
         LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         // Remove previous updates if needed (optional)
@@ -144,7 +148,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
 
-
+    /**
+     * Once the view is created, set up the Google Map fragment.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -158,14 +164,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-
-
-
-
-
-
-
-
+    /**
+     * Called when the map is ready to be used.
+     */
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         this.googleMap = googleMap;
@@ -182,7 +183,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-
+    /**
+     * Actual setup for the map once permissions are granted.
+     */
     private void proceedWithMapSetup() {
         GeoPoint currentGeoPoint = getUserLocation(requireContext());
         if (currentGeoPoint == null) {
@@ -209,9 +212,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     infoLayout.setOrientation(LinearLayout.VERTICAL);
                     infoLayout.setPadding(20, 20, 20, 20);
 
-                    // Title: Emotional State (with emoji)
+                    // Title: Username
                     TextView title = new TextView(getContext());
-                    title.setText(moodEvent.getEmotionalState());
+                    title.setText(moodEvent.getUsername());
                     title.setTextColor(Color.BLACK);
                     title.setTextSize(16);
                     title.setGravity(Gravity.CENTER);
@@ -220,6 +223,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     // Description
                     TextView description = new TextView(getContext());
                     StringBuilder descBuilder = new StringBuilder();
+                    if (moodEvent.getEmotionalState() != null && !moodEvent.getEmotionalState().isEmpty()){
+                        descBuilder.append("Emotional State: ").append(moodEvent.getEmotionalState()).append("\n");g
+                    }
                     if (moodEvent.getReason() != null && !moodEvent.getReason().isEmpty()) {
                         descBuilder.append("Reason: ").append(moodEvent.getReason()).append("\n");
                     }
@@ -243,12 +249,45 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        getFollowedUsers(currentGeoPoint);
+    }
 
-
+    /**
+     * Fetches the list of usernames that 'Username' follows (with Status=Accepted).
+     */
+    private void getFollowedUsers(GeoPoint currentGeoPoint){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("FollowRequests")
+                .whereEqualTo("Requester's Username",Username)
+                .whereEqualTo("Status","Accepted")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<String> followedUsers = new ArrayList<>();
+                    for (QueryDocumentSnapshot documentSnapshot: queryDocumentSnapshots){
+                        String followed = documentSnapshot.getString("Requestee's Username");
+                        if (followed != null){
+                            followedUsers.add(followed);
+                        }
+                    }
+                    if (followedUsers.isEmpty()){
+                        Toast.makeText(getContext(),"You Don't Follow Anyone",Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    showMoodEventMap(followedUsers,currentGeoPoint);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(),"Could not get follow requests",Toast.LENGTH_SHORT).show();
+                });
+    }
+    /**
+     * Given a list of followed usernames, fetch their mood events and place markers.
+     */
+    private void showMoodEventMap(List<String> followed, GeoPoint currentGeoPoint){
         //Query Firebase for Mood Events with locations
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Mood Events").get().addOnCompleteListener(task -> {
+        db.collection("Mood Events").whereIn("username",followed).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()){
+                LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(),currentGeoPoint.getLongitude());
                 //Loop Through each mood event
                 for (QueryDocumentSnapshot documentSnapshot: task.getResult()){
                     try{
@@ -290,7 +329,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-
+    /**
+     * Helper method to request location permission, if not granted.
+     */
     protected void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -311,7 +352,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-
+    /**
+     * Called when user responds to the location permission dialog.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -342,24 +385,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Generates a BitmapDescriptor from an emoji string to be used as a marker icon.
