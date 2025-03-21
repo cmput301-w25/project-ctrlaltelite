@@ -272,7 +272,8 @@
                 android:fontFamily="@font/font3"
                 android:textStyle="bold"
                 android:layout_height="wrap_content"
-                android:text="Public" />
+                android:text="Public"
+                android:checked="true"/>
 
             <RadioButton
                 android:id="@+id/radioPrivate"

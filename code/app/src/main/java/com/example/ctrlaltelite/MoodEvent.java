@@ -15,6 +15,9 @@ import java.text.SimpleDateFormat;
  */
 public class MoodEvent {
 
+    private boolean isPublic;
+
+
     /** The emotional state of the user */
     private String emotionalState;
     /** The trigger causing the mood */
@@ -65,7 +68,7 @@ public class MoodEvent {
      * @param imgPath The path to the uploaded image.
      * @param Username The username of the person recording the event.
      */
-    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, Timestamp timestamp, GeoPoint location, String imgPath, String Username) {
+    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, Timestamp timestamp, GeoPoint location, String imgPath, String Username, boolean isPublic) {
 
         this.emotionalState = emotionalState;
         this.reason = reason;
@@ -75,6 +78,7 @@ public class MoodEvent {
         this.location = location;
         this.imgPath = imgPath;
         this.Username = Username;
+        this.isPublic = isPublic;
 
     }
 
@@ -151,6 +155,21 @@ public class MoodEvent {
     public void setUsername(String username) { this.Username = username;}
 
 
+    /** @return The value of isPublic */
+    public boolean isPublic() {
+        return isPublic;
+    }
+    /** set the value of isPublic */
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+
+
+
+
+
+
     /**
      * Provides a string representation of the MoodEvent object.
      * @return A formatted string with event details.
@@ -164,6 +183,7 @@ public class MoodEvent {
                 ", trigger='" + trigger + '\'' +
                 ", socialSituation='" + socialSituation + '\'' +
                 ", timestamp='" + getFormattedTimestamp() + '\'' +
+                ", isPublic=" + isPublic +
                 '}';
     }
 

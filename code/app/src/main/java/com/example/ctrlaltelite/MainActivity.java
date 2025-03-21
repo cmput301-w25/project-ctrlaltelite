@@ -32,6 +32,8 @@ import java.util.ArrayList;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 /**
  * The {@code MainActivity} serves as the entry point of the application and manages
  * navigation between different fragments using a bottom navigation bar.
@@ -85,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
         if (bundle != null) {
             username = bundle.getString("username");
         }
+
+
+
 
         if (username != null && !username.isEmpty()) {
             db.collection("users")
@@ -229,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
     public void openDrawer() {
         drawerLayout.openDrawer(GravityCompat.START);
     }
+
 
 
 

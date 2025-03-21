@@ -25,6 +25,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -82,6 +83,10 @@ import java.util.HashMap;
  * Users can select a mood, provide a reason and a trigger, upload an image, specify a social situation, and choose to attach their location.
  */
 public class AddFragment extends Fragment implements LocationListener {
+
+    // This will store the visibility choice (true for public, false for private)
+    //this a member varriable, so we can change it anytime in the class
+    private boolean isPublic = false;
 
     /** Spinner for selecting mood */
     protected Spinner dropdownMood;
@@ -182,10 +187,14 @@ public class AddFragment extends Fragment implements LocationListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add, container, false);
-
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();  // Firebase Authentication instance
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
+        LottieAnimationView lottiemapclear = view.findViewById(R.id.lottiemapclear);
+
+        RadioGroup radioGroupVisibility = view.findViewById(R.id.radioGroupVisibility);
+
+
 
         // Get a reference to the MainActivity so we can call openDrawer()
         MainActivity mainActivity = (MainActivity) getActivity();
@@ -234,8 +243,25 @@ public class AddFragment extends Fragment implements LocationListener {
         setupDropdownSocialSituation();
 
 
+        // This will store the visibility choice (true for public, false for private)
 
-        LottieAnimationView lottiemapclear = view.findViewById(R.id.lottiemapclear);
+
+        // Listener to capture selection changes
+        radioGroupVisibility.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == R.id.radioPublic) {
+                    // Public is selected
+                    isPublic = true;
+                } else if (checkedId == R.id.radioPrivate) {
+                    // Private is selected
+                    isPublic = false;
+                }
+            }
+        });
+
+
+
         //Pressing on the notification button
 
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
@@ -446,7 +472,7 @@ public class AddFragment extends Fragment implements LocationListener {
             return;
         }
 
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username, isPublic);
         if (imageRef != null) {
             String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
 
