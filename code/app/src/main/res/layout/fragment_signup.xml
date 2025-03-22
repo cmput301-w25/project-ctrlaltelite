@@ -46,8 +46,8 @@
 
     <LinearLayout
         android:id="@+id/InformationBox"
-        android:layout_width="353dp"
-        android:layout_height="452dp"
+        android:layout_width="351dp"
+        android:layout_height="460dp"
         android:layout_marginTop="32dp"
         android:background="@drawable/signup_bg"
         android:orientation="vertical"
