@@ -105,18 +105,10 @@ public class HomeFragment extends AddFragment {
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
-
-
-
-
-
         // Register image picker in onCreate (only once)
         pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-            /**
-             * Handles the result of the image picker for editing mood events.
-             *
-             * @param uri The URI of the selected image, or null if no image was selected.
-             */
+            /* Handles the result of the image picker for editing mood events.
+             * @param uri The URI of the selected image, or null if no image was selected. */
             if (uri == null) {
                 Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
             } else {
@@ -144,11 +136,8 @@ public class HomeFragment extends AddFragment {
 
         // Register permission request
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-            /**
-             * Handles the result of the permission request for accessing media images.
-             *
-             * @param isGranted True if permission was granted, false otherwise.
-             */
+            /* Handles the result of the permission request for accessing media images.
+             * @param isGranted True if permission was granted, false otherwise. */
             if (isGranted) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
@@ -159,13 +148,18 @@ public class HomeFragment extends AddFragment {
         });
     }
 
+    /**
+     * Sets up the fragment's UI and initializes event listeners.
+     * @param inflater Layout inflater
+     * @param container Parent view container
+     * @param savedInstanceState Previous saved state, if any
+     * @return Created view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         db = FirebaseFirestore.getInstance();
-
-
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
 
         // Get a reference to the MainActivity so we can call openDrawer()
@@ -176,8 +170,6 @@ public class HomeFragment extends AddFragment {
                 mainActivity.openDrawer();
             });
         }
-
-
         // Retrieve username from Bundle
         Bundle args = getArguments();
         if (args != null) {
@@ -202,8 +194,6 @@ public class HomeFragment extends AddFragment {
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions);
         moodFilterSpinner.setAdapter(moodAdapter);
 
-
-
         // Initialize ListView
         listView = view.findViewById(R.id.mood_list);
         if (listView == null) {
@@ -215,11 +205,19 @@ public class HomeFragment extends AddFragment {
         fetchMoodEvents(); // Start fetching data first to ensure data is available before UI interactions
         // Moved Spinner listener after fetchMoodEvents() to avoid applyFilters() running before data is fetched
         moodFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /** Handles mood filter selection.
+             * @param parent AdapterView
+             * @param view Selected view
+             * @param position Selected position
+             * @param id Row id
+             */
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 moodFilter = moodFilterOptions.get(position);
                 applyFilters();
             }
+
+            /** Does nothing when no item is selected. */
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
@@ -234,13 +232,11 @@ public class HomeFragment extends AddFragment {
         reasonFilterEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 reasonFilter = s.toString().trim().toLowerCase();
                 applyFilters(); // Apply filters immediately on text change
             }
-
             @Override
             public void afterTextChanged(Editable s) {}
         });
@@ -252,7 +248,6 @@ public class HomeFragment extends AddFragment {
         });
 
         //Pressing on the notification button
-
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
         notifButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -271,7 +266,9 @@ public class HomeFragment extends AddFragment {
 
         return view;
     }
-
+    /**
+     * Applies filters to the mood events list based on current filter settings.
+     */
     private void applyFilters() {
         if (allMoodEvents == null || allMoodEvents.isEmpty()) {
             moodEvents.clear();
@@ -397,7 +394,6 @@ public class HomeFragment extends AddFragment {
                 });
     }
 
-
     /**
      * Validates if the mood input is non-empty.
      *
@@ -421,13 +417,14 @@ public class HomeFragment extends AddFragment {
         View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_edit_delete_mood_event, null);
         builder.setView(dialogView);
 
+        imagePreview = dialogView.findViewById(R.id.edit_uploaded_image);
+
         // Bind views
         TextView closeButton = dialogView.findViewById(R.id.close_button);
         Button buttonUpload = dialogView.findViewById(R.id.edit_upload_media_button);
-        ImageView imagePreview = dialogView.findViewById(R.id.edit_uploaded_image);
+        // ImageView imagePreview = dialogView.findViewById(R.id.edit_uploaded_image);
         Spinner moodSpinner = dialogView.findViewById(R.id.edit_mood_spinner);
         EditText reasonEditText = dialogView.findViewById(R.id.edit_reason_edittext);
-        EditText triggerEditText = dialogView.findViewById(R.id.edit_trigger);
         Spinner socialSituationSpinner = dialogView.findViewById(R.id.edit_social_situation_spinner);
         Button saveButton = dialogView.findViewById(R.id.save_button);
         Button deleteButton = dialogView.findViewById(R.id.delete_button);
@@ -440,10 +437,6 @@ public class HomeFragment extends AddFragment {
             switchLocation.setChecked(false);
         }
 
-
-
-
-
         // Make upload button and image preview visible
         buttonUpload.setVisibility(View.VISIBLE);
         Glide.with(requireContext()).clear(imagePreview);
@@ -455,21 +448,15 @@ public class HomeFragment extends AddFragment {
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                /**
-                 * Loads the existing image into the preview when the download URL is successfully retrieved.
-                 *
-                 * @param uri The URI of the image downloaded from Firebase Storage.
-                 */
+                /* Loads the existing image into the preview when the download URL is successfully retrieved.
+                 * @param uri The URI of the image downloaded from Firebase Storage. */
                 Glide.with(requireContext())
                         .load(uri)
                         .into(imagePreview);
                 imagePreview.setVisibility(View.VISIBLE);
             }).addOnFailureListener(e -> {
-                /**
-                 * Handles failure to retrieve the image download URL from Firebase Storage.
-                 *
-                 * @param e The exception indicating the reason for failure.
-                 */
+                /* Handles failure to retrieve the image download URL from Firebase Storage.
+                 * @param e The exception indicating the reason for failure. */
                 Log.e("HomeFragment", "Failed to load image: " + e.getMessage());
                 Glide.with(requireContext()).clear(imagePreview);
                 imagePreview.setVisibility(View.GONE);
@@ -479,6 +466,15 @@ public class HomeFragment extends AddFragment {
             imagePreview.setVisibility(View.GONE);
             Log.d("NoImg", "Fetched MoodEvent: " + moodEvent.toString());
         }
+
+        // Long-click listener for photo removal
+        AlertDialog dialog = builder.create(); // Moved up to pass to showPhotoRemovalDialog
+        imagePreview.setOnLongClickListener(v -> {
+            if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
+                showPhotoRemovalDialog(moodEvent, position, dialog); // Pass dialog for UI update
+            }
+            return true; // Consume the long click
+        });
 
         List<String> moodOptionsList = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.mood_options)));
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodOptionsList);
@@ -501,15 +497,11 @@ public class HomeFragment extends AddFragment {
 
         // Pre-fill EditText fields
         reasonEditText.setText(moodEvent.getReason());
-        triggerEditText.setText(moodEvent.getTrigger());
 
         // Upload button listener (uses existing pickMedia)
         buttonUpload.setOnClickListener(v -> {
-            /**
-             * Initiates the image upload process when the upload button is clicked.
-             *
-             * @param v The view that was clicked (the upload button).
-             */
+            /* Initiates the image upload process when the upload button is clicked.
+             * @param v The view that was clicked (the upload button). */
             if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
                     PackageManager.PERMISSION_GRANTED) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
@@ -519,9 +511,6 @@ public class HomeFragment extends AddFragment {
                 requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_IMAGES);
             }
         });
-
-        AlertDialog dialog = builder.create();
-
 
         // Delete button
         deleteButton.setOnClickListener(v -> {
@@ -540,7 +529,6 @@ public class HomeFragment extends AddFragment {
              *
              * @param v The view that was clicked (the save button).
              */
-
             String updatedMood = moodSpinner.getSelectedItem().toString();
             // Validate mood selection
             if (!isMoodValid(updatedMood)) {
@@ -556,25 +544,29 @@ public class HomeFragment extends AddFragment {
             // Separating the reason by spaces
             String[] separationArray = updatedReason.split(separator);
 
-            // Ensure either text reason or image is provided
-            if (updatedReason.isEmpty()) {
-                reasonEditText.setError("Reason must be provided");
-                //Toast.makeText(getContext(), "Reason must be provided", Toast.LENGTH_SHORT).show();
+            // Check if either reason or photo is provided - New validation
+            boolean hasReason = !updatedReason.isEmpty(); // True if reason text exists
+            boolean hasPhoto = (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) || newImageRef != null; // True if photo exists or new one uploaded
+            if (!hasReason && !hasPhoto) { // Block save if neither present
+                reasonEditText.setError("Either a reason or a photo is required");
+                Toast.makeText(getContext(), "Please provide a reason or upload a photo", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+            // Ensure either text reason or image is provided - Replaced with new validation above
+            // if (updatedReason.isEmpty()) {
+            //     reasonEditText.setError("Reason must be provided");
+            //     //Toast.makeText(getContext(), "Reason must be provided", Toast.LENGTH_SHORT).show();
+            //     return;
+            // } -> I think this code only checked for reason not either reason or image
 
             // Adding the conditions for the textual reason
             if (updatedReason.length() > 200) {
                 reasonEditText.setError("Reason cannot have more than 200 characters");
                 //Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
                 return;
-            } //else if (separationArray.length >= 4) {
-            //reasonEditText.setError("Reason cannot be more than 3 words");
-            //Toast.makeText(getContext(), "Reason cannot be more than 4 words", Toast.LENGTH_SHORT).show();
-            //return;
-            //}
+            }
 
-            String updatedTrigger = triggerEditText.getText().toString().trim();
             String updatedSocialSituation = socialSituationSpinner.getSelectedItemPosition() == 0 ? null : socialSituationSpinner.getSelectedItem().toString();
 
             GeoPoint updatedLocation = moodEvent.getLocation();
@@ -582,7 +574,7 @@ public class HomeFragment extends AddFragment {
             if (switchLocation.isChecked()) {
                 if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     requestLocationPermission();
-                    return; // 🚨 Exit early, wait for permission result
+                    return; // Exit early, wait for permission result
                 } else {
                     updatedLocation = getUserLocation(); // Fetch new location
                 }
@@ -590,15 +582,11 @@ public class HomeFragment extends AddFragment {
                 updatedLocation = null; // If switch is off, remove location
             }
 
-
             if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
                 moodEvent.setReason(updatedReason);
-                moodEvent.setTrigger(updatedTrigger);
                 moodEvent.setSocialSituation(updatedSocialSituation);
                 moodEvent.setLocation(updatedLocation);
-
-
 
                 // Set the current timestamp when saving
                 java.text.DateFormat dateFormat = java.text.DateFormat.getDateTimeInstance(
@@ -717,4 +705,36 @@ public class HomeFragment extends AddFragment {
                 });
     }
 
+    /**
+     * Shows a dialog to confirm photo removal for a mood event.
+     * @param moodEvent The mood event to modify
+     * @param position Position in the list
+     * @param editDialog Parent edit dialog
+     */
+    private void showPhotoRemovalDialog(MoodEvent moodEvent, int position, AlertDialog editDialog) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Remove Photo");
+        builder.setMessage("Do you want to delete this photo?");
+        builder.setPositiveButton("Delete", (dialog, which) -> {
+            if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
+                StorageReference oldImageRef = storageRef.child(moodEvent.getImgPath());
+                oldImageRef.delete()
+                        .addOnSuccessListener(aVoid -> {
+                            moodEvent.setImgPath(null); // Clear the image path
+                            updateMoodEventInFirestore(moodEvent, position); // Update Firestore
+                            if (imagePreview != null && imagePreview.getContext() != null) {
+                                Glide.with(requireContext()).clear(imagePreview); // Clear the preview
+                                imagePreview.setVisibility(View.GONE); // Hide the ImageView
+                            }
+                            Toast.makeText(getContext(), "Photo removed", Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getContext(), "Failed to remove photo: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+
+    }
 }

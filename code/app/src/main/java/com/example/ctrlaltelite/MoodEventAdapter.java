@@ -55,15 +55,15 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     // The ViewHolder is used to improve the performance of ListView.
     // It helps avoid repeatedly finding views during scrolling by holding references to the UI components
     static class ViewHolder {
+        TextView username;
         TextView moodText;
         TextView reasonText;
-        TextView triggerText;
         TextView socialSituationText;
         TextView timestampText;
         TextView geolocationText;
         ImageView moodImage;
-    }
 
+    }
 
     /**
      * Called to create or reuse a view for an item in the list. This method binds the data
@@ -81,9 +81,9 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.mood_event_item, parent, false);
             holder = new ViewHolder();
+            holder.username = convertView.findViewById(R.id.username);
             holder.moodText = convertView.findViewById(R.id.mood_text);
             holder.reasonText = convertView.findViewById(R.id.reason_text);
-            holder.triggerText = convertView.findViewById(R.id.trigger_text);
             holder.socialSituationText = convertView.findViewById(R.id.social_situation_text);
             holder.timestampText = convertView.findViewById(R.id.timestamp_text);
             holder.geolocationText = convertView.findViewById(R.id.geolocation);
@@ -97,9 +97,9 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         if (moodEvent == null) return convertView;
 
         // Bind data to views
+        holder.username.setText("@" + moodEvent.getUsername() + " is feeling");
         holder.moodText.setText(moodEvent.getEmotionalState());
         holder.reasonText.setText(moodEvent.getReason() != null ? moodEvent.getReason() : "");
-        holder.triggerText.setText(moodEvent.getTrigger() != null ? moodEvent.getTrigger() : "");
         holder.socialSituationText.setText(moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "");
         holder.timestampText.setText(moodEvent.getFormattedTimestamp());
         holder.moodText.setTextColor(getColorForMood(moodEvent.getEmotionalState()));
@@ -107,7 +107,6 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         // Clear image for recycled views
         Glide.with(getContext()).clear(holder.moodImage);
         holder.moodImage.setVisibility(View.GONE); // Hide initially
-
 
         //Convert Coordinates to Address
         if (moodEvent.getLocation() != null) {
@@ -122,21 +121,15 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                 // Apply Gradient Background Styling
                 GradientDrawable gradientDrawable = new GradientDrawable(
                         GradientDrawable.Orientation.LEFT_RIGHT,
-
                         new int[]{Color.parseColor("#FFE9DE"), Color.parseColor("#FDBEA6"), Color.parseColor("#FF9671")}
-
-
                 );
                 gradientDrawable.setCornerRadius(16); // Rounded corners
                 Typeface customFont = ResourcesCompat.getFont(this.getContext(), R.font.font7);
                 holder.geolocationText.setTypeface(customFont, Typeface.BOLD);
-
                 holder.geolocationText.setBackground(gradientDrawable);
                 holder.geolocationText.setTextColor(Color.BLACK); // White text for contrast
                 holder.geolocationText.setPadding(12, 6, 12, 6); // Better spacing
-
             }
-
             else {
                 holder.geolocationText.setText("at Unknown Location");
                 holder.geolocationText.setVisibility(View.VISIBLE);
@@ -145,7 +138,6 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             holder.geolocationText.setVisibility(View.GONE);
         }
 
-
         String currentImgPath = moodEvent.getImgPath();
         holder.moodImage.setTag(currentImgPath);
         // Load image using Glide if available
@@ -153,7 +145,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
             imageRef.getDownloadUrl()
                     .addOnSuccessListener(uri -> {
-                        Log.d("MoodEventAdapter", "Image URL fetched for " + moodEvent.getImgPath() + ": " + uri.toString());
+                        /* On retrieval
+                         * dangle */
                         if (currentImgPath.equals(holder.moodImage.getTag())) {
                         Glide.with(getContext())
                                 .load(uri)
@@ -161,18 +154,15 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                         holder.moodImage.setVisibility(View.VISIBLE);} // Explicitly set visible on success
 
                     })
-
                     .addOnFailureListener(e -> {
-                        Log.e("MoodEventAdapter", "Failed to fetch image URL for " + moodEvent.getImgPath() + ": " + e.getMessage());
+                        /* On retrieval
+                         * dangle */
                         holder.moodImage.setVisibility(View.GONE); // Hide on failure
                     });
-
         } else {
-            Log.d("MoodEventAdapter", "No imgPath for mood event at position " + position);
             Glide.with(getContext()).clear(holder.moodImage); // Clear image if no path
             holder.moodImage.setVisibility(View.GONE); // Hide if no image
         }
-
         return convertView;
     }
 

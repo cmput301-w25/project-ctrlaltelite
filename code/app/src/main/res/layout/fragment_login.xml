@@ -87,7 +87,7 @@
         <!-- SignUp text -->
         <TextView
             android:id="@+id/tvSignUpPrompt"
-            android:layout_width="314dp"
+            android:layout_width="283dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="Don't have an account? SignUp"

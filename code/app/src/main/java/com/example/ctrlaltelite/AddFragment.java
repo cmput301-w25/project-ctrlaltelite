@@ -13,6 +13,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -94,8 +96,6 @@ public class AddFragment extends Fragment implements LocationListener {
     protected Spinner editSocialSituation;
     /** EditText for entering reason */
     protected EditText editReason;
-    /** EditText for entering reason */
-    protected EditText editTrigger;
     /** Switch for enabling location tracking */
     protected Switch switchLocation;
     /** Buttons for saving, canceling, and uploading an image */
@@ -187,6 +187,7 @@ public class AddFragment extends Fragment implements LocationListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add, container, false);
+
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();  // Firebase Authentication instance
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
@@ -230,7 +231,6 @@ public class AddFragment extends Fragment implements LocationListener {
         dropdownMood = view.findViewById(R.id.dropdown_mood);
         editSocialSituation = view.findViewById(R.id.social_situation_spinner);
         editReason = view.findViewById(R.id.edit_reason);
-        editTrigger = view.findViewById(R.id.edit_trigger);
         switchLocation = view.findViewById(R.id.switch_location);
         buttonSave = view.findViewById(R.id.button_save);
         buttonCancel = view.findViewById(R.id.button_cancel);
@@ -280,6 +280,18 @@ public class AddFragment extends Fragment implements LocationListener {
             }
         });
         return view;
+    }
+
+    /**
+     * Checks if there is Internet Connectivity
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
     }
 
     /** Sets up the mood selection dropdown. */
@@ -427,7 +439,6 @@ public class AddFragment extends Fragment implements LocationListener {
 
         String selectedEmotion = dropdownMood.getSelectedItem().toString().trim();
         String socialSituation = editSocialSituation.getSelectedItemPosition() == 0 ? null : editSocialSituation.getSelectedItem().toString();
-        String trigger = editTrigger.getText().toString();
         Timestamp timeStamp = Timestamp.now();
 //        GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
 
@@ -472,22 +483,28 @@ public class AddFragment extends Fragment implements LocationListener {
             return;
         }
 
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username, isPublic);
-        if (imageRef != null) {
-            String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
-
-            StorageReference fileRef = storageRef.child(imgPath);
-            fileRef.putFile(imageRef)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        moodEvent.setImgPath(imgPath);
-                        saveToFirestore(moodEvent);
-                    })
-                    .addOnFailureListener(error -> {
-                        Toast.makeText(getContext(), "Error uploading image, saving without image", Toast.LENGTH_SHORT).show();
-                        saveToFirestore(moodEvent);
-                    });
-        } else {
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, socialSituation, timeStamp, location, null, username, isPublic);
+        if (!isNetworkAvailable()) {
+            // If Offline: Save and immediately navigate to home
             saveToFirestore(moodEvent);
+            navigateToHome();
+        }else{
+            if (imageRef != null) {
+                String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
+
+                StorageReference fileRef = storageRef.child(imgPath);
+                fileRef.putFile(imageRef)
+                        .addOnSuccessListener(taskSnapshot -> {
+                            moodEvent.setImgPath(imgPath);
+                            saveToFirestore(moodEvent);
+                        })
+                        .addOnFailureListener(error -> {
+                            Toast.makeText(getContext(), "Error uploading image, saving without image", Toast.LENGTH_SHORT).show();
+                            saveToFirestore(moodEvent);
+                        });
+            } else {
+                saveToFirestore(moodEvent);
+            }
         }
     }
 
@@ -502,11 +519,18 @@ public class AddFragment extends Fragment implements LocationListener {
                 .addOnSuccessListener(documentReference -> {
                     moodEvent.setDocumentId(documentReference.getId());
                     Log.d("AddFragment", "Saved MoodEvent with docId: " + moodEvent.getDocumentId() + ", imgPath: " + moodEvent.getImgPath());
-                    Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
-                    navigateToHome();
+                    // Show the Toast only if the fragment is attached
+                    if (isAdded()){
+                        Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
+                    }
+                    if (isAdded()){
+                        navigateToHome();
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
+                    if (isAdded()){
+                        Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 

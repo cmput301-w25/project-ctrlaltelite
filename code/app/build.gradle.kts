@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-
+    implementation("com.airbnb.android:lottie:6.3.0")
     implementation(libs.espresso.intents)
     implementation(libs.play.services.location)
     testImplementation("androidx.arch.core:core-testing:2.1.0")

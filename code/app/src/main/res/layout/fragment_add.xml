@@ -125,25 +125,13 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"/>
 
-        <EditText
-            android:id="@+id/edit_trigger"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Trigger"
-            app:layout_constraintTop_toBottomOf="@id/edit_reason"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"/>
-
         <Spinner
             android:id="@+id/social_situation_spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/rounded_add_background"
             android:hint="Select social situation *"
-            app:layout_constraintTop_toBottomOf="@id/edit_trigger"
+            app:layout_constraintTop_toBottomOf="@id/edit_reason"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="16dp"
