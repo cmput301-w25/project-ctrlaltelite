@@ -148,6 +148,13 @@ public class HomeFragment extends AddFragment {
         });
     }
 
+    /**
+     * Sets up the fragment's UI and initializes event listeners.
+     * @param inflater Layout inflater
+     * @param container Parent view container
+     * @param savedInstanceState Previous saved state, if any
+     * @return Created view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -198,11 +205,19 @@ public class HomeFragment extends AddFragment {
         fetchMoodEvents(); // Start fetching data first to ensure data is available before UI interactions
         // Moved Spinner listener after fetchMoodEvents() to avoid applyFilters() running before data is fetched
         moodFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /** Handles mood filter selection.
+             * @param parent AdapterView
+             * @param view Selected view
+             * @param position Selected position
+             * @param id Row id
+             */
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 moodFilter = moodFilterOptions.get(position);
                 applyFilters();
             }
+
+            /** Does nothing when no item is selected. */
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
@@ -251,7 +266,9 @@ public class HomeFragment extends AddFragment {
 
         return view;
     }
-
+    /**
+     * Applies filters to the mood events list based on current filter settings.
+     */
     private void applyFilters() {
         if (allMoodEvents == null || allMoodEvents.isEmpty()) {
             moodEvents.clear();
@@ -687,6 +704,13 @@ public class HomeFragment extends AddFragment {
                     Toast.makeText(getContext(), "Failed to update mood in Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
+
+    /**
+     * Shows a dialog to confirm photo removal for a mood event.
+     * @param moodEvent The mood event to modify
+     * @param position Position in the list
+     * @param editDialog Parent edit dialog
+     */
     private void showPhotoRemovalDialog(MoodEvent moodEvent, int position, AlertDialog editDialog) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Remove Photo");
