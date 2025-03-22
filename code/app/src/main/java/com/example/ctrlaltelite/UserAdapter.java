@@ -15,12 +15,28 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+import kotlin.contracts.Returns;
+
+/**
+ * The type User adapter.
+ */
 public class UserAdapter extends ArrayAdapter<User> {
 
+    /**
+     * Instantiates a new User adapter.
+     *
+     * @param context the context
+     * @param users   the users
+     */
     public UserAdapter(@NonNull Context context, @NonNull List<User> users) {
         super(context, 0, users);
     }
 
+    /** Returns a view of a user item at the specified position in the list.
+     * @param position    The position of the item within the adapter's data set
+     * @param convertView The recycled view to populate, or null if not available
+     * @param parent      The parent ViewGroup that this view will be attached to
+     * @return The populated view for the user item */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -47,7 +63,6 @@ public class UserAdapter extends ArrayAdapter<User> {
                 profilePhoto.setImageResource(R.drawable.circle_shape);
             }
         }
-
         return convertView;
     }
 }
