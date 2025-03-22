@@ -13,6 +13,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
@@ -25,6 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -79,9 +82,13 @@ import java.util.HashMap;
 
 /**
  * Fragment for adding a mood event.
- * Users can select a mood, provide a reason, upload an image, specify a social situation, and choose to attach their location.
+ * Users can select a mood, provide a reason and a trigger, upload an image, specify a social situation, and choose to attach their location.
  */
 public class AddFragment extends Fragment implements LocationListener {
+
+    // This will store the visibility choice (true for public, false for private)
+    //this a member varriable, so we can change it anytime in the class
+    private boolean isPublic = false;
 
     /** Spinner for selecting mood */
     protected Spinner dropdownMood;
@@ -184,6 +191,11 @@ public class AddFragment extends Fragment implements LocationListener {
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();  // Firebase Authentication instance
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
+        LottieAnimationView lottiemapclear = view.findViewById(R.id.lottiemapclear);
+
+        RadioGroup radioGroupVisibility = view.findViewById(R.id.radioGroupVisibility);
+
+
 
         // Get a reference to the MainActivity so we can call openDrawer()
         MainActivity mainActivity = (MainActivity) getActivity();
@@ -231,8 +243,25 @@ public class AddFragment extends Fragment implements LocationListener {
         setupDropdownSocialSituation();
 
 
+        // This will store the visibility choice (true for public, false for private)
 
-        LottieAnimationView lottiemapclear = view.findViewById(R.id.lottiemapclear);
+
+        // Listener to capture selection changes
+        radioGroupVisibility.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (checkedId == R.id.radioPublic) {
+                    // Public is selected
+                    isPublic = true;
+                } else if (checkedId == R.id.radioPrivate) {
+                    // Private is selected
+                    isPublic = false;
+                }
+            }
+        });
+
+
+
         //Pressing on the notification button
 
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
@@ -251,6 +280,18 @@ public class AddFragment extends Fragment implements LocationListener {
             }
         });
         return view;
+    }
+
+    /**
+     * Checks if there is Internet Connectivity
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null) {
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        }
+        return false;
     }
 
     /** Sets up the mood selection dropdown. */
@@ -442,22 +483,28 @@ public class AddFragment extends Fragment implements LocationListener {
             return;
         }
 
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, socialSituation, timeStamp, location, null, username);
-        if (imageRef != null) {
-            String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
-
-            StorageReference fileRef = storageRef.child(imgPath);
-            fileRef.putFile(imageRef)
-                    .addOnSuccessListener(taskSnapshot -> {
-                        moodEvent.setImgPath(imgPath);
-                        saveToFirestore(moodEvent);
-                    })
-                    .addOnFailureListener(error -> {
-                        Toast.makeText(getContext(), "Error uploading image, saving without image", Toast.LENGTH_SHORT).show();
-                        saveToFirestore(moodEvent);
-                    });
-        } else {
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, socialSituation, timeStamp, location, null, username, isPublic);
+        if (!isNetworkAvailable()) {
+            // If Offline: Save and immediately navigate to home
             saveToFirestore(moodEvent);
+            navigateToHome();
+        }else{
+            if (imageRef != null) {
+                String imgPath = "images/" + userId + "_" + timeStamp.toDate().getTime() + ".png";
+
+                StorageReference fileRef = storageRef.child(imgPath);
+                fileRef.putFile(imageRef)
+                        .addOnSuccessListener(taskSnapshot -> {
+                            moodEvent.setImgPath(imgPath);
+                            saveToFirestore(moodEvent);
+                        })
+                        .addOnFailureListener(error -> {
+                            Toast.makeText(getContext(), "Error uploading image, saving without image", Toast.LENGTH_SHORT).show();
+                            saveToFirestore(moodEvent);
+                        });
+            } else {
+                saveToFirestore(moodEvent);
+            }
         }
     }
 
@@ -472,11 +519,18 @@ public class AddFragment extends Fragment implements LocationListener {
                 .addOnSuccessListener(documentReference -> {
                     moodEvent.setDocumentId(documentReference.getId());
                     Log.d("AddFragment", "Saved MoodEvent with docId: " + moodEvent.getDocumentId() + ", imgPath: " + moodEvent.getImgPath());
-                    Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
-                    navigateToHome();
+                    // Show the Toast only if the fragment is attached
+                    if (isAdded()){
+                        Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
+                    }
+                    if (isAdded()){
+                        navigateToHome();
+                    }
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
+                    if (isAdded()){
+                        Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 

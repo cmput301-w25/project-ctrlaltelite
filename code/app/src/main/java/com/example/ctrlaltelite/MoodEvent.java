@@ -15,6 +15,9 @@ import java.text.SimpleDateFormat;
  */
 public class MoodEvent {
 
+    private boolean isPublic;
+
+
     /** The emotional state of the user */
     private String emotionalState;
     /** The social situation during the mood event */
@@ -56,13 +59,14 @@ public class MoodEvent {
      * Constructor to initialize all fields.
      * @param emotionalState The emotional state of the user.
      * @param reason The reason for the mood event.
+     * @param trigger The trigger for the mood event.
      * @param socialSituation The social situation during the event.
      * @param timestamp The timestamp of when the event occurred.
      * @param location The geographical location of the event.
      * @param imgPath The path to the uploaded image.
      * @param Username The username of the person recording the event.
      */
-    public MoodEvent(String emotionalState, String reason, String socialSituation, Timestamp timestamp, GeoPoint location, String imgPath, String Username) {
+    public MoodEvent(String emotionalState, String reason, String socialSituation, Timestamp timestamp, GeoPoint location, String imgPath, String Username, boolean isPublic) {
 
         this.emotionalState = emotionalState;
         this.reason = reason;
@@ -138,6 +142,15 @@ public class MoodEvent {
     public void setUsername(String username) { this.Username = username;}
 
 
+    /** @return The value of isPublic */
+    public boolean isPublic() {
+        return isPublic;
+    }
+    /** set the value of isPublic */
+    public void setPublic(boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
     /**
      * Provides a string representation of the MoodEvent object.
      * @return A formatted string with event details.
@@ -150,6 +163,7 @@ public class MoodEvent {
                 "emotionalState='" + emotionalState + '\'' +
                 ", socialSituation='" + socialSituation + '\'' +
                 ", timestamp='" + getFormattedTimestamp() + '\'' +
+                ", isPublic=" + isPublic +
                 '}';
     }
 
