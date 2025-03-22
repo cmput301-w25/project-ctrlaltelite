@@ -268,7 +268,8 @@ public class FollowingFragment extends Fragment {
                             followedUsers.add(document.getString("Requestee's Username")); //add followee
                         }
 
-                        db.collection("Mood Events")
+                        if (!followedUsers.isEmpty()) {
+                            db.collection("Mood Events")
                                 .whereIn("username", followedUsers)
                                 .whereEqualTo("public", true)
                                 .get() // Fetch data initially
@@ -289,6 +290,7 @@ public class FollowingFragment extends Fragment {
                                     adapter.notifyDataSetChanged();
                                 });
                     }
+                    }
                 });
 
         db.collection("FollowRequests")
@@ -302,6 +304,7 @@ public class FollowingFragment extends Fragment {
                             followedUsers.add(document.getString("Requestee's Username")); //add followee
                         }
 
+                        if (!followedUsers.isEmpty()) {
                         db.collection("Mood Events")
                                 .whereIn("username", followedUsers)
                                 .whereEqualTo("public", true)
@@ -327,6 +330,7 @@ public class FollowingFragment extends Fragment {
                                         adapter.notifyDataSetChanged();
                                     }
                                 });
+                    }
                     }
                 });
     }
