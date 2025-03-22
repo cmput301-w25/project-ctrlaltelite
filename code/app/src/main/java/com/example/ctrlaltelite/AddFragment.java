@@ -96,8 +96,6 @@ public class AddFragment extends Fragment implements LocationListener {
     protected Spinner editSocialSituation;
     /** EditText for entering reason */
     protected EditText editReason;
-    /** EditText for entering reason */
-    protected EditText editTrigger;
     /** Switch for enabling location tracking */
     protected Switch switchLocation;
     /** Buttons for saving, canceling, and uploading an image */
@@ -189,6 +187,7 @@ public class AddFragment extends Fragment implements LocationListener {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add, container, false);
+
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();  // Firebase Authentication instance
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
@@ -232,7 +231,6 @@ public class AddFragment extends Fragment implements LocationListener {
         dropdownMood = view.findViewById(R.id.dropdown_mood);
         editSocialSituation = view.findViewById(R.id.social_situation_spinner);
         editReason = view.findViewById(R.id.edit_reason);
-        editTrigger = view.findViewById(R.id.edit_trigger);
         switchLocation = view.findViewById(R.id.switch_location);
         buttonSave = view.findViewById(R.id.button_save);
         buttonCancel = view.findViewById(R.id.button_cancel);
@@ -441,7 +439,6 @@ public class AddFragment extends Fragment implements LocationListener {
 
         String selectedEmotion = dropdownMood.getSelectedItem().toString().trim();
         String socialSituation = editSocialSituation.getSelectedItemPosition() == 0 ? null : editSocialSituation.getSelectedItem().toString();
-        String trigger = editTrigger.getText().toString();
         Timestamp timeStamp = Timestamp.now();
 //        GeoPoint location = switchLocation.isChecked() ? getUserLocation() : null;
 
@@ -486,7 +483,7 @@ public class AddFragment extends Fragment implements LocationListener {
             return;
         }
 
-        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, trigger, socialSituation, timeStamp, location, null, username, isPublic);
+        MoodEvent moodEvent = new MoodEvent(selectedEmotion, reason, socialSituation, timeStamp, location, null, username, isPublic);
         if (!isNetworkAvailable()) {
             // If Offline: Save and immediately navigate to home
             saveToFirestore(moodEvent);

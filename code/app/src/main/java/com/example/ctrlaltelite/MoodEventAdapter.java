@@ -57,7 +57,6 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     static class ViewHolder {
         TextView moodText;
         TextView reasonText;
-        TextView triggerText;
         TextView socialSituationText;
         TextView timestampText;
         TextView geolocationText;
@@ -83,7 +82,6 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             holder = new ViewHolder();
             holder.moodText = convertView.findViewById(R.id.mood_text);
             holder.reasonText = convertView.findViewById(R.id.reason_text);
-            holder.triggerText = convertView.findViewById(R.id.trigger_text);
             holder.socialSituationText = convertView.findViewById(R.id.social_situation_text);
             holder.timestampText = convertView.findViewById(R.id.timestamp_text);
             holder.geolocationText = convertView.findViewById(R.id.geolocation);
@@ -99,7 +97,6 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         // Bind data to views
         holder.moodText.setText(moodEvent.getEmotionalState());
         holder.reasonText.setText(moodEvent.getReason() != null ? moodEvent.getReason() : "");
-        holder.triggerText.setText(moodEvent.getTrigger() != null ? moodEvent.getTrigger() : "");
         holder.socialSituationText.setText(moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "");
         holder.timestampText.setText(moodEvent.getFormattedTimestamp());
         holder.moodText.setTextColor(getColorForMood(moodEvent.getEmotionalState()));

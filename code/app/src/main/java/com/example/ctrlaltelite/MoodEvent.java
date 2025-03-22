@@ -20,8 +20,6 @@ public class MoodEvent {
 
     /** The emotional state of the user */
     private String emotionalState;
-    /** The trigger causing the mood */
-    private String trigger;
     /** The social situation during the mood event */
     private String socialSituation;
     /** The timestamp when the event was recorded */
@@ -68,11 +66,10 @@ public class MoodEvent {
      * @param imgPath The path to the uploaded image.
      * @param Username The username of the person recording the event.
      */
-    public MoodEvent(String emotionalState, String reason, String trigger, String socialSituation, Timestamp timestamp, GeoPoint location, String imgPath, String Username, boolean isPublic) {
+    public MoodEvent(String emotionalState, String reason, String socialSituation, Timestamp timestamp, GeoPoint location, String imgPath, String Username, boolean isPublic) {
 
         this.emotionalState = emotionalState;
         this.reason = reason;
-        this.trigger = trigger;
         this.socialSituation = socialSituation;
         this.timestamp = timestamp;
         this.location = location;
@@ -126,15 +123,6 @@ public class MoodEvent {
         this.emotionalState = emotionalState;
     }
 
-    /** @return The trigger causing the mood. */
-    public String getTrigger() {
-        return trigger;
-    }
-    /** set the trigger causing the mood. */
-    public void setTrigger(String trigger) {
-        this.trigger = trigger;
-    }
-
     /** @return The social situation at the time of the event. */
     public String getSocialSituation() {
         return socialSituation;
@@ -164,12 +152,6 @@ public class MoodEvent {
         this.isPublic = isPublic;
     }
 
-
-
-
-
-
-
     /**
      * Provides a string representation of the MoodEvent object.
      * @return A formatted string with event details.
@@ -180,7 +162,6 @@ public class MoodEvent {
                 "Username='" + Username + '\'' +
                 "DocID='" + documentId + '\'' +
                 "emotionalState='" + emotionalState + '\'' +
-                ", trigger='" + trigger + '\'' +
                 ", socialSituation='" + socialSituation + '\'' +
                 ", timestamp='" + getFormattedTimestamp() + '\'' +
                 ", isPublic=" + isPublic +

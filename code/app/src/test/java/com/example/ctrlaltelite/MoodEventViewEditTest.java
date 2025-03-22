@@ -112,7 +112,7 @@ public class MoodEventViewEditTest {
     @Test
     public void testFetchMoodEvents_Success() throws NoSuchFieldException, IllegalAccessException {
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
-        MoodEvent moodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", Timestamp.now(), null, null, "testUser");
+        MoodEvent moodEvent = new MoodEvent("Happy", "Good day", "Alone", Timestamp.now(), null, null, "testUser", true);
         moodEvent.setDocumentId("testId");
 
         // Mock the QuerySnapshot to return a single document
@@ -148,7 +148,7 @@ public class MoodEventViewEditTest {
      */
     @Test
     public void testUpdateMoodEventInFirestore_Success() throws NoSuchFieldException, IllegalAccessException {
-        MoodEvent moodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", Timestamp.now(), null, null, "testUser");
+        MoodEvent moodEvent = new MoodEvent("Happy", "Good day", "Alone", Timestamp.now(), null, null, "testUser", true);
         moodEvent.setDocumentId("testId");
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
         moodEventsList.add(moodEvent);
@@ -173,7 +173,7 @@ public class MoodEventViewEditTest {
      */
     @Test
     public void testUpdateMoodEventInFirestore_Failure() throws NoSuchFieldException, IllegalAccessException {
-        MoodEvent moodEvent = new MoodEvent("Sad", "Bad day", "Work", "With others", Timestamp.now(), null, null, "testUser");
+        MoodEvent moodEvent = new MoodEvent("Sad", "Bad day", "With others", Timestamp.now(), null, null, "testUser", true);
         moodEvent.setDocumentId("testId");
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
         moodEventsList.add(moodEvent);
@@ -195,7 +195,7 @@ public class MoodEventViewEditTest {
     public void testDeleteMoodIsSuccessful() throws NoSuchFieldException, IllegalAccessException {
 
         // Adding two mood events for our test uesr
-        MoodEvent test1MoodEvent = new MoodEvent("Happy", "Good day", "Friend", "Alone", Timestamp.now(), null, null, "testUser");
+        MoodEvent test1MoodEvent = new MoodEvent("Happy", "Good day", "Alone", Timestamp.now(), null, null, "testUser", true);
         test1MoodEvent.setDocumentId("test1Id");
 
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
