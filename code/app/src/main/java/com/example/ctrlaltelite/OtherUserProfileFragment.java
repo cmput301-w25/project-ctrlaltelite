@@ -6,6 +6,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.example.ctrlaltelite.MainActivity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -102,6 +103,24 @@ public class OtherUserProfileFragment extends Fragment {
 
         moodAdapter = new MoodEventAdapter(requireContext(), moodEvents);
         moodListView.setAdapter(moodAdapter);
+
+//        // Find the chat button
+//        ImageButton chatButton = view.findViewById(R.id.chat_button);
+//
+//        // Set a click listener for the chat button
+//        chatButton.setOnClickListener(v -> {
+//            // Open the ChatActivity when the chat icon is clicked
+//            Intent intent = new Intent(getActivity(), ChatActivity.class);
+//
+//            // Pass the clicked user's username or other data
+//            intent.putExtra("username", selectedUser.getUsername());
+//
+//            // Optionally, pass other user details as well
+//            intent.putExtra("user_email", selectedUser.getEmail()); // For example
+//
+//            // Start the ChatActivity
+//            startActivity(intent);
+//        });
 
         Bundle args = getArguments();
         if (args != null) {

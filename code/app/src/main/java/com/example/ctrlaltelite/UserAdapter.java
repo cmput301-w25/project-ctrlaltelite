@@ -41,10 +41,10 @@ public class UserAdapter extends ArrayAdapter<User> {
             if (user.getProfilePhotoUrl() != null && !user.getProfilePhotoUrl().isEmpty()) {
                 Glide.with(getContext())
                         .load(user.getProfilePhotoUrl())
-                        .placeholder(R.drawable.circle_shape)
+                        .placeholder(R.drawable.profile)
                         .into(profilePhoto);
             } else {
-                profilePhoto.setImageResource(R.drawable.circle_shape);
+                profilePhoto.setImageResource(R.drawable.profile);
             }
         }
 
