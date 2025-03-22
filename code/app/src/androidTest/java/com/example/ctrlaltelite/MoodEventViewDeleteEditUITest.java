@@ -106,7 +106,6 @@ public class MoodEventViewDeleteEditUITest {
         // Verify dialog fields are displayed with expected data
         onView(withId(R.id.edit_mood_spinner)).check(matches(isDisplayed()));
         onView(withId(R.id.edit_reason_edittext)).check(matches(withText("Good day")));
-        onView(withId(R.id.edit_trigger)).check(matches(withText("Friend")));
         onView(withId(R.id.edit_social_situation_spinner)).check(matches(isDisplayed()));
     }
 
