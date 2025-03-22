@@ -73,9 +73,6 @@ public class SearchFragment extends Fragment {
             });
         }
 
-
-
-
         // Fetch all users (empty query shows all)
         fetchUsers("");
 
@@ -97,7 +94,7 @@ public class SearchFragment extends Fragment {
             User selectedUser = userList.get(position);
             OtherUserProfileFragment userProfileFragment = new OtherUserProfileFragment(currentUser, selectedUser);
             Bundle bundle = new Bundle();
-            bundle.putString("displayName", selectedUser.getUsername()); // Im using username as name for now (TO DO: add name in signup)
+            bundle.putString("displayName", selectedUser.getDisplayName()); // changed to display name
             bundle.putString("clickedUsername", selectedUser.getUsername()); // Put clicked user's username in the bundle
             userProfileFragment.setArguments(bundle);
             if (getActivity() instanceof MainActivity) {
@@ -131,10 +128,11 @@ public class SearchFragment extends Fragment {
                             String username = document.getString("username");
                             String email = document.getString("email");
                             String mobile = document.getString("mobile");
-                            User user = new User(username, username, null); // Username as name, no profilePhotoUrl yet
+                            String displayname = document.getString("displayName");
+                            User user = new User(displayname, username, null); // changed display name as name, no profilePhotoUrl yet
                             user.setEmail(email);
                             user.setMobile(mobile);
-
+                            user.setDisplayName(displayname);
                             if (username.equals(currentUserUsername)) {
                                 currentUser = user;
                             }
