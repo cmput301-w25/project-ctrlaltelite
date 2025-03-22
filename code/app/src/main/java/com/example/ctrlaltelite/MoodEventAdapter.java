@@ -55,14 +55,15 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     // The ViewHolder is used to improve the performance of ListView.
     // It helps avoid repeatedly finding views during scrolling by holding references to the UI components
     static class ViewHolder {
+        TextView username;
         TextView moodText;
         TextView reasonText;
         TextView socialSituationText;
         TextView timestampText;
         TextView geolocationText;
         ImageView moodImage;
-    }
 
+    }
 
     /**
      * Called to create or reuse a view for an item in the list. This method binds the data
@@ -80,6 +81,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.mood_event_item, parent, false);
             holder = new ViewHolder();
+            holder.username = convertView.findViewById(R.id.username);
             holder.moodText = convertView.findViewById(R.id.mood_text);
             holder.reasonText = convertView.findViewById(R.id.reason_text);
             holder.socialSituationText = convertView.findViewById(R.id.social_situation_text);
@@ -95,6 +97,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         if (moodEvent == null) return convertView;
 
         // Bind data to views
+        holder.username.setText("@" + moodEvent.getUsername() + " is feeling");
         holder.moodText.setText(moodEvent.getEmotionalState());
         holder.reasonText.setText(moodEvent.getReason() != null ? moodEvent.getReason() : "");
         holder.socialSituationText.setText(moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "");
