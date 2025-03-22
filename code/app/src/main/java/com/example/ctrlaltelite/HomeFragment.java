@@ -107,11 +107,8 @@ public class HomeFragment extends AddFragment {
 
         // Register image picker in onCreate (only once)
         pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-            /**
-             * Handles the result of the image picker for editing mood events.
-             *
-             * @param uri The URI of the selected image, or null if no image was selected.
-             */
+            /* Handles the result of the image picker for editing mood events.
+             * @param uri The URI of the selected image, or null if no image was selected. */
             if (uri == null) {
                 Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
             } else {
@@ -139,11 +136,8 @@ public class HomeFragment extends AddFragment {
 
         // Register permission request
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-            /**
-             * Handles the result of the permission request for accessing media images.
-             *
-             * @param isGranted True if permission was granted, false otherwise.
-             */
+            /* Handles the result of the permission request for accessing media images.
+             * @param isGranted True if permission was granted, false otherwise. */
             if (isGranted) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
@@ -159,8 +153,6 @@ public class HomeFragment extends AddFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         db = FirebaseFirestore.getInstance();
-
-
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
 
         // Get a reference to the MainActivity so we can call openDrawer()
@@ -241,7 +233,6 @@ public class HomeFragment extends AddFragment {
         });
 
         //Pressing on the notification button
-
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
         notifButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -440,21 +431,15 @@ public class HomeFragment extends AddFragment {
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                /**
-                 * Loads the existing image into the preview when the download URL is successfully retrieved.
-                 *
-                 * @param uri The URI of the image downloaded from Firebase Storage.
-                 */
+                /* Loads the existing image into the preview when the download URL is successfully retrieved.
+                 * @param uri The URI of the image downloaded from Firebase Storage. */
                 Glide.with(requireContext())
                         .load(uri)
                         .into(imagePreview);
                 imagePreview.setVisibility(View.VISIBLE);
             }).addOnFailureListener(e -> {
-                /**
-                 * Handles failure to retrieve the image download URL from Firebase Storage.
-                 *
-                 * @param e The exception indicating the reason for failure.
-                 */
+                /* Handles failure to retrieve the image download URL from Firebase Storage.
+                 * @param e The exception indicating the reason for failure. */
                 Log.e("HomeFragment", "Failed to load image: " + e.getMessage());
                 Glide.with(requireContext()).clear(imagePreview);
                 imagePreview.setVisibility(View.GONE);
@@ -498,11 +483,8 @@ public class HomeFragment extends AddFragment {
 
         // Upload button listener (uses existing pickMedia)
         buttonUpload.setOnClickListener(v -> {
-            /**
-             * Initiates the image upload process when the upload button is clicked.
-             *
-             * @param v The view that was clicked (the upload button).
-             */
+            /* Initiates the image upload process when the upload button is clicked.
+             * @param v The view that was clicked (the upload button). */
             if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
                     PackageManager.PERMISSION_GRANTED) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()

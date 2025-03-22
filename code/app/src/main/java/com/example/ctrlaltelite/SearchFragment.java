@@ -40,9 +40,6 @@ public class SearchFragment extends Fragment {
     private String currentUserUsername;
     private User currentUser;
 
-
-
-
     public SearchFragment(String currentUserUsername) {
         this.currentUserUsername = currentUserUsername;
     }

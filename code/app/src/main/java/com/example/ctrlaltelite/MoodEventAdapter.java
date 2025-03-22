@@ -105,7 +105,6 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         Glide.with(getContext()).clear(holder.moodImage);
         holder.moodImage.setVisibility(View.GONE); // Hide initially
 
-
         //Convert Coordinates to Address
         if (moodEvent.getLocation() != null) {
             double latitude = moodEvent.getLocation().getLatitude();
@@ -119,21 +118,15 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                 // Apply Gradient Background Styling
                 GradientDrawable gradientDrawable = new GradientDrawable(
                         GradientDrawable.Orientation.LEFT_RIGHT,
-
                         new int[]{Color.parseColor("#FFE9DE"), Color.parseColor("#FDBEA6"), Color.parseColor("#FF9671")}
-
-
                 );
                 gradientDrawable.setCornerRadius(16); // Rounded corners
                 Typeface customFont = ResourcesCompat.getFont(this.getContext(), R.font.font7);
                 holder.geolocationText.setTypeface(customFont, Typeface.BOLD);
-
                 holder.geolocationText.setBackground(gradientDrawable);
                 holder.geolocationText.setTextColor(Color.BLACK); // White text for contrast
                 holder.geolocationText.setPadding(12, 6, 12, 6); // Better spacing
-
             }
-
             else {
                 holder.geolocationText.setText("at Unknown Location");
                 holder.geolocationText.setVisibility(View.VISIBLE);
@@ -142,7 +135,6 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             holder.geolocationText.setVisibility(View.GONE);
         }
 
-
         String currentImgPath = moodEvent.getImgPath();
         holder.moodImage.setTag(currentImgPath);
         // Load image using Glide if available
@@ -150,7 +142,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
             imageRef.getDownloadUrl()
                     .addOnSuccessListener(uri -> {
-                        Log.d("MoodEventAdapter", "Image URL fetched for " + moodEvent.getImgPath() + ": " + uri.toString());
+                        /* On retrieval
+                         * dangle */
                         if (currentImgPath.equals(holder.moodImage.getTag())) {
                         Glide.with(getContext())
                                 .load(uri)
@@ -158,18 +151,15 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                         holder.moodImage.setVisibility(View.VISIBLE);} // Explicitly set visible on success
 
                     })
-
                     .addOnFailureListener(e -> {
-                        Log.e("MoodEventAdapter", "Failed to fetch image URL for " + moodEvent.getImgPath() + ": " + e.getMessage());
+                        /* On retrieval
+                         * dangle */
                         holder.moodImage.setVisibility(View.GONE); // Hide on failure
                     });
-
         } else {
-            Log.d("MoodEventAdapter", "No imgPath for mood event at position " + position);
             Glide.with(getContext()).clear(holder.moodImage); // Clear image if no path
             holder.moodImage.setVisibility(View.GONE); // Hide if no image
         }
-
         return convertView;
     }
 
