@@ -75,6 +75,7 @@ public class MoodEvent {
         this.location = location;
         this.imgPath = imgPath;
         this.Username = Username;
+        this.isPublic = isPublic;
 
     }
 
