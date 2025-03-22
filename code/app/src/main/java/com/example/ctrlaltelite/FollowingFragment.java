@@ -268,26 +268,29 @@ public class FollowingFragment extends Fragment {
                             followedUsers.add(document.getString("Requestee's Username")); //add followee
                         }
 
-                        db.collection("Mood Events")
-                                .whereIn("username", followedUsers)
-                                .whereEqualTo("public", true)
-                                .get() // Fetch data initially
-                                .addOnCompleteListener(task2 -> {
-                                    allMoodEvents.clear(); // Reset full list
-                                    for (QueryDocumentSnapshot document : task2.getResult()) {
-                                        MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                                        moodEvent.setDocumentId(document.getId()); // Ensure docId is set
-                                        allMoodEvents.add(moodEvent);
-                                    }
+                        if (!followedUsers.isEmpty())
+                        {
+                            db.collection("Mood Events")
+                                    .whereIn("username", followedUsers)
+                                    .whereEqualTo("public", true)
+                                    .get() // Fetch data initially
+                                    .addOnCompleteListener(task2 -> {
+                                        allMoodEvents.clear(); // Reset full list
+                                        for (QueryDocumentSnapshot document : task2.getResult()) {
+                                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                            moodEvent.setDocumentId(document.getId()); // Ensure docId is set
+                                            allMoodEvents.add(moodEvent);
+                                        }
 
-                                    // Add all events initially from all followees
-                                    filteredEvents.clear();
-                                    filteredEvents.addAll(allMoodEvents);
+                                        // Add all events initially from all followees
+                                        filteredEvents.clear();
+                                        filteredEvents.addAll(allMoodEvents);
 
-                                    // Sort and Refresh UI
-                                    toggleSort();
-                                    adapter.notifyDataSetChanged();
-                                });
+                                        // Sort and Refresh UI
+                                        toggleSort();
+                                        adapter.notifyDataSetChanged();
+                                    });
+                        }
                     }
                 });
 
@@ -302,31 +305,34 @@ public class FollowingFragment extends Fragment {
                             followedUsers.add(document.getString("Requestee's Username")); //add followee
                         }
 
-                        db.collection("Mood Events")
-                                .whereIn("username", followedUsers)
-                                .whereEqualTo("public", true)
-                                .addSnapshotListener((value, error) -> {
-                                    if (error != null) {
-                                        return;
-                                    }
-
-                                    if (value != null) {
-                                        allMoodEvents.clear(); // Reset full list
-                                        for (QueryDocumentSnapshot document : value) {
-                                            MoodEvent moodEvent = document.toObject(MoodEvent.class);
-                                            moodEvent.setDocumentId(document.getId()); // Set docId again (to ensure updates)
-                                            allMoodEvents.add(moodEvent);
+                        if (!followedUsers.isEmpty())
+                        {
+                            db.collection("Mood Events")
+                                    .whereIn("username", followedUsers)
+                                    .whereEqualTo("public", true)
+                                    .addSnapshotListener((value, error) -> {
+                                        if (error != null) {
+                                            return;
                                         }
 
-                                        // Update displayed list
-                                        filteredEvents.clear();
-                                        filteredEvents.addAll(allMoodEvents);
+                                        if (value != null) {
+                                            allMoodEvents.clear(); // Reset full list
+                                            for (QueryDocumentSnapshot document : value) {
+                                                MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                                moodEvent.setDocumentId(document.getId()); // Set docId again (to ensure updates)
+                                                allMoodEvents.add(moodEvent);
+                                            }
 
-                                        // Sort and Refresh UI After Updating the List
-                                        toggleSort();
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
+                                            // Update displayed list
+                                            filteredEvents.clear();
+                                            filteredEvents.addAll(allMoodEvents);
+
+                                            // Sort and Refresh UI After Updating the List
+                                            toggleSort();
+                                            adapter.notifyDataSetChanged();
+                                        }
+                                    });
+                        }
                     }
                 });
     }
