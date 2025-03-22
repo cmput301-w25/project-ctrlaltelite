@@ -107,11 +107,8 @@ public class HomeFragment extends AddFragment {
 
         // Register image picker in onCreate (only once)
         pickMedia = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-            /**
-             * Handles the result of the image picker for editing mood events.
-             *
-             * @param uri The URI of the selected image, or null if no image was selected.
-             */
+            /* Handles the result of the image picker for editing mood events.
+             * @param uri The URI of the selected image, or null if no image was selected. */
             if (uri == null) {
                 Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
             } else {
@@ -139,11 +136,8 @@ public class HomeFragment extends AddFragment {
 
         // Register permission request
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-            /**
-             * Handles the result of the permission request for accessing media images.
-             *
-             * @param isGranted True if permission was granted, false otherwise.
-             */
+            /* Handles the result of the permission request for accessing media images.
+             * @param isGranted True if permission was granted, false otherwise. */
             if (isGranted) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
                         .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
@@ -154,13 +148,18 @@ public class HomeFragment extends AddFragment {
         });
     }
 
+    /**
+     * Sets up the fragment's UI and initializes event listeners.
+     * @param inflater Layout inflater
+     * @param container Parent view container
+     * @param savedInstanceState Previous saved state, if any
+     * @return Created view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         db = FirebaseFirestore.getInstance();
-
-
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
 
         // Get a reference to the MainActivity so we can call openDrawer()
@@ -206,11 +205,19 @@ public class HomeFragment extends AddFragment {
         fetchMoodEvents(); // Start fetching data first to ensure data is available before UI interactions
         // Moved Spinner listener after fetchMoodEvents() to avoid applyFilters() running before data is fetched
         moodFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /** Handles mood filter selection.
+             * @param parent AdapterView
+             * @param view Selected view
+             * @param position Selected position
+             * @param id Row id
+             */
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 moodFilter = moodFilterOptions.get(position);
                 applyFilters();
             }
+
+            /** Does nothing when no item is selected. */
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
@@ -241,7 +248,6 @@ public class HomeFragment extends AddFragment {
         });
 
         //Pressing on the notification button
-
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
         notifButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -260,7 +266,9 @@ public class HomeFragment extends AddFragment {
 
         return view;
     }
-
+    /**
+     * Applies filters to the mood events list based on current filter settings.
+     */
     private void applyFilters() {
         if (allMoodEvents == null || allMoodEvents.isEmpty()) {
             moodEvents.clear();
@@ -440,21 +448,15 @@ public class HomeFragment extends AddFragment {
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference imageRef = storageRef.child(moodEvent.getImgPath());
             imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                /**
-                 * Loads the existing image into the preview when the download URL is successfully retrieved.
-                 *
-                 * @param uri The URI of the image downloaded from Firebase Storage.
-                 */
+                /* Loads the existing image into the preview when the download URL is successfully retrieved.
+                 * @param uri The URI of the image downloaded from Firebase Storage. */
                 Glide.with(requireContext())
                         .load(uri)
                         .into(imagePreview);
                 imagePreview.setVisibility(View.VISIBLE);
             }).addOnFailureListener(e -> {
-                /**
-                 * Handles failure to retrieve the image download URL from Firebase Storage.
-                 *
-                 * @param e The exception indicating the reason for failure.
-                 */
+                /* Handles failure to retrieve the image download URL from Firebase Storage.
+                 * @param e The exception indicating the reason for failure. */
                 Log.e("HomeFragment", "Failed to load image: " + e.getMessage());
                 Glide.with(requireContext()).clear(imagePreview);
                 imagePreview.setVisibility(View.GONE);
@@ -498,11 +500,8 @@ public class HomeFragment extends AddFragment {
 
         // Upload button listener (uses existing pickMedia)
         buttonUpload.setOnClickListener(v -> {
-            /**
-             * Initiates the image upload process when the upload button is clicked.
-             *
-             * @param v The view that was clicked (the upload button).
-             */
+            /* Initiates the image upload process when the upload button is clicked.
+             * @param v The view that was clicked (the upload button). */
             if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.READ_MEDIA_IMAGES) ==
                     PackageManager.PERMISSION_GRANTED) {
                 pickMedia.launch(new PickVisualMediaRequest.Builder()
@@ -705,6 +704,13 @@ public class HomeFragment extends AddFragment {
                     Toast.makeText(getContext(), "Failed to update mood in Firestore: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
+
+    /**
+     * Shows a dialog to confirm photo removal for a mood event.
+     * @param moodEvent The mood event to modify
+     * @param position Position in the list
+     * @param editDialog Parent edit dialog
+     */
     private void showPhotoRemovalDialog(MoodEvent moodEvent, int position, AlertDialog editDialog) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle("Remove Photo");

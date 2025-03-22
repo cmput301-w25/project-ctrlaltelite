@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat;
 
 /**
  * Represents a mood event recorded by a user.
- * Stores details like emotional state, reason, trigger, social situation, timestamp, location, and an optional image.
+ * Stores details like emotional state, reason, social situation, timestamp, location, and an optional image.
  */
 public class MoodEvent {
 
@@ -44,8 +44,6 @@ public class MoodEvent {
         // Empty constructor
     }
 
-
-
     /**
      * Constructor to initialize a mood event with only an emotional state.
      * @param emotionalState
@@ -59,7 +57,6 @@ public class MoodEvent {
      * Constructor to initialize all fields.
      * @param emotionalState The emotional state of the user.
      * @param reason The reason for the mood event.
-     * @param trigger The trigger for the mood event.
      * @param socialSituation The social situation during the event.
      * @param timestamp The timestamp of when the event occurred.
      * @param location The geographical location of the event.
@@ -83,12 +80,13 @@ public class MoodEvent {
     public String getReason() {
         return reason;
     }
+
     /** Sets the reason for the mood. */
     public void setReason(String reason) {
         this.reason = reason;
     }
 
-    /** sets the timestamp of the event. */
+    /** Sets the timestamp of the event. */
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
@@ -96,7 +94,6 @@ public class MoodEvent {
     public Timestamp getTimestamp() {
         return timestamp;
     }
-
 
     /**  Convert Timestamp to String for displaying in ListView. */
     public String getFormattedTimestamp() {
@@ -109,7 +106,8 @@ public class MoodEvent {
     public GeoPoint getLocation() {
         return location;
     }
-    /** set the location of the event. */
+
+    /** Set the location of the event. */
     public void setLocation(GeoPoint location) {
         this.location = location;
     }
@@ -118,7 +116,8 @@ public class MoodEvent {
     public String getEmotionalState() {
         return emotionalState;
     }
-    /** set the emotional state of the user. */
+
+    /** Set the emotional state of the user. */
     public void setEmotionalState(String emotionalState) {
         this.emotionalState = emotionalState;
     }
@@ -127,13 +126,13 @@ public class MoodEvent {
     public String getSocialSituation() {
         return socialSituation;
     }
-    /** set the social situation at the time of the event. */
-    public void setSocialSituation(String socialSituation) {
-        this.socialSituation = socialSituation;
-    }
+
+    /** Set the social situation at the time of the event. */
+    public void setSocialSituation(String socialSituation) { this.socialSituation = socialSituation;}
 
     /** @return The Firestore document ID. */
     public String getDocumentId() { return documentId; }
+
     /** set the Firestore document ID. */
     public void setDocumentId(String documentId) { this.documentId = documentId; }
 
@@ -141,7 +140,6 @@ public class MoodEvent {
     public String getUsername() { return Username;}
     /** set the username of the user who recorded the event. */
     public void setUsername(String username) { this.Username = username;}
-
 
     /** @return The value of isPublic */
     public boolean isPublic() {
@@ -172,6 +170,7 @@ public class MoodEvent {
     public String getImgPath() {
         return imgPath;
     }
+
     /** set the image path associated with the mood event. */
     public void setImgPath(String imgPath) {
         this.imgPath = imgPath;
