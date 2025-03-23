@@ -96,6 +96,8 @@ public class OtherUserProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_other_user_profile, container, false);
 
+        final int[] state = {0};
+
         displayNameText = view.findViewById(R.id.display_name);
         usernameText = view.findViewById(R.id.username);
         moodListView = view.findViewById(R.id.mood_list);
@@ -114,9 +116,11 @@ public class OtherUserProfileFragment extends Fragment {
 
                 Button requestButton = view.findViewById(R.id.follow_button);
 
-                if (usernameText.getText().equals("@" + currentUser.getUsername())) {
+                if (usernameText.getText().equals("@" + currentUser.getUsername()) || state[0] == 1) {
                     requestButton.setVisibility(INVISIBLE);
-                } else {
+                }
+
+                else {
                     requestButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
@@ -133,6 +137,7 @@ public class OtherUserProfileFragment extends Fragment {
                                        saveToFirestore(newFollowRequest);
                                        requestButton.setText("Requested");
                                        Toast.makeText(getContext(), "Successfully requested to follow " + searchedUser.getDisplayName(), Toast.LENGTH_SHORT).show();
+                                       state[0] = 1;
                                    } else {
                                        Toast.makeText(getContext(), "You have already requested to follow " + searchedUser.getDisplayName(), Toast.LENGTH_SHORT).show();
                                    }
@@ -180,6 +185,7 @@ public class OtherUserProfileFragment extends Fragment {
                 .whereEqualTo("Requestee's Username", followingUsername)
                 .whereEqualTo("Requester's Username", followerUsername)
                 .whereEqualTo("Status", "Pending")
+                .whereEqualTo("Status", "Accepted")
                 .get()
                 .continueWith(task -> {
                     if (task.isSuccessful()) {
