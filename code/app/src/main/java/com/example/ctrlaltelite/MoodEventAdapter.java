@@ -17,6 +17,8 @@ import android.widget.TextView;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -32,6 +34,7 @@ import java.util.List;
 public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     private FirebaseStorage storage;
     private StorageReference storageRef;
+    private FirebaseFirestore db;
 
     /**
      * Constructor for the MoodEventAdapter.
@@ -45,6 +48,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                 moodEvents);
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
+        db = FirebaseFirestore.getInstance();
     }
 
 
@@ -55,7 +59,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     // The ViewHolder is used to improve the performance of ListView.
     // It helps avoid repeatedly finding views during scrolling by holding references to the UI components
     static class ViewHolder {
-        TextView username;
+        TextView displayName;
         TextView moodText;
         TextView reasonText;
         TextView socialSituationText;
@@ -81,7 +85,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.mood_event_item, parent, false);
             holder = new ViewHolder();
-            holder.username = convertView.findViewById(R.id.username);
+            holder.displayName = convertView.findViewById(R.id.display_name);
             holder.moodText = convertView.findViewById(R.id.mood_text);
             holder.reasonText = convertView.findViewById(R.id.reason_text);
             holder.socialSituationText = convertView.findViewById(R.id.social_situation_text);
@@ -97,7 +101,15 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         if (moodEvent == null) return convertView;
 
         // Bind data to views
-        holder.username.setText("@" + moodEvent.getUsername() + " is feeling");
+        db.collection("users")
+                .whereEqualTo("username", moodEvent.getUsername())
+                .get()
+                .addOnCompleteListener(task -> {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        User user = document.toObject(User.class);
+                        holder.displayName.setText(user.getDisplayName() + " is feeling");
+                    }
+                });
         holder.moodText.setText(moodEvent.getEmotionalState());
         holder.reasonText.setText(moodEvent.getReason() != null ? moodEvent.getReason() : "");
         holder.socialSituationText.setText(moodEvent.getSocialSituation() != null ? moodEvent.getSocialSituation() : "");
