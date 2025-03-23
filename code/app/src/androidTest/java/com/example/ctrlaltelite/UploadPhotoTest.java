@@ -10,6 +10,7 @@ import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.hamcrest.Matcher;
@@ -173,10 +174,10 @@ public class UploadPhotoTest {
         moodEvent.put("username", testUsername);
         moodEvent.put("emotionalState", "Happy");
         //moodEvent.put("reason", "Good day");
-        moodEvent.put("trigger", "Friend");
         moodEvent.put("socialSituation", "With Friends");
-        moodEvent.put("timestamp", "2025-03-07 12:00:00");
+        moodEvent.put("timestamp", Timestamp.now());
         moodEvent.put("imgPath", null);
+        moodEvent.put("public", true);
 
         db.collection("Mood Events")
                 .add(moodEvent)

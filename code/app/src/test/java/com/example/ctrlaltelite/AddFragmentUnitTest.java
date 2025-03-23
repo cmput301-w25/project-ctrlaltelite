@@ -62,8 +62,6 @@ public class AddFragmentUnitTest {
     private Switch mockSwitchLocation;
     @Mock
     private Editable mockEditableReason;
-    @Mock
-    private Editable mockEditableTrigger;
 
     private LifecycleRegistry lifecycleRegistry;
     private AddFragment addFragment;
@@ -82,7 +80,6 @@ public class AddFragmentUnitTest {
         // Manually set up UI components
         addFragment.dropdownMood = mockDropdownMood;
         addFragment.editSocialSituation = mockEditSocialSituation;
-        addFragment.editTrigger = mockEditTrigger;
         addFragment.editReason = mockEditReason;
         addFragment.switchLocation = mockSwitchLocation;
 
@@ -91,7 +88,6 @@ public class AddFragmentUnitTest {
 
         // Mock EditText behavior
         when(mockEditReason.getText()).thenReturn(mockEditableReason);
-        when(mockEditTrigger.getText()).thenReturn(mockEditableTrigger);
 
         // Mock Switch behavior
         when(mockSwitchLocation.isChecked()).thenReturn(false);
@@ -115,10 +111,9 @@ public class AddFragmentUnitTest {
         when(mockEditableReason.toString()).thenReturn(""); // No reason provided
         addFragment.imageRef = null; // No image provided
 
-        // Mock mood, trigger, and social situation selection
+        // Mock mood and social situation selection
         when(mockDropdownMood.getSelectedItemPosition()).thenReturn(1);
         when(mockDropdownMood.getSelectedItem()).thenReturn("Happy");
-        when(mockEditableTrigger.toString()).thenReturn("Mock Trigger");
         when(mockEditSocialSituation.getSelectedItemPosition()).thenReturn(1);
         when(mockEditSocialSituation.getSelectedItem()).thenReturn("Alone");
 

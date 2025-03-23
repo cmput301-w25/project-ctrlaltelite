@@ -18,6 +18,7 @@ import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.hamcrest.CoreMatchers;
@@ -170,12 +171,11 @@ public class MoodEventViewDeleteEditUITest {
         CountDownLatch latch = new CountDownLatch(1);
         Map<String, Object> moodEvent = new HashMap<>();
         moodEvent.put("username", testUsername);
-        moodEvent.put("emotionalState", "Happy");
+        moodEvent.put("emotionalState", "😊 Happy");
         moodEvent.put("reason", "Good day");
-        moodEvent.put("trigger", "Friend");
         moodEvent.put("socialSituation", "With Friends");
-        moodEvent.put("timestamp", "2025-03-07 12:00:00");
-        moodEvent.put("imgPath", null);
+        moodEvent.put("timestamp", Timestamp.now());
+        moodEvent.put("public", true);
 
         db.collection("Mood Events")
                 .add(moodEvent)
