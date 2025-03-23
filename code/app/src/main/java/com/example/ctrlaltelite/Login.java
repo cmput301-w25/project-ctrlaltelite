@@ -1,6 +1,7 @@
 package com.example.ctrlaltelite;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -95,11 +96,12 @@ public class Login extends AppCompatActivity {
                                     Toast.makeText(Login.this, "Login successful", Toast.LENGTH_SHORT).show();
                                     Bundle loginDetails = new Bundle();
                                     loginDetails.putString("username", username);
+
+
                                     // Navigate to Homepage
                                     Intent intent = new Intent(Login.this, MainActivity.class);
                                     intent.putExtras(loginDetails);
                                     startActivity(intent);
-                                    finish();
                                 } else {
                                     Toast.makeText(Login.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
                                 }

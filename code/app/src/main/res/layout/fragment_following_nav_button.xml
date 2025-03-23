@@ -1,25 +1,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/frameLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".FollowingNavButton"
-    android:id="@+id/frameLayout"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:orientation="horizontal"
+    tools:context=".FollowingNavButton">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-        android:background="@color/white">
+        android:background="@color/white"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
 
         <Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#AFFAFD"
+            android:background="#D7FDFC"
             app:layout_constraintTop_toTopOf="parent"
             tools:layout_editor_absoluteX="177dp">
 
@@ -39,8 +39,8 @@
                 android:layout_marginLeft="50dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="50dp"
-                android:text="Mood Following"
                 android:fontFamily="@font/font9"
+                android:text="Mood Following"
                 android:textColor="@color/black"
                 android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -50,30 +50,29 @@
 
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/notif"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="0dp"
                 android:elevation="5dp"
+                android:padding="0dp"
                 app:lottie_autoPlay="true"
                 app:lottie_loop="true"
                 app:lottie_rawRes="@raw/lottie8"
                 tools:layout_editor_absoluteX="375dp"
-                tools:layout_editor_absoluteY="0dp"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:layout_marginEnd="0dp"
-                android:padding="0dp"/>
+                tools:layout_editor_absoluteY="0dp" />
 
 
         </Toolbar>
-
 
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#F1F7F8"
             app:tabIndicatorColor="@color/dark_orange"
-            app:tabSelectedTextColor="@color/dark_orange"
-            android:background="#F1F7F8">
+            app:tabSelectedTextColor="@color/dark_orange">
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"

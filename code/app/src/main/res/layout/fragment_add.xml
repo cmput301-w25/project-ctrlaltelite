@@ -29,7 +29,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#AFFAFD"
+            android:background="#D7FDFC"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -51,7 +51,7 @@
                 android:layout_marginRight="50dp"
                 android:text="Add Mood Event"
                 android:fontFamily="@font/font9"
-                android:textColor="@color/black"
+                android:textColor="#000000"
                 android:textSize="24sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="5"
