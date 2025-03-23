@@ -184,8 +184,7 @@ public class OtherUserProfileFragment extends Fragment {
         return db.collection("FollowRequests")
                 .whereEqualTo("Requestee's Username", followingUsername)
                 .whereEqualTo("Requester's Username", followerUsername)
-                .whereEqualTo("Status", "Pending")
-                .whereEqualTo("Status", "Accepted")
+                .whereIn("Status", Arrays.asList("Pending", "Accepted"))
                 .get()
                 .continueWith(task -> {
                     if (task.isSuccessful()) {
