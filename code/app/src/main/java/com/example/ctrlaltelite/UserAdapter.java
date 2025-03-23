@@ -55,12 +55,13 @@ public class UserAdapter extends ArrayAdapter<User> {
             usernameText.setText("@" + user.getUsername());
 
             if (user.getProfilePhotoUrl() != null && !user.getProfilePhotoUrl().isEmpty()) {
+                profilePhoto.setBackgroundResource(R.drawable.circle_shape);
                 Glide.with(getContext())
                         .load(user.getProfilePhotoUrl())
-                        .placeholder(R.drawable.circle_shape)
+                        .placeholder(R.drawable.profile)
                         .into(profilePhoto);
             } else {
-                profilePhoto.setImageResource(R.drawable.circle_shape);
+                profilePhoto.setImageResource(R.drawable.profile);
             }
         }
         return convertView;

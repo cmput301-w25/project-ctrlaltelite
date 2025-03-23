@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
                 else if (itemId == R.id.following) {
-                    fragmentRepl(new FollowingFragment());
+                    fragmentRepl(new FollowingNavButton());
                 }
 
                 else if (itemId == R.id.search) {

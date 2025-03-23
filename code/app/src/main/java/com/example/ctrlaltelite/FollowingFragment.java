@@ -106,16 +106,8 @@ public class FollowingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_following, container, false);
         db = FirebaseFirestore.getInstance();
-        ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
 
-        // Get a reference to the MainActivity so we can call openDrawer()
-        MainActivity mainActivity = (MainActivity) getActivity();
 
-        if (buttonDrawerToggle != null && mainActivity != null) {
-            buttonDrawerToggle.setOnClickListener(v -> {
-                mainActivity.openDrawer();
-            });
-        }
         // Retrieve username from Bundle
         Bundle args = getArguments();
         if (args != null) {
@@ -180,22 +172,7 @@ public class FollowingFragment extends Fragment {
             }
         });
 
-        //Pressing on the notification button
-        LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
-        notifButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (Username != null) { // Ensure Username is retrieved before navigating
-                    ViewFollowRequestsFragment followRequestsFragment = new ViewFollowRequestsFragment(Username);
 
-                    if (getActivity() instanceof MainActivity) {
-                        ((MainActivity) getActivity()).fragmentRepl(followRequestsFragment);
-                    }
-                } else {
-                    Toast.makeText(getContext(), "Error: Username not found", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
 
         return view;
     }

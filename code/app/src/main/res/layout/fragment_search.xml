@@ -23,7 +23,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#AFFAFD"
+        android:background="#D7FDFC"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="177dp">
 
@@ -88,18 +88,22 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 
-
     <ListView
         android:id="@+id/user_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
+        android:divider="@color/white"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/search_user_input" />
+
+
+        app:layout_constraintTop_toBottomOf="@id/search_user_input"
+        app:layout_constraintVertical_bias="0.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
