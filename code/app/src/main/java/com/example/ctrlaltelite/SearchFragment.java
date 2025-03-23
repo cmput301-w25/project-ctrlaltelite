@@ -146,7 +146,7 @@ public class SearchFragment extends Fragment {
      * Fetches users from Firestore based on a search query and updates the user list.
      * @param query The search query to filter users by username (case-insensitive)
      */
-    private void fetchUsers(String query) {
+    public void fetchUsers(String query) {
         db.collection("users")
                 .get()
                 .addOnCompleteListener(task -> {
