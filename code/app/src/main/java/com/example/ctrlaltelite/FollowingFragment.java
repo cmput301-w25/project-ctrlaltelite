@@ -106,7 +106,6 @@ public class FollowingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_following, container, false);
         db = FirebaseFirestore.getInstance();
-        ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
 
 
         // Retrieve username from Bundle

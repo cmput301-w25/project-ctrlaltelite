@@ -1,64 +1,158 @@
 package com.example.ctrlaltelite;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FollowingRecent#newInstance} factory method to
- * create an instance of this fragment.
- */
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Nullable;
+
 public class FollowingRecent extends Fragment {
+    private FirebaseFirestore db;
+    private MoodEventAdapter followingRecentAdapter;
+    private List<MoodEvent> allMoodEvents = new ArrayList<>();  // Initialized to empty list
+    private List<MoodEvent> recentMoodEvents = new ArrayList<>();  // Initialized to empty list
+    private List<String> followedUsernames = new ArrayList<>();
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private String username;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String Username;
 
+    private FirebaseStorage storage;
+    private StorageReference storageRef;
+
+
+    /**
+     * Default constructor.
+     */
     public FollowingRecent() {
         // Required empty public constructor
     }
 
+
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * Called when the fragment is created.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FollowingRecent.
+     * @param savedInstanceState A saved instance state if the fragment is re-initialized.
      */
-    // TODO: Rename and change types and number of parameters
-    public static FollowingRecent newInstance(String param1, String param2) {
-        FollowingRecent fragment = new FollowingRecent();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        // Initialize Firebase Storage
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReference();
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_following_recent, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,@Nullable Bundle savedInstance) {
+        View view = inflater.inflate(R.layout.fragment_following_recent, container, false);
+        db = FirebaseFirestore.getInstance();
+
+        // Retrieve username from Bundle
+        Bundle args = getArguments();
+        if (args != null) {
+            Username = args.getString("username");
+        }
+        if (Username == null) {
+            Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
+            return view;
+        }
+
+
+        // Initialize ListView and Adapter
+        ListView followingRecentListView = view.findViewById(R.id.mood_list);
+        followingRecentAdapter = new MoodEventAdapter(requireContext(), recentMoodEvents);
+        followingRecentListView.setAdapter(followingRecentAdapter);
+
+        // Fetch followed users and mood events
+        fetchFollowedUsers(Username);
+        fetchAllMoodEvents(Username);
+
+
+        return view;
     }
+
+
+    // This function was generated with the assistance of OpenAI's ChatGPT (2025).
+    public void fetchFollowedUsers(String username) {
+        Log.d("FollowingRecentFragment", "Obtaining all followed user");
+        db.collection("FollowRequests")
+                .whereEqualTo("Requester's Username", Username)
+                .whereEqualTo("Status", "Accepted")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        followedUsernames.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String followingUserName = document.getString("Requestee's Username");
+                            followedUsernames.add(followingUserName);
+                        }
+                        // Once followed users are fetched, fetch their mood events
+                        fetchAllMoodEvents(Username);
+                    } else {
+                        Toast.makeText(getContext(), "Error loading user requests", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+
+    // This function was generated with the assistance of OpenAI's ChatGPT (2025).
+    public void fetchAllMoodEvents(String Username) {
+        Log.d("FollowingRecentFragment", "Fetching all mood events from all followed user");
+        allMoodEvents.clear();
+        for (String followedUser : followedUsernames) {
+            db.collection("Mood Events")
+                    .whereEqualTo("username", followedUser)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                MoodEvent moodEvent = document.toObject(MoodEvent.class);
+                                moodEvent.setDocumentId(document.getId());  // Ensure docId is set
+                                allMoodEvents.add(moodEvent);
+                            }
+
+                            // Once all mood events are fetched, update the recent events
+                            updateRecentMoodEvents();
+                        }
+                    });
+        }
+
+    }
+
+
+    private void updateRecentMoodEvents() {
+        recentMoodEvents.clear();
+        if (allMoodEvents.size() > 3) {
+            for (int i = 0; i < 3; i++) {
+                recentMoodEvents.add(allMoodEvents.get(i));
+            }
+        } else {
+            recentMoodEvents.addAll(allMoodEvents);
+        }
+        // Notify the adapter that the data has changed
+        followingRecentAdapter.notifyDataSetChanged();
+    }
+
+
+        public void toggleSort() {
+        if (allMoodEvents == null || allMoodEvents.isEmpty()) return;
+        allMoodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
+    }
+
 }
