@@ -66,7 +66,6 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         TextView timestampText;
         TextView geolocationText;
         ImageView moodImage;
-
     }
 
     /**
