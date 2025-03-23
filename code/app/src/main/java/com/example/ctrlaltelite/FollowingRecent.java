@@ -35,6 +35,8 @@ public class FollowingRecent extends Fragment {
     private FirebaseStorage storage;
     private StorageReference storageRef;
 
+    private int fetchCounter = 0; // Counter to track when all users' mood events are fetched.
+
 
     /**
      * Default constructor.
@@ -115,6 +117,8 @@ public class FollowingRecent extends Fragment {
     public void fetchAllMoodEvents(String Username) {
         Log.d("FollowingRecentFragment", "Fetching all mood events from all followed user");
         allMoodEvents.clear();
+        fetchCounter = 0; // Reset counter before fetching
+
         for (String followedUser : followedUsernames) {
             db.collection("Mood Events")
                     .whereEqualTo("username", followedUser)
@@ -124,15 +128,35 @@ public class FollowingRecent extends Fragment {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 MoodEvent moodEvent = document.toObject(MoodEvent.class);
                                 moodEvent.setDocumentId(document.getId());  // Ensure docId is set
-                                allMoodEvents.add(moodEvent);
+                                if (!isDuplicateMoodEvent(moodEvent)) {
+                                    allMoodEvents.add(moodEvent);
+                                }
                             }
 
-                            // Once all mood events are fetched, update the recent events
-                            updateRecentMoodEvents();
+                            fetchCounter++; // Increment counter after fetching mood events for one user
+
+                            if (fetchCounter == followedUsernames.size()) {
+                                toggleSort();
+                                // All users' mood events fetched, now update the recent events
+                                updateRecentMoodEvents();
+                            }
                         }
                     });
         }
 
+    }
+
+
+    // This function was generated with the assistance of OpenAI's ChatGPT (2025).
+
+    private boolean isDuplicateMoodEvent(MoodEvent moodEvent) {
+        // Check if the moodEvent already exists in the list based on its document ID
+        for (MoodEvent existingEvent : allMoodEvents) {
+            if (existingEvent.getDocumentId().equals(moodEvent.getDocumentId())) {
+                return true; // Duplicate found
+            }
+        }
+        return false; // No duplicate
     }
 
 

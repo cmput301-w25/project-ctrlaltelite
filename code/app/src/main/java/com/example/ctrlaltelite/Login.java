@@ -1,7 +1,6 @@
 package com.example.ctrlaltelite;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;

@@ -4,7 +4,7 @@ import com.airbnb.lottie.LottieAnimationView;
 import com.example.ctrlaltelite.MainActivity;
 
 import android.Manifest;
-import android.content.SharedPreferences;
+
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
