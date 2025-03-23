@@ -104,9 +104,6 @@ public class TextualReasonTest {
         onView(withId(R.id.dropdown_mood)).perform(click());
         onData(anything()).atPosition(1).perform(click());
 
-        // Adding a Trigger
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
-
         // Adding a Reason
         onView(withId(R.id.edit_reason)).perform(typeText("Feeling alone"));
 
@@ -125,7 +122,6 @@ public class TextualReasonTest {
                 .perform(click());
         onView(withId(R.id.edit_mood_spinner)).check(matches(withText("Happy")));
         onView(withId(R.id.edit_reason_edittext)).check(matches(withText("Feeling alone")));
-        onView(withId(R.id.edit_trigger)).check(matches(withText("Sitting alone at school")));
         onView(withId(R.id.edit_social_situation_spinner)).check(matches(withText("Alone")));
 
     }
@@ -147,7 +143,6 @@ public class TextualReasonTest {
         onView(withId(R.id.dropdown_mood)).perform(click());
         onData(anything()).atPosition(1).perform(click());
 
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
 
         onView(withId(R.id.edit_reason)).perform(typeText("I Feel A Bit Alone"));
 
@@ -176,8 +171,6 @@ public class TextualReasonTest {
 
         onView(withId(R.id.dropdown_mood)).perform(click());
         onData(anything()).atPosition(1).perform(click());
-
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
 
         onView(withId(R.id.edit_reason)).perform(typeText("Ridiculously Insurmountable Loneliness"));
 
@@ -208,8 +201,6 @@ public class TextualReasonTest {
         onView(withId(R.id.dropdown_mood)).perform(click());
         onData(anything()).atPosition(1).perform(click());
 
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
-
         onView(withId(R.id.edit_reason)).perform(typeText(""));
 
         onView(withId(R.id.social_situation_spinner)).perform(click());
@@ -238,9 +229,6 @@ public class TextualReasonTest {
         // Adding a Mood
         onView(withId(R.id.dropdown_mood)).perform(click());
         onData(anything()).atPosition(1).perform(click());
-
-        // Adding a Trigger
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
 
         // Adding a Reason
         onView(withId(R.id.edit_reason)).perform(typeText("Feeling alone"));
@@ -281,9 +269,6 @@ public class TextualReasonTest {
         onView(withId(R.id.dropdown_mood)).perform(click());
         onData(anything()).atPosition(1).perform(click());
 
-        // Adding a Trigger
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
-
         // Adding a Reason
         onView(withId(R.id.edit_reason)).perform(typeText("Feeling alone"));
 
@@ -302,47 +287,6 @@ public class TextualReasonTest {
                 .perform(click());
 
         onView(withId(R.id.edit_social_situation_spinner)).check(matches(withSpinnerText("\uD83C\uDFE1 Alone")));
-    }
-
-    /**
-     * Mood Event Should be created upon valid trigger
-     * @throws InterruptedException
-     */
-    @Test
-    public void ValidTriggerShouldPass() throws InterruptedException {
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
-
-        // Reaching the Add Fragment
-        onView(withId(R.id.add)).perform(click());
-
-        // Adding a Mood
-        onView(withId(R.id.dropdown_mood)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-
-        // Adding a Trigger
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
-
-        // Adding a Reason
-        onView(withId(R.id.edit_reason)).perform(typeText("Feeling alone"));
-
-        // Adding a Social Situation
-        onView(withId(R.id.social_situation_spinner)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-
-        // Saving the data
-        onView(withId(R.id.button_save)).perform(click());
-        Thread.sleep(1000);
-
-        // Verify that Mood Event has been created
-        onData(Matchers.anything())
-                .inAdapterView(withId(R.id.mood_list))
-                .atPosition(0)
-                .perform(click());
-
-        onView(withId(R.id.edit_trigger)).check(matches(withText("Sitting alone at school")));
     }
 
     /*
