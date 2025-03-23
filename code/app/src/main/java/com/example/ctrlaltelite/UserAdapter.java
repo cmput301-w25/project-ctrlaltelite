@@ -55,6 +55,7 @@ public class UserAdapter extends ArrayAdapter<User> {
             usernameText.setText("@" + user.getUsername());
 
             if (user.getProfilePhotoUrl() != null && !user.getProfilePhotoUrl().isEmpty()) {
+                profilePhoto.setBackgroundResource(R.drawable.circle_shape);
                 Glide.with(getContext())
                         .load(user.getProfilePhotoUrl())
                         .placeholder(R.drawable.profile)
