@@ -19,56 +19,6 @@
     </FrameLayout>
 
 
-    <Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#AFFAFD"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="177dp">
-
-        <ImageButton
-            android:id="@+id/buttonDrawerToggle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:src="@drawable/menu">
-
-        </ImageButton>
-
-        <TextView
-            android:id="@+id/title_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="50dp"
-            android:text="Mood Following"
-            android:fontFamily="@font/font9"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/notif"
-            android:layout_gravity="end|center_vertical"
-            android:elevation="5dp"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            app:lottie_rawRes="@raw/lottie8"
-            tools:layout_editor_absoluteX="375dp"
-            tools:layout_editor_absoluteY="0dp"
-            android:layout_width="55dp"
-            android:layout_height="55dp"
-            android:layout_marginEnd="0dp"
-            android:padding="0dp"/>
-
-
-    </Toolbar>
-
     <EditText
         android:id="@+id/search_mood_reason"
         android:layout_width="0dp"
@@ -84,7 +34,7 @@
         android:paddingBottom="8dp"
         app:layout_constraintEnd_toStartOf="@id/mood_filter"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout" />
 
 
     <Spinner

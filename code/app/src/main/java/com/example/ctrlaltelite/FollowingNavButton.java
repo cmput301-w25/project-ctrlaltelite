@@ -46,7 +46,6 @@ public class FollowingNavButton extends Fragment {
     View view;
     TabLayout tabLayout;
     ViewPager2 viewPager2;
-    ViewPageAdapter adapter;
 
     /**
      * Initializes the activity, sets up the BottomNavigationView navigation, and configures
@@ -61,10 +60,21 @@ public class FollowingNavButton extends Fragment {
         view = inflater.inflate(R.layout.fragment_following_nav_button, container, false);
         ImageButton buttonDrawerToggle = view.findViewById(R.id.buttonDrawerToggle);
 
+        // Retrieve username from Bundle
+        Bundle args = getArguments();
+        if (args != null) {
+            Username = args.getString("username");
+        }
+        if (Username == null) {
+            Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
+            return view;
+        }
+
+
 
         tabLayout = view.findViewById(R.id.tabs);
         viewPager2 = view.findViewById(R.id.view_pager);
-        adapter = new ViewPageAdapter(requireActivity());
+        ViewPageAdapter adapter = new ViewPageAdapter(requireActivity(), Username);
         viewPager2.setAdapter(adapter);
 
         // Get a reference to the MainActivity so we can call openDrawer()
@@ -74,15 +84,6 @@ public class FollowingNavButton extends Fragment {
             buttonDrawerToggle.setOnClickListener(v -> {
                 mainActivity.openDrawer();
             });
-        }
-        // Retrieve username from Bundle
-        Bundle args = getArguments();
-        if (args != null) {
-            Username = args.getString("username");
-        }
-        if (Username == null) {
-            Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
-            return view;
         }
 
         //Pressing on the notification button

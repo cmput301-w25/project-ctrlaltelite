@@ -1,6 +1,8 @@
 package com.example.ctrlaltelite;
 
 
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -13,13 +15,16 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
  */
 public class ViewPageAdapter extends FragmentStateAdapter {
 
+    private String username;
+
     /**
      * Constructor for the ViewPageAdapter.
      *
      * @param fragmentActivity The FragmentActivity to associate with the adapter. This is used to manage fragment transactions.
      */
-    public ViewPageAdapter(@NonNull FragmentActivity fragmentActivity) {
+    public ViewPageAdapter(@NonNull FragmentActivity fragmentActivity, String username) {
         super(fragmentActivity);
+        this.username = username;
     }
 
     /**
@@ -34,9 +39,17 @@ public class ViewPageAdapter extends FragmentStateAdapter {
         // Return the corresponding fragment based on the position
         switch (position) {
             case 0:
-                return new FollowingRecent();  // Show RecentMoodEvents fragment for position 0
+                FollowingRecent followingRecent = new FollowingRecent();
+                Bundle bundle1 = new Bundle();
+                bundle1.putString("username", username); // Pass the username
+                followingRecent.setArguments(bundle1);
+                return followingRecent; // Show RecentMoodEvents fragment for position 0
             case 1:
-                return new FollowingFragment();  // Show AllMoodEvents fragment for position 1
+                FollowingFragment followingFragment = new FollowingFragment();
+                Bundle bundle2 = new Bundle();
+                bundle2.putString("username", username); // Pass the username
+                followingFragment.setArguments(bundle2);
+                return followingFragment;  // Show AllMoodEvents fragment for position 1
             default:
                 return new FollowingRecent();  // Default: Show RecentMoodEvents fragment
         }
