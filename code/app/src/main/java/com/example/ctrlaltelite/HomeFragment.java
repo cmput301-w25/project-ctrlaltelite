@@ -271,7 +271,7 @@ public class HomeFragment extends AddFragment {
     /**
      * Applies filters to the mood events list based on current filter settings.
      */
-    private void applyFilters() {
+    public void applyFilters() {
         if (allMoodEvents == null || allMoodEvents.isEmpty()) {
             moodEvents.clear();
             adapter.notifyDataSetChanged();
