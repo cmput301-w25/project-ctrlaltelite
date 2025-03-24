@@ -57,6 +57,16 @@ CustomSpinnerAdapter extends ArrayAdapter<String> {
         textView.setText(items.get(position));
         textView.setTextColor(getColorForPosition(position));
         textView.setTextSize(18);
+
+        if (spinnerType == 0) {
+            // Set the custom font for the selected text (after selection)
+            if (position != 0) { // Skip the default text at position 0
+                Typeface customFont = ResourcesCompat.getFont(context, R.font.font9);
+                textView.setTypeface(customFont);
+            } else {
+                textView.setTypeface(null); // Use default font for the first item
+            }
+        }
         return convertView;
     }
 
@@ -78,9 +88,13 @@ CustomSpinnerAdapter extends ArrayAdapter<String> {
         textView.setText(items.get(position));
         // Check if it's for emotional state or social situation and set the text color
         if (spinnerType == 0) { // Emotional state spinner
-            Typeface customFont = ResourcesCompat.getFont(context, R.font.font9);
-            textView.setTypeface(customFont);
-            textView.setTextColor(getColorForPosition(position));
+            if (position != 0) {
+                Typeface customFont = ResourcesCompat.getFont(context, R.font.font9);
+                textView.setTypeface(customFont);
+                textView.setTextColor(getColorForPosition(position));
+            }else{
+                textView.setTypeface(null);
+            }
         } else if (spinnerType == 1) { // Social situation spinner
             textView.setTextColor(Color.BLACK);  // Set text color to gray for social situation
         }
