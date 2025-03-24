@@ -1,23 +1,30 @@
 package com.example.ctrlaltelite;
 
+import static android.view.View.GONE;
+
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -30,6 +37,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
@@ -44,6 +54,8 @@ import com.google.firebase.Firebase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -177,16 +189,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         LocationManager locationManager = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
 
-        // Create a local LocationListener instance.
+        // Local LocationListener instance.
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(@NonNull Location location) {
                 double latitude = location.getLatitude();
                 double longitude = location.getLongitude();
                 Log.d("Location Debug", "Updated Latitude: " + latitude + ", Longitude: " + longitude);
-                // Optionally, remove updates if you need to stop further callbacks:
+
                 locationManager.removeUpdates(this);
-                // You could store the updated location if necessary.
+
             }
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -198,7 +210,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         };
 
-        // Request a single update using our listener.
+        // Request a single update using listener.
         locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
 
         // Get the last known location as a fallback.
@@ -231,59 +243,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
         LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
-        // Set a custom info window adapter for displaying mood event details
-        googleMap.setInfoWindowAdapter(new InfoWindowAdapter() {
-            @Nullable
-            @Override
-            public View getInfoWindow(Marker marker) {
-                // Use default frame; return null so getInfoContents() is called.
-                return null;
+        // Open AlertBox to show Mood Event details when clicked on a Marker
+        googleMap.setOnMarkerClickListener(marker -> {
+            Object tag = marker.getTag();
+            if (tag instanceof MoodEvent) {
+                MoodEvent moodEvent = (MoodEvent) tag;
+                showMoodEventDialog(moodEvent);
             }
-            @Override
-            public View getInfoContents(Marker marker) {
-                // Retrieve the MoodEvent from the marker's tag
-                Object tag = marker.getTag();
-                if (tag instanceof MoodEvent) {
-                    MoodEvent moodEvent = (MoodEvent) tag;
-                    // Create a vertical LinearLayout to hold the content
-                    LinearLayout infoLayout = new LinearLayout(getContext());
-                    infoLayout.setOrientation(LinearLayout.VERTICAL);
-                    infoLayout.setPadding(20, 20, 20, 20);
-
-                    // Title: Username
-                    TextView title = new TextView(getContext());
-                    title.setText(moodEvent.getUsername());
-                    title.setTextColor(Color.BLACK);
-                    title.setTextSize(16);
-                    title.setGravity(Gravity.CENTER);
-                    infoLayout.addView(title);
-
-                    // Description
-                    TextView description = new TextView(getContext());
-                    StringBuilder descBuilder = new StringBuilder();
-                    if (moodEvent.getEmotionalState() != null && !moodEvent.getEmotionalState().isEmpty()){
-                        descBuilder.append("Emotional State: ").append(moodEvent.getEmotionalState()).append("\n");
-                    }
-                    if (moodEvent.getReason() != null && !moodEvent.getReason().isEmpty()) {
-                        descBuilder.append("Reason: ").append(moodEvent.getReason()).append("\n");
-                    }
-                    if (moodEvent.getSocialSituation() != null && !moodEvent.getSocialSituation().isEmpty()) {
-                        descBuilder.append("Social: ").append(moodEvent.getSocialSituation()).append("\n");
-                    }
-                    if (moodEvent.getTimestamp() != null) {
-                        descBuilder.append("Time: ").append(moodEvent.getFormattedTimestamp());
-                    }
-                    description.setText(descBuilder.toString());
-                    description.setTextColor(Color.DKGRAY);
-                    description.setTextSize(14);
-                    infoLayout.addView(description);
-
-                    return infoLayout;
-                }
-                return null;
-            }
+            // Handled Click
+            return true;
         });
 
+        // Load the markers from all followed users.
         getFollowedUsers(currentGeoPoint);
     }
 
@@ -453,7 +424,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Create a TextView and set the emoji text
         TextView textView = new TextView(getContext());
         textView.setText(emoji);
-        textView.setTextSize(30); // Adjust the text size as needed
+        textView.setTextSize(30);
         textView.setTextColor(Color.BLACK);
         textView.setDrawingCacheEnabled(true);
 
@@ -468,5 +439,58 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         textView.draw(canvas);
 
         return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+    /**
+     * Opens an AlertDialog that shows the mood event details,
+     * including the real image loaded from Firebase Storage using Glide.
+     */
+    private void showMoodEventDialog(MoodEvent moodEvent) {
+        // Inflate a layout
+        View dialogView = LayoutInflater.from(getContext())
+                .inflate(R.layout.marker_dialog, null);
+
+        ImageView imageView = dialogView.findViewById(R.id.event_image);
+        TextView detailsText = dialogView.findViewById(R.id.event_details);
+
+        // Build textual details
+        StringBuilder sb = new StringBuilder();
+        if (moodEvent.getEmotionalState() != null && !moodEvent.getEmotionalState().isEmpty()) {
+            sb.append("Emotional State: ").append(moodEvent.getEmotionalState()).append("\n");
+        }
+        if (moodEvent.getReason() != null && !moodEvent.getReason().isEmpty()) {
+            sb.append("Reason: ").append(moodEvent.getReason()).append("\n");
+        }
+        if (moodEvent.getSocialSituation() != null && !moodEvent.getSocialSituation().isEmpty()) {
+            sb.append("Social: ").append(moodEvent.getSocialSituation()).append("\n");
+        }
+        if (moodEvent.getTimestamp() != null) {
+            sb.append("Time: ").append(moodEvent.getFormattedTimestamp()).append("\n");
+        }
+        detailsText.setText(sb.toString().trim());
+
+        if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
+            StorageReference ref = FirebaseStorage.getInstance()
+                    .getReference()
+                    .child(moodEvent.getImgPath());
+
+            ref.getDownloadUrl().addOnSuccessListener(uri -> {
+                // Load Image
+                Glide.with(getContext())
+                        .load(uri)
+                        .into(imageView);
+            }).addOnFailureListener(e -> {
+                Toast.makeText(getContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
+                imageView.setVisibility(GONE);
+            });
+        } else {
+            imageView.setVisibility(GONE);
+        }
+
+        // Show the AlertDialog, with moodEvent.getUsername() as the title
+        new AlertDialog.Builder(requireContext())
+                .setTitle(moodEvent.getUsername() != null ? moodEvent.getUsername() : "Mood Event")
+                .setView(dialogView)
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }
