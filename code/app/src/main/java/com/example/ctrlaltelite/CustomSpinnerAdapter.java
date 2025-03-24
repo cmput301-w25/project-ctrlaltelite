@@ -96,7 +96,7 @@ CustomSpinnerAdapter extends ArrayAdapter<String> {
                 textView.setTypeface(null);
             }
         } else if (spinnerType == 1) { // Social situation spinner
-            textView.setTextColor(Color.BLACK);  // Set text color to gray for social situation
+            textView.setTextColor(Color.BLACK);  // Set text color to Black for social situation
         }
         textView.setTextSize(18);
 
