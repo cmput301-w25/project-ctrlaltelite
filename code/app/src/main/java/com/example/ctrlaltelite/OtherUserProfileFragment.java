@@ -135,44 +135,74 @@ public class OtherUserProfileFragment extends Fragment {
 
                 Button requestButton = view.findViewById(R.id.follow_button);
 
-                if (usernameText.getText().equals("@" + currentUser.getUsername()) || state[0] == 1) {
+                if (usernameText.getText().equals("@" + currentUser.getUsername())) {
                     requestButton.setVisibility(INVISIBLE);
                 }
 
                 else {
-                    requestButton.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
 
-                            Task<Boolean> checkingIfUserAlreadyRequested = HasUserAlreadyRequested(currentUser.getUsername(), searchedUser.getUsername());
-                            final boolean[] hasUserAlreadyRequested = new boolean[1];
+                    requestButton.setText("Loading");
+                    Task<Boolean> checkingIfUserAlreadyAccepted = HasUserAlreadyAccepted(currentUser.getUsername(), searchedUser.getUsername());
+                    final boolean[] hasOtherUserAlreadyAccepted = new boolean[1];
+                    checkingIfUserAlreadyAccepted.addOnCompleteListener(task -> {
 
-                            checkingIfUserAlreadyRequested.addOnCompleteListener(task -> {
-                               if (task.isSuccessful()) {
-                                   hasUserAlreadyRequested[0] = task.getResult();
+                        if (task.isSuccessful()) {
+                            hasOtherUserAlreadyAccepted[0] = task.getResult();
+                            if (!hasOtherUserAlreadyAccepted[0]) {
 
-                                   if (!hasUserAlreadyRequested[0]) {
-                                       FollowRequest newFollowRequest = new FollowRequest(currentUser.getUsername(), searchedUser.getUsername(), currentUser.getDisplayName(), searchedUser.getDisplayName(), "Pending");
-                                       saveToFirestore(newFollowRequest);
-                                       requestButton.setText("Requested");
-                                       Toast.makeText(getContext(), "Successfully requested to follow " + searchedUser.getDisplayName(), Toast.LENGTH_SHORT).show();
-                                       state[0] = 1;
-                                   } else {
-                                       Toast.makeText(getContext(), "You have already requested to follow " + searchedUser.getDisplayName(), Toast.LENGTH_SHORT).show();
-                                   }
-                               }
-                            });
+                                Task<Boolean> checkingIfUserAlreadyRequested = HasUserAlreadyRequested(currentUser.getUsername(), searchedUser.getUsername());
+                                final boolean[] hasUserAlreadyRequested = new boolean[1];
+                                checkingIfUserAlreadyRequested.addOnCompleteListener(task1 -> {
+                                    if (task1.isSuccessful()) {
+                                        hasUserAlreadyRequested[0] = task1.getResult();
+
+                                        if (!hasUserAlreadyRequested[0]) {
+
+                                            requestButton.setText("Follow");
+                                            requestButton.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+
+                                                    if (state[0] == 0) {
+                                                        FollowRequest newFollowRequest = new FollowRequest(currentUser.getUsername(), searchedUser.getUsername(), currentUser.getDisplayName(), searchedUser.getDisplayName(), "Pending");
+                                                        saveToFirestore(newFollowRequest);
+                                                        requestButton.setText("Requested");
+                                                        Toast.makeText(getContext(), "Successfully requested to follow " + searchedUser.getDisplayName(), Toast.LENGTH_SHORT).show();
+                                                        state[0] = 1;
+                                                    }
+                                                    else {
+                                                        Toast.makeText(getContext(), "You have already requested to follow " + searchedUser.getDisplayName(), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
+                                        }
+                                        else {
+                                            requestButton.setText("Requested");
+                                            requestButton.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+                                                    Toast.makeText(getContext(), "You have already requested to follow " + searchedUser.getDisplayName(), Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                            else {
+                                requestButton.setText("Following");
+                            }
                         }
                     });
                 }
-            } else {
+            }
+            else {
                 Toast.makeText(getContext(), "No user selected", Toast.LENGTH_SHORT).show();
             }
-        } else {
+        }
+        else {
             Toast.makeText(getContext(), "No user data provided", Toast.LENGTH_SHORT).show();
         }
         return view;
-
     }
 
     private void fetchMoodEvents(String username) {
@@ -203,7 +233,7 @@ public class OtherUserProfileFragment extends Fragment {
         return db.collection("FollowRequests")
                 .whereEqualTo("Requestee's Username", followingUsername)
                 .whereEqualTo("Requester's Username", followerUsername)
-                .whereIn("Status", Arrays.asList("Pending", "Accepted"))
+                .whereEqualTo("Status", "Pending")
                 .get()
                 .continueWith(task -> {
                     if (task.isSuccessful()) {
@@ -216,6 +246,27 @@ public class OtherUserProfileFragment extends Fragment {
                     }
                 });
     }
+
+    private Task<Boolean> HasUserAlreadyAccepted(String followerUsername, String followingUsername) {
+        Log.d("OtherUserProfileFragment", "Checking to see if a request to " + followingUsername + " from " + followerUsername + " has been accepted");
+
+        return db.collection("FollowRequests")
+                .whereEqualTo("Requestee's Username", followingUsername)
+                .whereEqualTo("Requester's Username", followerUsername)
+                .whereEqualTo("Status", "Accepted")
+                .get()
+                .continueWith(task -> {
+                    if (task.isSuccessful()) {
+                        // Check if any documents match the query
+                        return !task.getResult().isEmpty();
+                    } else {
+                        // Handle errors
+                        Toast.makeText(getContext(), "Error obtaining desired document", Toast.LENGTH_SHORT).show();
+                        return false; // Assume no request exists in case of error
+                    }
+                });
+    }
+
     protected void saveToFirestore(FollowRequest followRequest) {
         String currentUserUsername = followRequest.getRequesterUserName();
         String searchedUserUsername = followRequest.getRequestedUserName();
