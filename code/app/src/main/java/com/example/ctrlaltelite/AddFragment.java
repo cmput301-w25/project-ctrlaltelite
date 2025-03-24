@@ -300,7 +300,7 @@ public class AddFragment extends Fragment implements LocationListener {
         List<String> moodOptions = Arrays.asList(getResources().getStringArray(R.array.mood_options));
 
         // Use the custom adapter
-        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(requireContext(), moodOptions);
+        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(requireContext(), moodOptions, 0);
         dropdownMood.setAdapter(adapter);
 
     }
@@ -311,7 +311,7 @@ public class AddFragment extends Fragment implements LocationListener {
         List<String> socialOptions = Arrays.asList(getResources().getStringArray(R.array.social_situation_options));
 
         // Use the custom adapter for colored items
-        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(requireContext(), socialOptions);
+        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(requireContext(), socialOptions, 1);
         editSocialSituation.setAdapter(adapter);
     }
 

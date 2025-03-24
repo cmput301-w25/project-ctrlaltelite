@@ -265,7 +265,7 @@ public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
     private void showMoodEventMap(List<String> followed, GeoPoint currentGeoPoint){
         //Query Firebase for Mood Events with locations
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Mood Events").whereIn("username",followed).get().addOnCompleteListener(task -> {
+        db.collection("Mood Events").whereIn("username",followed).whereEqualTo("public", true).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()){
                 //Hash Map to store latest mood event per user
                 Map<String, MoodEvent> latestMood = new HashMap<>();
