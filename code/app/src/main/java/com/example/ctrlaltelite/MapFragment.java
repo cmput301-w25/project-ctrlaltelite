@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -46,7 +47,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -55,26 +58,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap googleMap;
     private static final String TAG = "MapFragment";
     private int MAX_DISTANCE = 5000;    //MAX DISTANCE IN METRES
-
-    /**
-     * Retrieves the user's current location as a GeoPoint (if permission granted).
-     */
-    public static GeoPoint getUserLocation(Context context) {
-        LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        // Remove previous updates if needed (optional)
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(context, "Location permission not granted", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-        // Get last known location (this may be null)
-        Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        if (lastLocation != null) {
-            return new GeoPoint(lastLocation.getLatitude(), lastLocation.getLongitude());
-        } else {
-            Toast.makeText(context, "Unable to retrieve location", Toast.LENGTH_SHORT).show();
-            return null;
-        }
-    }
 
     public MapFragment() {
         // Required empty public constructor
@@ -182,14 +165,69 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             proceedWithMapSetup();
         }
     }
+    /**
+     * Retrieves the user's current location as a GeoPoint (if permission granted).
+     */
+    protected GeoPoint getUserLocation() {
+        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(getContext(), "Location permission not granted", Toast.LENGTH_SHORT).show();
+            return null;
+        }
 
+        LocationManager locationManager = (LocationManager) requireContext().getSystemService(Context.LOCATION_SERVICE);
+
+        // Create a local LocationListener instance.
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+                Log.d("Location Debug", "Updated Latitude: " + latitude + ", Longitude: " + longitude);
+                // Optionally, remove updates if you need to stop further callbacks:
+                locationManager.removeUpdates(this);
+                // You could store the updated location if necessary.
+            }
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            @Override
+            public void onProviderEnabled(@NonNull String provider) {}
+            @Override
+            public void onProviderDisabled(@NonNull String provider) {
+                Toast.makeText(getContext(), "GPS is turned off!", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        // Request a single update using our listener.
+        locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+
+        // Get the last known location as a fallback.
+        Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        if (lastLocation != null) {
+            double latitude = lastLocation.getLatitude();
+            double longitude = lastLocation.getLongitude();
+            Log.d("Location Debug", "Last Known Latitude: " + latitude + ", Longitude: " + longitude);
+            return new GeoPoint(latitude, longitude);
+        } else {
+            Toast.makeText(getContext(), "Unable to get updated location", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
     /**
      * Actual setup for the map once permissions are granted.
      */
     private void proceedWithMapSetup() {
-        GeoPoint currentGeoPoint = getUserLocation(requireContext());
+        GeoPoint currentGeoPoint = getUserLocation();
         if (currentGeoPoint == null) {
             Toast.makeText(getContext(),"No location retrieved",Toast.LENGTH_SHORT).show();
+            HomeFragment homeFragment = new HomeFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("username", Username);
+            homeFragment.setArguments(bundle);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).fragmentRepl(homeFragment);
+            }
+            return;
         }
         LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
@@ -284,11 +322,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Mood Events").whereIn("username",followed).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()){
-                LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(),currentGeoPoint.getLongitude());
+                //Hash Map to store latest mood event per user
+                Map<String, MoodEvent> latestMood = new HashMap<>();
                 //Loop Through each mood event
-                for (QueryDocumentSnapshot documentSnapshot: task.getResult()){
-                    try{
+                for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
+                    try {
                         MoodEvent moodEvent = documentSnapshot.toObject(MoodEvent.class);
+                        String user = moodEvent.getUsername();
+
+                        if (!latestMood.containsKey(user)) {
+                            latestMood.put(user, moodEvent);
+                        } else {
+                            MoodEvent previousMood = latestMood.get(user);
+                            if (moodEvent.getTimestamp() != null) {
+                                assert previousMood != null;
+                                if (previousMood.getTimestamp() != null) {
+                                    if (moodEvent.getTimestamp().toDate().getTime() > previousMood.getTimestamp().toDate().getTime()) {
+                                        latestMood.put(user, moodEvent);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error getting document: " + documentSnapshot.getId(), e);
+                    }
+                }
+                LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(),currentGeoPoint.getLongitude());
+                for (MoodEvent moodEvent : latestMood.values()){
+                    try{
                         if (moodEvent.getLocation()!= null){
                             double latitude = moodEvent.getLocation().getLatitude();
                             double longitude = moodEvent.getLocation().getLongitude();
@@ -317,7 +378,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             }
                         }
                     }catch (Exception e){
-                        Log.e(TAG,"Error parsing Document: "+documentSnapshot.getId(),e);
+                        Log.e(TAG,"Error getting Mood from hash map",e);
                     }
                 }
             } else{
