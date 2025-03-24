@@ -127,7 +127,7 @@ public class FollowingFragment extends Fragment {
         List<String> moodFilterOptions = new ArrayList<>();
         moodFilterOptions.add("Mood");  // Default text only for the filter
         moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 7)); // Skip "Select Emotional State"
-        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions);
+        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions,0);
         moodFilterSpinner.setAdapter(moodAdapter);
 
         // Initialize ListView
