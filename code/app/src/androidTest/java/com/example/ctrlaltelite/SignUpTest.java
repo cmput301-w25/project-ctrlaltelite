@@ -71,9 +71,10 @@ public class SignUpTest {
         CollectionReference usersRef = db.collection("users");
         Map<String, Object> user = new HashMap<>();
         user.put("username", "TestU");
+        user.put("displayName","TestD");
         user.put("password", "TestP");
         user.put("email", "test@gmail.com");
-        user.put("mobile", "12345678");
+        user.put("mobile", "1234567890");
         usersRef.document().set(user);
         Thread.sleep(1000);
     }
@@ -86,8 +87,9 @@ public class SignUpTest {
     @Test
     public void validSignUpNavigatesToLogin() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("NewUser"));
+        onView(withId(R.id.SDisplayName)).perform(replaceText("NewDisp"));
         onView(withId(R.id.SEmail)).perform(replaceText("new@gmail.com"));
-        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SMobile)).perform(replaceText("1234567890"));
         onView(withId(R.id.SPassword)).perform(replaceText("NewPass"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
@@ -104,7 +106,7 @@ public class SignUpTest {
     public void emptyUsernameShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText(""));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
-        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SMobile)).perform(replaceText("1234567890"));
         onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
@@ -121,7 +123,7 @@ public class SignUpTest {
     public void emptyEmailShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
         onView(withId(R.id.SEmail)).perform(replaceText(""));
-        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SMobile)).perform(replaceText("1234567890"));
         onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
@@ -153,7 +155,7 @@ public class SignUpTest {
     public void emptyPasswordShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
-        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SMobile)).perform(replaceText("1234567890"));
         onView(withId(R.id.SPassword)).perform(replaceText(""));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
@@ -168,8 +170,9 @@ public class SignUpTest {
     @Test
     public void duplicateUsernameShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SDisplayName)).perform(replaceText("TestD"));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
-        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SMobile)).perform(replaceText("1234567890"));
         onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
