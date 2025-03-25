@@ -2,6 +2,8 @@ package com.example.ctrlaltelite;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_SHORT;
+
 import com.airbnb.lottie.LottieAnimationView;
 
 import android.content.Intent;
@@ -37,6 +39,7 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -138,11 +141,10 @@ public class AddFragment extends Fragment implements LocationListener {
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReference();
 
-
         pickMedia =
                 registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                     if (uri == null) {
-                        Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "No image selected", LENGTH_SHORT).show();
                     } else {
                         //check file size and ensure less than 65536 bytes
                         Cursor returnCursor = getContext().getContentResolver().query(uri, null, null, null, null);
@@ -153,11 +155,10 @@ public class AddFragment extends Fragment implements LocationListener {
                             if (imgSize < maxSize) {
                                 imagePreview.setImageURI(uri);
                                 imagePreview.setVisibility(VISIBLE);
-                                buttonUpload.setEnabled(false);
                                 imageRef = uri; //for uploading purposes
-                                Toast.makeText(getContext(), "Image selected", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Image selected", LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(getContext(), "File exceeds max size", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "File exceeds max size", LENGTH_SHORT).show();
                             }
                         }}
                 });
@@ -170,7 +171,7 @@ public class AddFragment extends Fragment implements LocationListener {
                                 .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
                                 .build());
                     } else {
-                        Toast.makeText(getContext(), "No access to device images", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "No access to device images", LENGTH_SHORT).show();
                     }
                 });
     }
@@ -209,7 +210,7 @@ public class AddFragment extends Fragment implements LocationListener {
             Log.d("MoodHistoryFragment", "Fetching mood events for Username: " + Username);
         }
         if (Username == null) {
-            Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "No user logged in", LENGTH_SHORT).show();
             return view;
         }
 
@@ -236,6 +237,22 @@ public class AddFragment extends Fragment implements LocationListener {
         buttonCancel = view.findViewById(R.id.button_cancel);
         buttonUpload = view.findViewById(R.id.button_upload);
         imagePreview = view.findViewById(R.id.uploaded_image);
+
+        // Long-click listener for photo removal
+        imagePreview.setOnLongClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Remove Photo");
+            builder.setMessage("Do you want to delete this photo?");
+            builder.setPositiveButton("Delete", (dialog1, which) -> {
+                imageRef = null; //do not upload with mood event
+                imagePreview.setVisibility(GONE); //hide preview
+                Toast.makeText(getContext(), "Photo removed", LENGTH_SHORT).show();
+            });
+            builder.setNegativeButton("Cancel", null);
+            builder.show();
+            return true;
+        });
+
         imagePreview.setVisibility(GONE);
 
         setupDropdown();
@@ -275,7 +292,7 @@ public class AddFragment extends Fragment implements LocationListener {
                         ((MainActivity) getActivity()).fragmentRepl(followRequestsFragment);
                     }
                 } else {
-                    Toast.makeText(getContext(), "Error: Username not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error: Username not found", LENGTH_SHORT).show();
                 }
             }
         });
@@ -373,7 +390,7 @@ public class AddFragment extends Fragment implements LocationListener {
                         .setPositiveButton("OK", (dialog, which) ->
                                 requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100))
                         .setNegativeButton("Cancel", (dialog, which) ->
-                                Toast.makeText(getContext(), "Location permission denied", Toast.LENGTH_SHORT).show())
+                                Toast.makeText(getContext(), "Location permission denied", LENGTH_SHORT).show())
                         .show();
             } else {
                 // Directly request permission
@@ -388,7 +405,7 @@ public class AddFragment extends Fragment implements LocationListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 100) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getContext(), "Location permission granted. Try saving again.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Location permission granted. Try saving again.", LENGTH_SHORT).show();
             } else {
                 boolean showRationale = shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION);
                 if (!showRationale) {
@@ -403,10 +420,10 @@ public class AddFragment extends Fragment implements LocationListener {
                                 startActivity(intent);
                             })
                             .setNegativeButton("Cancel", (dialog, which) ->
-                                    Toast.makeText(getContext(), "Location permission denied permanently", Toast.LENGTH_SHORT).show())
+                                    Toast.makeText(getContext(), "Location permission denied permanently", LENGTH_SHORT).show())
                             .show();
                 } else {
-                    Toast.makeText(getContext(), "Location permission denied. Try saving again to request permission.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Location permission denied. Try saving again to request permission.", LENGTH_SHORT).show();
                 }
             }
         }
@@ -418,7 +435,7 @@ public class AddFragment extends Fragment implements LocationListener {
      */
     protected void saveMoodEvent(String uName) {
         if (dropdownMood.getSelectedItemPosition() == 0) {
-            Toast.makeText(getContext(), "Emotional state cannot be the default option", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Emotional state cannot be the default option", LENGTH_SHORT).show();
             return;
         }
 
@@ -457,18 +474,18 @@ public class AddFragment extends Fragment implements LocationListener {
             // Ensure either text reason or image is provided
             if (reason.isEmpty() && imageRef == null) {
                 editReason.setError("Either a reason or an image must be provided");
-                Toast.makeText(getContext(), "Either a reason or an image must be provided", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Either a reason or an image must be provided", LENGTH_SHORT).show();
                 return;
             }
 
             // Adding the conditions for the textual reason
             if (reason.length() > 20) {
                 editReason.setError("Reason cannot have more than 20 characters");
-                Toast.makeText(getContext(), "Reason cannot have more than 20 characters", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Reason cannot have more than 20 characters", LENGTH_SHORT).show();
                 return;
             } else if (separationArray.length >= 4) {
                 editReason.setError("Reason cannot be more than 3 words");
-                Toast.makeText(getContext(), "Reason cannot be more than 3 words", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Reason cannot be more than 3 words", LENGTH_SHORT).show();
                 return;
             }
         }
@@ -479,7 +496,7 @@ public class AddFragment extends Fragment implements LocationListener {
 
         String userId = username;
         if (userId == null) {
-            Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "No user logged in", LENGTH_SHORT).show();
             return;
         }
 
@@ -499,7 +516,7 @@ public class AddFragment extends Fragment implements LocationListener {
                             saveToFirestore(moodEvent);
                         })
                         .addOnFailureListener(error -> {
-                            Toast.makeText(getContext(), "Error uploading image, saving without image", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Error uploading image, saving without image", LENGTH_SHORT).show();
                             saveToFirestore(moodEvent);
                         });
             } else {
@@ -521,7 +538,7 @@ public class AddFragment extends Fragment implements LocationListener {
                     Log.d("AddFragment", "Saved MoodEvent with docId: " + moodEvent.getDocumentId() + ", imgPath: " + moodEvent.getImgPath());
                     // Show the Toast only if the fragment is attached
                     if (isAdded()){
-                        Toast.makeText(getContext(), "Mood event saved!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Mood event saved!", LENGTH_SHORT).show();
                     }
                     if (isAdded()){
                         navigateToHome();
@@ -529,7 +546,7 @@ public class AddFragment extends Fragment implements LocationListener {
                 })
                 .addOnFailureListener(e -> {
                     if (isAdded()){
-                        Toast.makeText(getContext(), "Error saving mood event", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Error saving mood event", LENGTH_SHORT).show();
                     }
                 });
     }
@@ -541,7 +558,7 @@ public class AddFragment extends Fragment implements LocationListener {
     protected GeoPoint getUserLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(getContext(), "Location permission not granted", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Location permission not granted", LENGTH_SHORT).show();
             return null;
         }
 
@@ -570,7 +587,7 @@ public class AddFragment extends Fragment implements LocationListener {
 
             @Override
             public void onProviderDisabled(@NonNull String provider) {
-                Toast.makeText(getContext(), "GPS is turned off!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "GPS is turned off!", LENGTH_SHORT).show();
             }
         }, null);
 
@@ -583,7 +600,7 @@ public class AddFragment extends Fragment implements LocationListener {
             Log.d("Location Debug", "Last Known Latitude: " + latitude + ", Longitude: " + longitude);
             return new GeoPoint(latitude, longitude);
         } else {
-            Toast.makeText(getContext(), "Unable to get updated location", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Unable to get updated location", LENGTH_SHORT).show();
             return null;
         }
     }
@@ -609,7 +626,7 @@ public class AddFragment extends Fragment implements LocationListener {
     public void onLocationChanged(@NonNull Location location) {
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
-        Toast.makeText(getContext(), "New Location: " + latitude + ", " + longitude, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getContext(), "New Location: " + latitude + ", " + longitude, LENGTH_SHORT).show();
         Log.d("Location Debug", "Updated Latitude: " + latitude + ", Longitude: " + longitude);
     }
 }
