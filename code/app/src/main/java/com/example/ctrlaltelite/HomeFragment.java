@@ -193,7 +193,7 @@ public class HomeFragment extends AddFragment {
         moodFilterOptions.add("Mood");  // Default text only for the filter
         moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 7)); // Skip "Select Emotional State"
 
-        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions);
+        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions, 0);
         moodFilterSpinner.setAdapter(moodAdapter);
 
         // Initialize ListView
@@ -271,7 +271,7 @@ public class HomeFragment extends AddFragment {
     /**
      * Applies filters to the mood events list based on current filter settings.
      */
-    private void applyFilters() {
+    public void applyFilters() {
         if (allMoodEvents == null || allMoodEvents.isEmpty()) {
             moodEvents.clear();
             adapter.notifyDataSetChanged();
@@ -479,7 +479,7 @@ public class HomeFragment extends AddFragment {
         });
 
         List<String> moodOptionsList = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.mood_options)));
-        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodOptionsList);
+        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodOptionsList, 0);
         moodSpinner.setAdapter(moodAdapter);
         int moodPosition = moodAdapter.getPosition(moodEvent.getEmotionalState());
         if (moodPosition >= 0) {

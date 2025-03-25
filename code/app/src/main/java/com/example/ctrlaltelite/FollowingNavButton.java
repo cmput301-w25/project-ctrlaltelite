@@ -28,31 +28,14 @@ import android.widget.Toast;
 
 import java.util.Objects;
 
-/**
- * AttendeeMyEvent class displays the "My Events" screen for attendees, where they can navigate
- * through various event-related tabs using a ViewPager2 and a TabLayout. It includes navigation
- * to home, scan, and profile screens through a BottomNavigationView.
- */
+
 public class FollowingNavButton extends Fragment {
 
     private String Username;
-
-
-
-
-
-
-
     View view;
     TabLayout tabLayout;
     ViewPager2 viewPager2;
 
-    /**
-     * Initializes the activity, sets up the BottomNavigationView navigation, and configures
-     * the TabLayout and ViewPager2 for event category navigation.
-     *
-     * @param savedInstanceState If the activity is being re-initialized, this contains the most recent data.
-     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

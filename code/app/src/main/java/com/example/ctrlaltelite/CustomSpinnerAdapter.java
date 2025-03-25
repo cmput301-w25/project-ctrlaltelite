@@ -1,12 +1,16 @@
 package com.example.ctrlaltelite;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.res.ResourcesCompat;
+
 import android.view.LayoutInflater;
 
 import java.util.List;
@@ -19,16 +23,20 @@ CustomSpinnerAdapter extends ArrayAdapter<String> {
     private Context context;
     private List<String> items;
 
+    private int spinnerType;  // 0 for emotional state, 1 for social situation
+
+
     /**
      * Constructor for the CustomSpinnerAdapter.
      *
      * @param context The current context.
      * @param items   The list of mood options.
      */
-    public CustomSpinnerAdapter(Context context, List<String> items) {
+    public CustomSpinnerAdapter(Context context, List<String> items, int spinnerType) {
         super(context, android.R.layout.simple_spinner_item, items);
         this.context = context;
         this.items = items;
+        this.spinnerType = spinnerType;
     }
 
 
@@ -49,6 +57,16 @@ CustomSpinnerAdapter extends ArrayAdapter<String> {
         textView.setText(items.get(position));
         textView.setTextColor(getColorForPosition(position));
         textView.setTextSize(18);
+
+        if (spinnerType == 0) {
+            // Set the custom font for the selected text (after selection)
+            if (position != 0) { // Skip the default text at position 0
+                Typeface customFont = ResourcesCompat.getFont(context, R.font.font9);
+                textView.setTypeface(customFont);
+            } else {
+                textView.setTypeface(null); // Use default font for the first item
+            }
+        }
         return convertView;
     }
 
@@ -68,7 +86,18 @@ CustomSpinnerAdapter extends ArrayAdapter<String> {
         }
         TextView textView = convertView.findViewById(R.id.spinner_dropdown_text);
         textView.setText(items.get(position));
-        textView.setTextColor(getColorForPosition(position));
+        // Check if it's for emotional state or social situation and set the text color
+        if (spinnerType == 0) { // Emotional state spinner
+            if (position != 0) {
+                Typeface customFont = ResourcesCompat.getFont(context, R.font.font9);
+                textView.setTypeface(customFont);
+                textView.setTextColor(getColorForPosition(position));
+            }else{
+                textView.setTypeface(null);
+            }
+        } else if (spinnerType == 1) { // Social situation spinner
+            textView.setTextColor(Color.BLACK);  // Set text color to Black for social situation
+        }
         textView.setTextSize(18);
 
         // For the first item, adding "drop-up" arrow
