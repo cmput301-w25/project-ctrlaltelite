@@ -26,3 +26,10 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
       working-directory: code
+
+    - name: Upload Test Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-report
+        path: app/build/reports/tests/testDebugUnitTest/index.html
+     
