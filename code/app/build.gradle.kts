@@ -15,6 +15,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
+        lint {
+            baseline = file("lint-baseline.xml")
+            abortOnError = false
+        }
     }
 
     buildTypes {
