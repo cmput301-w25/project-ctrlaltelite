@@ -90,7 +90,6 @@ public class FollowingRecent extends Fragment {
     }
 
 
-    // This function was generated with the assistance of OpenAI's ChatGPT (2025).
     public void fetchFollowedUsers(String username) {
         Log.d("FollowingRecentFragment", "Obtaining all followed user");
         db.collection("FollowRequests")
@@ -112,8 +111,6 @@ public class FollowingRecent extends Fragment {
                 });
     }
 
-
-    // This function was generated with the assistance of OpenAI's ChatGPT (2025).
     public void fetchAllMoodEvents(String Username) {
         Log.d("FollowingRecentFragment", "Fetching all mood events from all followed user");
         allMoodEvents.clear();
@@ -122,6 +119,7 @@ public class FollowingRecent extends Fragment {
         for (String followedUser : followedUsernames) {
             db.collection("Mood Events")
                     .whereEqualTo("username", followedUser)
+                    .whereEqualTo("public", true)
                     .get()
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {

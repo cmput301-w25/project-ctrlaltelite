@@ -1,6 +1,7 @@
 package com.example.ctrlaltelite;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -21,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -131,7 +134,7 @@ public class MoodEventViewEditTest {
 
         fragment.fetchMoodEvents();
 
-        verify(mockCollectionRef).whereEqualTo("username", "testUser");
+        verify(mockCollectionRef, times(2)).whereEqualTo("username", "testUser");
         verify(mockQuery).get();
         verify(mockAdapter, times(2)).notifyDataSetChanged();
         assert moodEventsList.size() == 1;
@@ -151,7 +154,11 @@ public class MoodEventViewEditTest {
         MoodEvent moodEvent = new MoodEvent("Happy", "Good day", "Alone", Timestamp.now(), null, null, "testUser", true);
         moodEvent.setDocumentId("testId");
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
+        List<MoodEvent> allMoodEventsList = (List<MoodEvent>) getPrivateField("allMoodEvents");
+
+        allMoodEventsList.add(moodEvent);
         moodEventsList.add(moodEvent);
+
 
         when(mockTask.addOnSuccessListener(any())).thenAnswer(invocation -> {
             invocation.getArgument(0, com.google.android.gms.tasks.OnSuccessListener.class).onSuccess(null);
@@ -161,7 +168,7 @@ public class MoodEventViewEditTest {
         fragment.updateMoodEventInFirestore(moodEvent, 0);
 
         verify(mockDocRef).set(moodEvent);
-        verify(mockAdapter, times(2)).notifyDataSetChanged();
+        verify(mockAdapter, times(3)).notifyDataSetChanged();
         assert moodEventsList.get(0) == moodEvent;
     }
 
@@ -176,6 +183,9 @@ public class MoodEventViewEditTest {
         MoodEvent moodEvent = new MoodEvent("Sad", "Bad day", "With others", Timestamp.now(), null, null, "testUser", true);
         moodEvent.setDocumentId("testId");
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
+        List<MoodEvent> allMoodEventsList = (List<MoodEvent>) getPrivateField("allMoodEvents");
+
+        allMoodEventsList.add(moodEvent);
         moodEventsList.add(moodEvent);
 
         // Override default success behavior to do nothing
@@ -199,17 +209,26 @@ public class MoodEventViewEditTest {
         test1MoodEvent.setDocumentId("test1Id");
 
         List<MoodEvent> moodEventsList = (List<MoodEvent>) getPrivateField("moodEvents");
+        List<MoodEvent> allMoodEventsList = (List<MoodEvent>) getPrivateField("allMoodEvents");
+        allMoodEventsList.add(test1MoodEvent);
         moodEventsList.add(test1MoodEvent);
+
 
         when(mockTask.addOnSuccessListener(any())).thenAnswer(invocation -> {
             invocation.getArgument(0, com.google.android.gms.tasks.OnSuccessListener.class).onSuccess(null);
             return mockTask; // Ensure chaining
         });
 
+        // 2. Create a successful Task
+        Task<Void> successTask = Tasks.forResult(null);
+
+        // 3. Stub delete() to return the Task
+        when(mockDocRef.delete()).thenReturn(successTask);
+
         // Deleting the first mood event
         fragment.DeleteMoodEventAndUpdateDatabaseUponDeletion(test1MoodEvent);
 
-        // Ensuring a DocumentReference was deleted
+        // Ensuring a DocumentReference was deleted and confirming we have no mood events now
         verify(mockDocRef).delete();
 
     }
