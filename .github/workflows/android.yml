@@ -28,7 +28,7 @@ jobs:
       working-directory: code
 
     - name: Upload Test Report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.2
       with:
         name: test-report
         path: app/build/reports/tests/testDebugUnitTest/index.html
