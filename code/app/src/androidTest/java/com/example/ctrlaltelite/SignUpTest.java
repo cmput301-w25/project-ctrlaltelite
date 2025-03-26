@@ -86,9 +86,10 @@ public class SignUpTest {
     @Test
     public void validSignUpNavigatesToLogin() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("NewUser"));
+        onView(withId(R.id.SDisplayName)).perform((replaceText("NewUser")));
         onView(withId(R.id.SEmail)).perform(replaceText("new@gmail.com"));
-        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
-        onView(withId(R.id.SPassword)).perform(replaceText("NewPass"));
+        onView(withId(R.id.SMobile)).perform(replaceText("1234567890"));
+        onView(withId(R.id.SPassword)).perform(replaceText("NewPassword1"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
         // Verify that the Login activity is displayed
@@ -103,6 +104,7 @@ public class SignUpTest {
     @Test
     public void emptyUsernameShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText(""));
+        onView(withId(R.id.SDisplayName)).perform((replaceText("NewUser")));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
         onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
         onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
@@ -120,6 +122,7 @@ public class SignUpTest {
     @Test
     public void emptyEmailShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SDisplayName)).perform((replaceText("NewUser")));
         onView(withId(R.id.SEmail)).perform(replaceText(""));
         onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
         onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
@@ -136,6 +139,7 @@ public class SignUpTest {
     @Test
     public void emptyMobileShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SDisplayName)).perform((replaceText("NewUser")));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
         onView(withId(R.id.SMobile)).perform(replaceText(""));
         onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
@@ -152,6 +156,7 @@ public class SignUpTest {
     @Test
     public void emptyPasswordShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SDisplayName)).perform((replaceText("NewUser")));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
         onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
         onView(withId(R.id.SPassword)).perform(replaceText(""));
@@ -168,9 +173,10 @@ public class SignUpTest {
     @Test
     public void duplicateUsernameShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SDisplayName)).perform(replaceText("TestU"));
         onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
-        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
-        onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
+        onView(withId(R.id.SMobile)).perform(replaceText("1234567890"));
+        onView(withId(R.id.SPassword)).perform(replaceText("TestPassword1"));
         onView(withId(R.id.btnCreateAccount)).perform(click());
         Thread.sleep(1000);
         onView(withId(R.id.SUsername)).check(matches(hasErrorText("Username already exists. Please Choose a different Username")));
@@ -179,6 +185,57 @@ public class SignUpTest {
     /**
      * Cleans up the seeded documents from the Firestore emulator after each test.
      */
+
+    @Test
+    public void emptyDisplayNameShowsError() throws InterruptedException {
+        onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
+        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
+        Thread.sleep(1000);
+        onView(withId(R.id.SDisplayName)).check(matches(hasErrorText("Display name cannot be empty!")));
+    }
+
+    @Test
+    public void nonTenDigitMobileNumberShouldBeInvalidated() throws InterruptedException {
+        onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SDisplayName)).perform(replaceText("TestU"));
+        onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
+        onView(withId(R.id.SMobile)).perform(replaceText("12345678"));
+        onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
+        Thread.sleep(1000);
+        onView(withId(R.id.SMobile)).check(matches(hasErrorText("Phone number must be 10 digits long")));
+    }
+
+    @Test
+    public void InvalidEmailShowsError() throws InterruptedException {
+        onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SDisplayName)).perform(replaceText("TestU"));
+        onView(withId(R.id.SEmail)).perform(replaceText("testgmail.com"));
+        onView(withId(R.id.SMobile)).perform(replaceText("1234567890"));
+        onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
+        Thread.sleep(1000);
+        onView(withId(R.id.SEmail)).check(matches(hasErrorText("Please enter a valid email address")));
+    }
+
+    @Test
+    public void InvalidPasswordShowsError() throws InterruptedException {
+        onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
+        onView(withId(R.id.SDisplayName)).perform(replaceText("TestU"));
+        onView(withId(R.id.SEmail)).perform(replaceText("test@gmail.com"));
+        onView(withId(R.id.SMobile)).perform(replaceText("1234567890"));
+        onView(withId(R.id.SPassword)).perform(replaceText("TestP"));
+        onView(withId(R.id.btnCreateAccount)).perform(click());
+        Thread.sleep(1000);
+        onView(withId(R.id.SPassword)).check(matches(hasErrorText("Invalid Password, Must contain:\n" +
+                "- At least one letter\n" +
+                "- At least one digit\n" +
+                "- Minimum 8 characters")));
+    }
+
     @After
     public void tearDown() {
         String projectId = "ctrlaltelite-be29f";
