@@ -89,8 +89,8 @@ public class HistoryFiltersUnitTest {
 
         List<MoodEvent> updatedEvents = (List<MoodEvent>) getPrivateField("moodEvents");
         assertEquals(2, updatedEvents.size()); // Only recent events
-        assertEquals("😊 Happy", updatedEvents.get(0).getEmotionalState());
-        assertEquals("😢 Sad", updatedEvents.get(1).getEmotionalState());
+        assertEquals("😊 Happy", updatedEvents.get(1).getEmotionalState());
+        assertEquals("😢 Sad", updatedEvents.get(0).getEmotionalState());
     }
 
     /**
