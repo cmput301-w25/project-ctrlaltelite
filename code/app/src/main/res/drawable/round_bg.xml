@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Background Shape -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="6dp"/>
+            <solid android:color="#F2F5F8" />
+            <padding
+                android:left="8dp"
+                android:top="8dp"
+                android:right="8dp"
+                android:bottom="8dp"/>
+        </shape>
+    </item>
+
+    <!-- Arrow icon overlay, aligned to the right -->
+    <item
+        android:gravity="right|center_vertical"
+        android:right="8dp"
+        android:drawable="@drawable/ic_arrow_drop_down_black_24dp" />
+</layer-list>
