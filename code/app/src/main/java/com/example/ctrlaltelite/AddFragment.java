@@ -91,7 +91,7 @@ public class AddFragment extends Fragment implements LocationListener {
 
     // This will store the visibility choice (true for public, false for private)
     //this a member varriable, so we can change it anytime in the class
-    private boolean isPublic = false;
+    private boolean isPublic = true;
 
     /** Spinner for selecting mood */
     protected Spinner dropdownMood;
