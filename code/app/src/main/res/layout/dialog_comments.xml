@@ -1,23 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="@drawable/rounded_dialog_background"
+    >
+
+    <!-- RecyclerView to display the comments -->
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:text="Comments" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/comments_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="300dp" />
+        android:layout_height="300dp"
+        android:layout_marginBottom="16dp" />
 
+    <!-- EditText for writing a new comment -->
     <EditText
         android:id="@+id/comment_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Write your comment here" />
+        android:hint="Write your comment here"
+        android:padding="10dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/rounded_edittext_background"
+        android:textSize="16sp"/>
 
+    <!-- Submit Button -->
     <Button
         android:id="@+id/submit_comment_button"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Submit" />
+        android:text="Submit"
+        android:textSize="16sp"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="@color/dark_orange"
+    android:layout_marginTop="8dp" />
+
 </LinearLayout>
