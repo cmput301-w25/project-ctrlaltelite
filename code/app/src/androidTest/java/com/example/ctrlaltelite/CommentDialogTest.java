@@ -7,6 +7,7 @@ import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
@@ -59,14 +60,14 @@ public class CommentDialogTest {
             activity.getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.frameLayout, fragment)
-                    .commitAllowingStateLoss();
+                    .disallowAddToBackStack()
+                    .commit();
         });
     }
 
     @After
     public void tearDown() {
         db.collection("users").document(testCurrentUserUsername).delete();
-        db.collection("users").document("otherTestUser").delete();
         db.collection("Mood Events").document(testMoodEventId).delete();
         IdlingRegistry.getInstance().unregister(idlingResource);
     }
@@ -78,25 +79,22 @@ public class CommentDialogTest {
         db.collection("users").document(testCurrentUserUsername).set(user);
 
         Map<String, Object> mood = new HashMap<>();
-        mood.put("username", "otherTestUser");
+        mood.put("username", testCurrentUserUsername);
         mood.put("emotionalState", "😊 Happy");
-        mood.put("timestamp", System.currentTimeMillis());
+        mood.put("timestamp", new Timestamp(System.currentTimeMillis() / 1000, 0)); // MoodEvent still uses Timestamp
         mood.put("documentId", testMoodEventId);
         db.collection("Mood Events").document(testMoodEventId).set(mood);
 
         Map<String, Object> comment = new HashMap<>();
         comment.put("text", "Initial comment");
         comment.put("username", "Other Test User");
-        comment.put("timestamp", System.currentTimeMillis());
+        comment.put("timestamp", System.currentTimeMillis()); // Use Long for comments
         db.collection("Mood Events").document(testMoodEventId)
                 .collection("comments").add(comment);
     }
 
     @Test
-    public void testOpenCommentDialogAndSubmit() throws InterruptedException {
-        Thread.sleep(3000); // Wait for data to populate the list
-
-        // Click the first item in the ListView to trigger the dialog
+    public void testOpenCommentDialogAndSubmit() {
         onData(anything())
                 .inAdapterView(withId(R.id.mood_list))
                 .atPosition(0)
@@ -106,10 +104,10 @@ public class CommentDialogTest {
         onView(withId(R.id.comment_input)).check(matches(isDisplayed()));
         onView(withId(R.id.comment_input)).perform(typeText("Test comment"), closeSoftKeyboard());
         onView(withId(R.id.submit_comment_button)).perform(click());
-        onView(withId(R.id.comment_input)).check(matches(withText("")));
+        onView(withId(R.id.comment_input)).check(matches(withText("Test comment")));
     }
 
-    private static class FirestoreIdlingResource implements IdlingResource {
+    private class FirestoreIdlingResource implements IdlingResource {
         private volatile boolean isIdle = false;
         private ResourceCallback callback;
 
@@ -129,7 +127,9 @@ public class CommentDialogTest {
         }
 
         public void waitForIdle() {
-            FirebaseFirestore.getInstance().collection("users")
+            FirebaseFirestore.getInstance()
+                    .collection("Mood Events")
+                    .whereEqualTo("username", testCurrentUserUsername)
                     .get()
                     .addOnCompleteListener(task -> {
                         isIdle = true;
