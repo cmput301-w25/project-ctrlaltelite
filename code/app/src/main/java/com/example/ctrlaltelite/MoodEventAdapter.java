@@ -1,6 +1,7 @@
 package com.example.ctrlaltelite;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -116,6 +117,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         if (moodEvent == null) return convertView;
         final String moodEventId = moodEvent.getDocumentId();
 
+
         // Bind data to views
         db.collection("users")
                 .whereEqualTo("username", moodEvent.getUsername())
@@ -123,7 +125,14 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                 .addOnCompleteListener(task -> {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         User user = document.toObject(User.class);
+                        // Retrieve the logged-in user's display name from SharedPreferences
+                        SharedPreferences sharedPreferences = getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+                        String currentUsername = sharedPreferences.getString("display_name", "");  // Default to empty string if not found // Get the display name of the logged-in user
                         holder.displayName.setText(user.getDisplayName() + " is feeling");
+
+                        holder.commentButton.setOnClickListener(v -> {
+                            showCommentsDialog(moodEvent.getDocumentId(), currentUsername); // Pass currentUsername here
+                        });
                     }
                 });
         holder.moodText.setText(moodEvent.getEmotionalState());
@@ -192,10 +201,10 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             holder.moodImage.setVisibility(View.GONE); // Hide if no image
         }
 
-        // Set OnClickListener for the comment button
-        holder.commentButton.setOnClickListener(v -> {
-            showCommentsDialog(moodEventId);
-        });
+//        // Set OnClickListener for the comment button
+//        holder.commentButton.setOnClickListener(v -> {
+//            showCommentsDialog(moodEventId);
+//        });
 
 
 
@@ -203,7 +212,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     }
 
 
-    private void showCommentsDialog(String moodEventId) {
+    private void showCommentsDialog(String moodEventId, String currentUsername) {
         // Inflate the dialog layout
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_comments, null);
 
@@ -211,6 +220,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         RecyclerView recyclerView = dialogView.findViewById(R.id.comments_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         final CommentsAdapter commentsAdapter = new CommentsAdapter();
+
         recyclerView.setAdapter(commentsAdapter);
 
         // Get the comments from Firestore for the selected mood event
@@ -240,8 +250,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             String newCommentText = commentInput.getText().toString().trim();
             if (!newCommentText.isEmpty()) {
                 // Get the current FirebaseUser object
-                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-                String currentUsername = currentUser != null ? currentUser.getDisplayName() : "Unknown User"; // Retrieve the display name
+//                FirebaseUser users = FirebaseAuth.getInstance().getCurrentUser();
+//                String currentUsername = users != null ? users.getDisplayName() : "Unknown User"; // Retrieve the display name
 
                 // Create a new CommentData object
                 CommentData newComment = new CommentData(newCommentText, currentUsername, System.currentTimeMillis());

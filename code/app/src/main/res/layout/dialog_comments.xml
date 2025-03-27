@@ -23,7 +23,6 @@
         android:layout_height="300dp"
         android:layout_marginBottom="16dp" />
 
-    <!-- EditText for writing a new comment -->
     <EditText
         android:id="@+id/comment_input"
         android:layout_width="match_parent"
@@ -34,7 +33,6 @@
         android:background="@drawable/rounded_edittext_background"
         android:textSize="16sp"/>
 
-    <!-- Submit Button -->
     <Button
         android:id="@+id/submit_comment_button"
         android:layout_width="match_parent"
