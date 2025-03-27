@@ -36,6 +36,7 @@ jobs:
     # Run unit tests
     - name: Run Unit Tests
       run: ./gradlew testDebugUnitTest
+      working-directory: code
 
 
     - name: Start emulator and run UI tests
@@ -44,7 +45,7 @@ jobs:
          api-level: 33
          target: google_apis
          arch: x86_64
-         script: ./gradlew connectedDebugAndroidTest
+         script: cd code && ./gradlew connectedDebugAndroidTest
          emulator-boot-timeout: 300
     
 
