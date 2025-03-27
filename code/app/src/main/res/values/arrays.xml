@@ -8,6 +8,8 @@
         <item>😡 Angry</item>
         <item>🤢 Disgust</item>
         <item>😕 Confusion</item>
+        <item>😨 Fear"</item>
+        <item>😳 Shame</item>
     </string-array>
     <string-array name="social_situation_options">
         <item>🌎 Select Social Situation</item>

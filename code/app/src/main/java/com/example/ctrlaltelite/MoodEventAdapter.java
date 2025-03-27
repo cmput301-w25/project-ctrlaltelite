@@ -322,6 +322,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             case "😡 Angry": return 0xFFD32F2F; // Red
             case "🤢 Disgust": return 0xFF4CAF50; // Green
             case "😕 Confusion": return 0xFF9C27B0; // Purple
+            case "😨 Fear": return 0xFF3F51B5;  // Indigo
+            case "😳 Shame": return 0xFFFF9800; // Orange
             default: return 0xFF616161; // Default Gray
         }
     }
