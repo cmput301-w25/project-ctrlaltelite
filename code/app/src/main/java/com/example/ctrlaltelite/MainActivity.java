@@ -1,6 +1,8 @@
 package com.example.ctrlaltelite;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -91,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
         if (username != null && !username.isEmpty()) {
             db.collection("users")
                     .whereEqualTo("username", username)
@@ -104,6 +108,14 @@ public class MainActivity extends AppCompatActivity {
                             String displayName = document.getString("displayName");
                             String email = document.getString("email");
                             String mobile = document.getString("mobile");
+
+
+                            // Storing the display name in SharedPreferences
+                            SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putString("display_name", displayName);  // Save the logged-in user's display name
+                            editor.apply();
+
 
                             // Fill your TextViews
                             displaynameTextView.setText(displayName);
