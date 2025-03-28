@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -254,7 +255,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 //                String currentUsername = users != null ? users.getDisplayName() : "Unknown User"; // Retrieve the display name
 
                 // Create a new CommentData object
-                CommentData newComment = new CommentData(newCommentText, currentUsername, System.currentTimeMillis());
+                CommentData newComment = new CommentData(newCommentText, currentUsername, Timestamp.now());
 
                 // Add the comment to Firestore in the "comments" sub-collection
                 commentsRef.add(newComment)

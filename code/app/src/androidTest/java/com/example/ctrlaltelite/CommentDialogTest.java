@@ -8,6 +8,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.junit.After;
@@ -28,6 +29,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.anything;
 
 @RunWith(AndroidJUnit4.class)
@@ -67,6 +69,15 @@ public class CommentDialogTest {
 
     @After
     public void tearDown() {
+        // Delete comments manually
+        db.collection("Mood Events").document(testMoodEventId)
+                .collection("comments")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot) {
+                        doc.getReference().delete();
+                    }
+                });
         db.collection("users").document(testCurrentUserUsername).delete();
         db.collection("Mood Events").document(testMoodEventId).delete();
         IdlingRegistry.getInstance().unregister(idlingResource);
@@ -81,20 +92,21 @@ public class CommentDialogTest {
         Map<String, Object> mood = new HashMap<>();
         mood.put("username", testCurrentUserUsername);
         mood.put("emotionalState", "😊 Happy");
-        mood.put("timestamp", new Timestamp(System.currentTimeMillis() / 1000, 0)); // MoodEvent still uses Timestamp
+        mood.put("timestamp", Timestamp.now()); // MoodEvent still uses Timestamp
         mood.put("documentId", testMoodEventId);
         db.collection("Mood Events").document(testMoodEventId).set(mood);
 
         Map<String, Object> comment = new HashMap<>();
         comment.put("text", "Initial comment");
         comment.put("username", "Other Test User");
-        comment.put("timestamp", System.currentTimeMillis()); // Use Long for comments
+        comment.put("timestamp", Timestamp.now()); // ✅ Proper Firestore timestamp// Use Long for comments
         db.collection("Mood Events").document(testMoodEventId)
                 .collection("comments").add(comment);
     }
 
     @Test
-    public void testOpenCommentDialogAndSubmit() {
+    public void testOpenCommentDialogAndSubmit() throws InterruptedException {
+
         onData(anything())
                 .inAdapterView(withId(R.id.mood_list))
                 .atPosition(0)
@@ -104,7 +116,12 @@ public class CommentDialogTest {
         onView(withId(R.id.comment_input)).check(matches(isDisplayed()));
         onView(withId(R.id.comment_input)).perform(typeText("Test comment"), closeSoftKeyboard());
         onView(withId(R.id.submit_comment_button)).perform(click());
-        onView(withId(R.id.comment_input)).check(matches(withText("Test comment")));
+        Thread.sleep(2000);
+
+        onView(withId(R.id.comment_input)).check(matches(withText("")));
+        onView(allOf(withId(R.id.comment_text), withText("Test comment")))
+                .check(matches(isDisplayed()));
+
     }
 
     private class FirestoreIdlingResource implements IdlingResource {

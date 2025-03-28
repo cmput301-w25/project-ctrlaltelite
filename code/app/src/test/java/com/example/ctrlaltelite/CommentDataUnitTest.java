@@ -1,6 +1,9 @@
 package com.example.ctrlaltelite;
 
 import static org.junit.Assert.*;
+
+import com.google.firebase.Timestamp;
+
 import org.junit.Test;
 
 public class CommentDataUnitTest {
@@ -9,7 +12,7 @@ public class CommentDataUnitTest {
     public void testCommentDataCreation() {
         String commentText = "Nice mood!";
         String displayName = "Test User";
-        long timestamp = System.currentTimeMillis();
+        Timestamp timestamp = Timestamp.now();
 
         CommentData comment = new CommentData(commentText, displayName, timestamp);
 
@@ -20,7 +23,7 @@ public class CommentDataUnitTest {
 
     @Test
     public void testCommentTextNotNull() {
-        CommentData comment = new CommentData("Hello", "TestUser", System.currentTimeMillis());
+        CommentData comment = new CommentData("Hello", "TestUser", Timestamp.now());
         assertNotNull(comment.getText());
     }
 }

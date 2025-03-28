@@ -1,10 +1,11 @@
 package com.example.ctrlaltelite;
 
+import com.google.firebase.Timestamp;
 
 public class CommentData {
     private String text;
     private String username;
-    private long timestamp;
+    private Timestamp timestamp; // Use Firebase Timestamp
 
     // No-argument constructor required by Firestore
     public CommentData() {
@@ -12,7 +13,7 @@ public class CommentData {
     }
 
     // Constructor with parameters (for creating new comments)
-    public CommentData(String text, String username, long timestamp) {
+    public CommentData(String text, String username, Timestamp timestamp) {
         this.text = text;
         this.username = username;
         this.timestamp = timestamp;
@@ -35,11 +36,11 @@ public class CommentData {
         this.username = username;
     }
 
-    public long getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 }
