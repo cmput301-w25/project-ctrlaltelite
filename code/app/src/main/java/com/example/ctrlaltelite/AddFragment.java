@@ -302,7 +302,7 @@ public class AddFragment extends Fragment implements LocationListener {
     /**
      * Checks if there is Internet Connectivity
      */
-    private boolean isNetworkAvailable() {
+    protected boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivityManager != null) {
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
