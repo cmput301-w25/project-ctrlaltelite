@@ -1,7 +1,6 @@
 package com.example.ctrlaltelite;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -47,12 +46,20 @@ public class HistoryFiltersUnitTest {
         setPrivateField("moodEvents", moodEvents);
         setPrivateField("allMoodEvents", allMoodEvents);
         setPrivateField("adapter", mockAdapter);
-        setPrivateField("Username", "testUser"); // Corrected to match HomeFragment
+        setPrivateField("Username", "testUser"); // Ensure this matches HomeFragment's expected field
 
         // Seed test data into allMoodEvents (source list)
-        MoodEvent recentHappy = new MoodEvent("😊 Happy", "Good day with stress", "Alone", Timestamp.now(), null, null, "testUser", true);
-        MoodEvent recentSad = new MoodEvent("😢 Sad", "Bad day", "With friends", Timestamp.now(), null, null, "testUser", true);
+        // Create explicit timestamps to control ordering
+        Timestamp now = Timestamp.now();
+        // Create a timestamp 1 second earlier for ordering purposes
+        Timestamp oneSecondEarlier = new Timestamp(new Date(now.toDate().getTime() - 1000));
+        // "recentSad" is the most recent event (should appear first)
+        MoodEvent recentSad = new MoodEvent("😢 Sad", "Bad day", "With friends", now, null, null, "testUser", true);
+        // "recentHappy" is slightly older (should appear second)
+        MoodEvent recentHappy = new MoodEvent("😊 Happy", "Good day with stress", "Alone", oneSecondEarlier, null, null, "testUser", true);
+        // An older event beyond 7 days should be filtered out
         MoodEvent oldSad = new MoodEvent("😢 Sad", "Old event", "Alone", new Timestamp(getDaysAgo(10)), null, null, "testUser", true);
+
         allMoodEvents.add(recentHappy);
         allMoodEvents.add(recentSad);
         allMoodEvents.add(oldSad);
@@ -65,10 +72,11 @@ public class HistoryFiltersUnitTest {
         field.setAccessible(false);
     }
 
-    private Object getPrivateField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
+    @SuppressWarnings("unchecked")
+    private <T> T getPrivateField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Field field = HomeFragment.class.getDeclaredField(fieldName);
         field.setAccessible(true);
-        Object value = field.get(fragment);
+        T value = (T) field.get(fragment);
         field.setAccessible(false);
         return value;
     }
@@ -81,16 +89,22 @@ public class HistoryFiltersUnitTest {
 
     /**
      * Tests filtering mood events for the last 7 days (US 04.02.01).
+     * The filtered events must be in reverse chronological order.
      */
     @Test
     public void testFilterByLast7Days() throws NoSuchFieldException, IllegalAccessException {
-        setPrivateField("weekFilter", true); // Matches HomeFragment’s field
-        fragment.applyFilters(); // Correct method name
+        // Enable the 7-day filter
+        setPrivateField("weekFilter", true);
+        fragment.applyFilters();
 
-        List<MoodEvent> updatedEvents = (List<MoodEvent>) getPrivateField("moodEvents");
-        assertEquals(2, updatedEvents.size()); // Only recent events
-        assertEquals("😊 Happy", updatedEvents.get(1).getEmotionalState());
-        assertEquals("😢 Sad", updatedEvents.get(0).getEmotionalState());
+        List<MoodEvent> updatedEvents = getPrivateField("moodEvents");
+        // Expect only the two recent events (old event filtered out)
+        assertEquals("Expected 2 events from the last 7 days", 2, updatedEvents.size());
+        // Verify reverse chronological order:
+        // Most recent ("😢 Sad") should be at index 0,
+        // then "😊 Happy" at index 1.
+        assertEquals("Most recent event should be '😢 Sad'", "😢 Sad", updatedEvents.get(0).getEmotionalState());
+        assertEquals("Second event should be '😊 Happy'", "😊 Happy", updatedEvents.get(1).getEmotionalState());
     }
 
     /**
@@ -98,11 +112,11 @@ public class HistoryFiltersUnitTest {
      */
     @Test
     public void testFilterByEmotionalState() throws NoSuchFieldException, IllegalAccessException {
-        setPrivateField("moodFilter", "😊 Happy"); // Matches HomeFragment’s field
-        fragment.applyFilters(); // Correct method name
+        setPrivateField("moodFilter", "😊 Happy");
+        fragment.applyFilters();
 
-        List<MoodEvent> updatedEvents = (List<MoodEvent>) getPrivateField("moodEvents");
-        assertEquals(1, updatedEvents.size());
+        List<MoodEvent> updatedEvents = getPrivateField("moodEvents");
+        assertEquals("Expected 1 event with emotional state '😊 Happy'", 1, updatedEvents.size());
         assertEquals("😊 Happy", updatedEvents.get(0).getEmotionalState());
     }
 
@@ -111,11 +125,11 @@ public class HistoryFiltersUnitTest {
      */
     @Test
     public void testFilterByReason() throws NoSuchFieldException, IllegalAccessException {
-        setPrivateField("reasonFilter", "stress"); // Matches HomeFragment’s field
-        fragment.applyFilters(); // Correct method name
+        setPrivateField("reasonFilter", "stress");
+        fragment.applyFilters();
 
-        List<MoodEvent> updatedEvents = (List<MoodEvent>) getPrivateField("moodEvents");
-        assertEquals(1, updatedEvents.size());
+        List<MoodEvent> updatedEvents = getPrivateField("moodEvents");
+        assertEquals("Expected 1 event with 'stress' in reason", 1, updatedEvents.size());
         assertEquals("Good day with stress", updatedEvents.get(0).getReason());
     }
 }

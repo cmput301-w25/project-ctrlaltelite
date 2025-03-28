@@ -91,7 +91,7 @@ public class AddFragment extends Fragment implements LocationListener {
 
     // This will store the visibility choice (true for public, false for private)
     //this a member varriable, so we can change it anytime in the class
-    private boolean isPublic = false;
+    private boolean isPublic = true;
 
     /** Spinner for selecting mood */
     protected Spinner dropdownMood;
@@ -479,15 +479,15 @@ public class AddFragment extends Fragment implements LocationListener {
             }
 
             // Adding the conditions for the textual reason
-            if (reason.length() > 20) {
-                editReason.setError("Reason cannot have more than 20 characters");
-                Toast.makeText(getContext(), "Reason cannot have more than 20 characters", LENGTH_SHORT).show();
+            if (reason.length() > 200) {
+                editReason.setError("Reason cannot have more than 200 characters");
+                Toast.makeText(getContext(), "Reason cannot have more than 200 characters", LENGTH_SHORT).show();
                 return;
-            } else if (separationArray.length >= 4) {
-                editReason.setError("Reason cannot be more than 3 words");
-                Toast.makeText(getContext(), "Reason cannot be more than 3 words", LENGTH_SHORT).show();
-                return;
-            }
+            } //else if (separationArray.length >= 4) {
+                //editReason.setError("Reason cannot be more than 3 words");
+                //Toast.makeText(getContext(), "Reason cannot be more than 3 words", LENGTH_SHORT).show();
+                //return;
+            //}
         }
 
         boolean isLocationEnabled = switchLocation.isChecked();

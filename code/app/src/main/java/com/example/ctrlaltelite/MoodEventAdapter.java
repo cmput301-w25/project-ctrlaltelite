@@ -1,6 +1,7 @@
 package com.example.ctrlaltelite;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -11,18 +12,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.app.AlertDialog;
+
 
 import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.w3c.dom.Comment;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,6 +81,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
         TextView timestampText;
         TextView geolocationText;
         ImageView moodImage;
+        ImageButton commentButton;
     }
 
     /**
@@ -91,6 +107,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             holder.timestampText = convertView.findViewById(R.id.timestamp_text);
             holder.geolocationText = convertView.findViewById(R.id.geolocation);
             holder.moodImage = convertView.findViewById(R.id.mood_image);
+            holder.commentButton = convertView.findViewById(R.id.comments_button);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -98,6 +115,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 
         MoodEvent moodEvent = getItem(position);
         if (moodEvent == null) return convertView;
+        final String moodEventId = moodEvent.getDocumentId();
+
 
         // Bind data to views
         db.collection("users")
@@ -106,7 +125,14 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                 .addOnCompleteListener(task -> {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         User user = document.toObject(User.class);
+                        // Retrieve the logged-in user's display name from SharedPreferences
+                        SharedPreferences sharedPreferences = getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+                        String currentUsername = sharedPreferences.getString("display_name", "");  // Default to empty string if not found // Get the display name of the logged-in user
                         holder.displayName.setText(user.getDisplayName() + " is feeling");
+
+                        holder.commentButton.setOnClickListener(v -> {
+                            showCommentsDialog(moodEvent.getDocumentId(), currentUsername); // Pass currentUsername here
+                        });
                     }
                 });
         holder.moodText.setText(moodEvent.getEmotionalState());
@@ -174,8 +200,91 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             Glide.with(getContext()).clear(holder.moodImage); // Clear image if no path
             holder.moodImage.setVisibility(View.GONE); // Hide if no image
         }
+
+//        // Set OnClickListener for the comment button
+//        holder.commentButton.setOnClickListener(v -> {
+//            showCommentsDialog(moodEventId);
+//        });
+
+
+
         return convertView;
     }
+
+
+    private void showCommentsDialog(String moodEventId, String currentUsername) {
+        // Inflate the dialog layout
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_comments, null);
+
+        // Initialize RecyclerView for displaying comments
+        RecyclerView recyclerView = dialogView.findViewById(R.id.comments_recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        final CommentsAdapter commentsAdapter = new CommentsAdapter();
+
+        recyclerView.setAdapter(commentsAdapter);
+
+        // Get the comments from Firestore for the selected mood event
+        CollectionReference commentsRef = db.collection("Mood Events").document(moodEventId).collection("comments");
+        commentsRef.orderBy("timestamp", Query.Direction.ASCENDING)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<CommentData> commentDataList = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        // Convert Firestore data to CommentData
+                        CommentData comment = document.toObject(CommentData.class);
+                        commentDataList.add(comment);
+                    }
+
+                    // Set the comments data to the adapter
+                    commentsAdapter.setComments(commentDataList);  // Pass the list of CommentData
+                })
+                .addOnFailureListener(e -> {
+                    // Handle failure if any error occurs while fetching comments
+                });
+
+        // Set up the comment input field and button for submitting a new comment
+        EditText commentInput = dialogView.findViewById(R.id.comment_input);
+        Button submitCommentButton = dialogView.findViewById(R.id.submit_comment_button);
+
+        submitCommentButton.setOnClickListener(v -> {
+            String newCommentText = commentInput.getText().toString().trim();
+            if (!newCommentText.isEmpty()) {
+                // Get the current FirebaseUser object
+//                FirebaseUser users = FirebaseAuth.getInstance().getCurrentUser();
+//                String currentUsername = users != null ? users.getDisplayName() : "Unknown User"; // Retrieve the display name
+
+                // Create a new CommentData object
+                CommentData newComment = new CommentData(newCommentText, currentUsername, System.currentTimeMillis());
+
+                // Add the comment to Firestore in the "comments" sub-collection
+                commentsRef.add(newComment)
+                        .addOnSuccessListener(documentReference -> {
+                            commentInput.setText(""); // Clear the input field
+                            // Reload comments (this will call the onSuccess listener above)
+                            commentsRef.orderBy("timestamp", Query.Direction.ASCENDING)
+                                    .get()
+                                    .addOnSuccessListener(updatedSnapshots -> {
+                                        List<CommentData> updatedComments = new ArrayList<>();
+                                        for (QueryDocumentSnapshot doc : updatedSnapshots) {
+                                            CommentData updatedComment = doc.toObject(CommentData.class);
+                                            updatedComments.add(updatedComment);
+                                        }
+                                        commentsAdapter.setComments(updatedComments);
+                                    });
+                        })
+                        .addOnFailureListener(e -> {
+                            // Handle failure
+                        });
+            }
+        });
+
+        // Create and show the dialog
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .create();
+        dialog.show();
+    }
+
 
 
     /**
@@ -213,6 +322,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
             case "😡 Angry": return 0xFFD32F2F; // Red
             case "🤢 Disgust": return 0xFF4CAF50; // Green
             case "😕 Confusion": return 0xFF9C27B0; // Purple
+            case "😨 Fear": return 0xFF3F51B5;  // Indigo
+            case "😳 Shame": return 0xFFFF9800; // Orange
             default: return 0xFF616161; // Default Gray
         }
     }

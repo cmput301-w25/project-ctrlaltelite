@@ -127,6 +127,8 @@ CustomSpinnerAdapter extends ArrayAdapter<String> {
             case 4: return 0xFFD32F2F; // Angry (Red)
             case 5: return 0xFF4CAF50; // Disgust (Green)
             case 6: return 0xFF9C27B0; // Confusion (Purple)
+            case 7: return 0xFF3F51B5;  // Indigo
+            case 8: return 0xFFFF9800; // Orange
             default: return 0xFF616161; // Default (Gray)
         }
     }

@@ -3,12 +3,15 @@ package com.example.ctrlaltelite;
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.pressBack;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
+import static androidx.test.espresso.matcher.ViewMatchers.hasChildCount;
 import static androidx.test.espresso.matcher.ViewMatchers.hasErrorText;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -289,11 +292,11 @@ public class TextualReasonTest {
         onView(withId(R.id.edit_social_situation_spinner)).check(matches(withSpinnerText("\uD83C\uDFE1 Alone")));
     }
 
-    /*
+
     /**
      * Mood cannot be default option (will be done for project part 4)
      * @throws InterruptedException
-     
+    */
     @Test
     public void InvalidMoodShouldFail() throws InterruptedException {
         onView(withId(R.id.username)).perform(replaceText("testUsername"));
@@ -306,8 +309,6 @@ public class TextualReasonTest {
         onView(withId(R.id.dropdown_mood)).perform(click());
         onData(anything()).atPosition(0).perform(click());
 
-        onView(withId(R.id.edit_trigger)).perform(typeText("Sitting alone at school"));
-
         onView(withId(R.id.edit_reason)).perform(typeText(""));
 
         onView(withId(R.id.social_situation_spinner)).perform(click());
@@ -316,9 +317,11 @@ public class TextualReasonTest {
         onView(withId(R.id.button_save)).perform(click());
         Thread.sleep(1000);
 
-        onView(withText("Emotional state cannot be the default option")).check(matches(isDisplayed()));
+        onView(isRoot()).perform(pressBack());
+
+        onView(withId(R.id.mood_list))
+                .check(matches(hasChildCount(0)));
     }
-    */
 
     /**
      * Cleans up the seeded documents from the Firestore emulator after each test.

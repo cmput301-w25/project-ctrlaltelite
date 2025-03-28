@@ -117,6 +117,7 @@
             android:id="@+id/edit_reason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:maxLength="200"
             android:hint="Reason for mood"
             app:layout_constraintTop_toBottomOf="@id/dropdown_mood"
             app:layout_constraintStart_toStartOf="parent"

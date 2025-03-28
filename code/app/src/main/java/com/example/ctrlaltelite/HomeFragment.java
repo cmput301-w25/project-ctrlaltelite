@@ -191,7 +191,7 @@ public class HomeFragment extends AddFragment {
         // Get mood options from resources
         List<String> moodFilterOptions = new ArrayList<>();
         moodFilterOptions.add("Mood");  // Default text only for the filter
-        moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 7)); // Skip "Select Emotional State"
+        moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 9)); // Skip "Select Emotional State"
 
         CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions, 0);
         moodFilterSpinner.setAdapter(moodAdapter);
@@ -555,13 +555,6 @@ public class HomeFragment extends AddFragment {
                 return;
             }
 
-            // Ensure either text reason or image is provided - Replaced with new validation above
-            // if (updatedReason.isEmpty()) {
-            //     reasonEditText.setError("Reason must be provided");
-            //     //Toast.makeText(getContext(), "Reason must be provided", Toast.LENGTH_SHORT).show();
-            //     return;
-            // } -> I think this code only checked for reason not either reason or image
-
             // Adding the conditions for the textual reason
             if (updatedReason.length() > 200) {
                 reasonEditText.setError("Reason cannot have more than 200 characters");
@@ -590,19 +583,9 @@ public class HomeFragment extends AddFragment {
                 moodEvent.setSocialSituation(updatedSocialSituation);
                 moodEvent.setLocation(updatedLocation);
 
-                // Set the current timestamp when saving
-                java.text.DateFormat dateFormat = java.text.DateFormat.getDateTimeInstance(
-                        java.text.DateFormat.MEDIUM,
-                        java.text.DateFormat.MEDIUM,
-                        java.util.Locale.getDefault() // Use local formatting
-                );
-
-                Timestamp currentTimestamp = Timestamp.now();
-                moodEvent.setTimestamp(currentTimestamp);
-
                 Log.d("HomeFragment", "Saving MoodEvent with docId: " + moodEvent.getDocumentId());
                 if (newImageRef != null) {
-                    String newImgPath = "images/" + Username + "_" + currentTimestamp.toDate().getTime() + ".png";
+                    String newImgPath = "images/" + Username + "_" + (moodEvent.getTimestamp().toDate().getTime()) + ".png";
                     StorageReference fileRef = storageRef.child(newImgPath);
                     fileRef.putFile(newImageRef)
                             .addOnSuccessListener(taskSnapshot -> {
