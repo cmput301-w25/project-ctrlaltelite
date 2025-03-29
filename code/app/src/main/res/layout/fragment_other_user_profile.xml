@@ -4,7 +4,10 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="16dp"
+    android:paddingLeft="16dp"
+    android:paddingBottom="0dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
     android:background="@color/white">
 
     <ImageView
@@ -124,8 +127,7 @@
         android:layout_height="572dp"
         android:divider="@color/white"
         android:layout_weight="1"
-        android:paddingStart="0dp"
-        android:paddingEnd="0dp" />
+        android:paddingStart="0dp" />
 
 
 </LinearLayout>
