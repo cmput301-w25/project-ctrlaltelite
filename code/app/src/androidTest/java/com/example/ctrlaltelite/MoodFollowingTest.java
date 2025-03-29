@@ -7,8 +7,10 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.assertThat;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withParentIndex;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anything;
@@ -18,6 +20,8 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -54,7 +58,7 @@ public class MoodFollowingTest {
 
     private FirebaseFirestore db;
     private String testUsername = "test";
-    private String followeeUsername = "Test1"; //test follows test1
+    private String followeeUsername = "test1"; //test follows test1
     private FirestoreIdlingResource idlingResource;
 
     /**
@@ -107,8 +111,14 @@ public class MoodFollowingTest {
     }
 
     @Test
-    public void testPublicMoodEventsfromFollower() {
+    public void testPublicMoodEventsfromFollower() throws InterruptedException {
         onView(withId(R.id.mood_list)).check(matches(isDisplayed()));
+        onData(anything())
+                .inAdapterView(withId(R.id.mood_list))
+                .atPosition(0)
+                .onChildView(withId(R.id.mood_text))
+                .check(matches(withText(startsWith("Happy"))));
+        Thread.sleep(5000);
     }
 
     /**
