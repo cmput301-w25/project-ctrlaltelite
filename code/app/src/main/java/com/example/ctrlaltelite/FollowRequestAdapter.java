@@ -44,7 +44,7 @@ public class FollowRequestAdapter extends ArrayAdapter<FollowRequest> {
         TextView followingDisplayName = convertView.findViewById(R.id.following_display_name);
 
         if (followRequest != null) {
-            followingUsernameName.setText(followRequest.getRequesterUserName());
+            followingUsernameName.setText("@" + followRequest.getRequesterUserName());
             followingDisplayName.setText(followRequest.getRequesterDisplayName());
         }
 
