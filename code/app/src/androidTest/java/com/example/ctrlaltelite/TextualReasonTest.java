@@ -130,37 +130,7 @@ public class TextualReasonTest {
     }
 
     /**
-     * New Mood Event Should Not be Created Upon Entering A Textual Reason Greater than 4 Words
-     */
-    @Test
-    public void InvalidTextualReasonDueToTooManyWordsShouldFail() throws InterruptedException {
-
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
-
-        // Same Situation as previous test (and the same situation that occurs for the next two tests)
-        onView(withId(R.id.add)).perform(click());
-
-        onView(withId(R.id.dropdown_mood)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-
-
-        onView(withId(R.id.edit_reason)).perform(typeText("I Feel A Bit Alone"));
-
-        onView(withId(R.id.social_situation_spinner)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-
-        onView(withId(R.id.button_save)).perform(click());
-        Thread.sleep(1000);
-
-        //onView(withText("Reason cannot be more than 3 words")).check(matches(isDisplayed()));
-        onView(withId(R.id.edit_reason)).check(matches(hasErrorText("Reason cannot be more than 3 words")));
-    }
-
-    /**
-     * New Mood Event Should Not be Created Upon Entering A Textual Reason With More Than 20 Characters
+     * New Mood Event Should Not be Created Upon Entering A Textual Reason With More Than 200 Characters
      */
     @Test
     public void InvalidTextualReasonDueToTooManyCharactersShouldFail() throws InterruptedException {
@@ -175,7 +145,10 @@ public class TextualReasonTest {
         onView(withId(R.id.dropdown_mood)).perform(click());
         onData(anything()).atPosition(1).perform(click());
 
-        onView(withId(R.id.edit_reason)).perform(typeText("Ridiculously Insurmountable Loneliness"));
+        onView(withId(R.id.edit_reason)).perform(typeText("Ridiculously Insurmountable Loneliness. I have spent dozens and dozens" +
+                "of hours on this crazy long project to the point where I am the total epitome of sheer loneliness. My daily routine consists of" +
+                "constant errors when I am unit testing that I want to pull my hair out. (I am pretty sure we are at 200 characters now but just in case hopefully now" +
+                "the world limit has been reached"));
 
         onView(withId(R.id.social_situation_spinner)).perform(click());
         onData(anything()).atPosition(1).perform(click());
@@ -183,8 +156,7 @@ public class TextualReasonTest {
         onView(withId(R.id.button_save)).perform(click());
         Thread.sleep(1000);
 
-        //onView(withText("Reason cannot have more than 20 characters")).check(matches(isDisplayed()));
-        onView(withId(R.id.edit_reason)).check(matches(hasErrorText("Reason cannot have more than 20 characters")));
+        onView(withId(R.id.edit_reason)).check(matches(hasErrorText("Reason cannot have more than 200 characters")));
 
     }
 
