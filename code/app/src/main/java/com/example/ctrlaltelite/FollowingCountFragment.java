@@ -25,6 +25,13 @@ public class FollowingCountFragment extends Fragment {
     private UserAdapter userAdapter;
     private List<User> userList = new ArrayList<>();
 
+    /*
+     * Portions of this code were developed with guidance from OpenAI's ChatGPT.
+     * ChatGPT was used to help debug issues, improve code reliability,.
+     *
+     * Assistance provided as of March 2025.
+     */
+
     public FollowingCountFragment() {}
 
     @Nullable

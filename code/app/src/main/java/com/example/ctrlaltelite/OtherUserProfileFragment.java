@@ -70,7 +70,7 @@ import java.util.Calendar;
 public class OtherUserProfileFragment extends Fragment {
 
     private FirebaseFirestore db;
-    private TextView displayNameText, usernameText;
+    private TextView displayNameText, usernameText, text_followers_count, text_following_count;
     private ListView moodListView;
     private MoodEventAdapter moodAdapter;
     private List<MoodEvent> moodEvents = new ArrayList<>();
@@ -92,6 +92,12 @@ public class OtherUserProfileFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
     }
 
+    /*
+     * Portions of this code were developed with guidance from OpenAI's ChatGPT.
+     * ChatGPT was used to help debug issues, improve code reliability,.
+     *
+     * Assistance provided as of March 2025.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -102,6 +108,9 @@ public class OtherUserProfileFragment extends Fragment {
         displayNameText = view.findViewById(R.id.display_name);
         usernameText = view.findViewById(R.id.username);
         moodListView = view.findViewById(R.id.mood_list);
+        text_followers_count = view.findViewById(R.id.text_followers_count);
+
+        text_following_count = view.findViewById(R.id.text_following_count);
 
         moodAdapter = new MoodEventAdapter(requireContext(), moodEvents);
         moodListView.setAdapter(moodAdapter);
@@ -202,8 +211,43 @@ public class OtherUserProfileFragment extends Fragment {
         else {
             Toast.makeText(getContext(), "No user data provided", Toast.LENGTH_SHORT).show();
         }
+
+        // --- FOLLOWERS COUNT ---
+        db.collection("FollowRequests")
+                .whereEqualTo("Requestee's Username", searchedUser.getUsername())
+                .whereEqualTo("Status", "Accepted")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    int count = querySnapshot.size();
+                    // [GPT FIX] Fixed crash: setText expects a String, not an int resource ID
+                    text_followers_count.setText(String.valueOf(count));
+
+                });
+
+// --- FOLLOWING COUNT ---
+        db.collection("FollowRequests")
+                .whereEqualTo("Requester's Username", searchedUser.getUsername())
+                .whereEqualTo("Status", "Accepted")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    int count = querySnapshot.size();
+                    // [GPT FIX] Fixed crash: setText expects a String, not an int resource ID
+                    text_following_count.setText(String.valueOf(count));
+
+                });
+
+
+
+
+
+
+
         return view;
     }
+
+
+
+
 
     private void fetchMoodEvents(String username) {
         Log.d("OtherUserProfileFragment", "Fetching mood events for username: " + username);

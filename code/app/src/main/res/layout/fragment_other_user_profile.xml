@@ -8,11 +8,15 @@
     android:background="@color/white">
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:srcCompat="@drawable/profile" />
+        android:id="@+id/profile_picture"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/profile"
+        android:scaleType="fitCenter"
+        android:background="@drawable/circle_shape"
+        android:layout_gravity="center"
+        android:clipToOutline="true"/>
 
     <TextView
         android:id="@+id/display_name"
@@ -20,14 +24,17 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:textSize="20sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:fontFamily="@font/font7"/>
 
     <TextView
         android:id="@+id/username"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/grey"
+        android:fontFamily="@font/font7"
         android:layout_gravity="center_horizontal"/>
 
     <Button
@@ -39,13 +46,77 @@
         android:text="Follow"
         app:cornerRadius="30dp"/>
 
-
-    <TextView
-        android:layout_width="wrap_content"
+    <!-- Followers and Following Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp" />
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+
+        <LinearLayout
+            android:id="@+id/card_followers"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="6dp"
+            android:background="@drawable/follow_card_bg"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:id="@+id/text_followers_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="23sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/text_followers_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Followers"
+                android:textSize="16sp"
+                android:fontFamily="@font/font7"
+                android:textColor="@color/black"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/card_following"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="6dp"
+            android:background="@drawable/follow_card_bg"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:id="@+id/text_following_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="23sp"
+                android:textStyle="bold"
+                android:layout_marginTop="6dp"
+                android:textColor="@color/black"/>
+
+            <TextView
+                android:id="@+id/text_following_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Following"
+                android:textSize="16sp"
+                android:fontFamily="@font/font7"
+                android:textColor="@color/black"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
 
     <ListView
         android:id="@+id/mood_list"

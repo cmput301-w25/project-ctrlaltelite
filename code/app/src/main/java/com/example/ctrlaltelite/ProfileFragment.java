@@ -1,6 +1,8 @@
 package com.example.ctrlaltelite;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,9 +24,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
  */
 public class ProfileFragment extends AddFragment {
 
-    private TextView usernameTextView, emailTextView, phoneTextView;
+    private TextView usernameTextView, displayNameTextView, emailTextView, phoneTextView;
     private Button logoutButton;
     private FirebaseFirestore db;
+
+    private String displayName;
     private String username;  // 🔹 Store username for Firestore query
 
     /**
@@ -42,6 +46,7 @@ public class ProfileFragment extends AddFragment {
 
         // Bind UI elements
         usernameTextView = view.findViewById(R.id.text_username);
+        displayNameTextView = view.findViewById(R.id.text_display_name);
         emailTextView = view.findViewById(R.id.text_email);
         phoneTextView = view.findViewById(R.id.text_phone);
         logoutButton = view.findViewById(R.id.button_logout);
@@ -55,6 +60,9 @@ public class ProfileFragment extends AddFragment {
             Toast.makeText(getContext(), "Error: No username found!", Toast.LENGTH_SHORT).show();
             return view;
         }
+
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
+        String displayName = sharedPreferences.getString("display_name", "");
 
 
 
@@ -73,7 +81,8 @@ public class ProfileFragment extends AddFragment {
 
                         Log.d("ProfileFragment", "User found: " + username + " - " + email + " - " + mobile);
 
-                        usernameTextView.setText(username);
+                        usernameTextView.setText("@"+ username);
+                        displayNameTextView.setText(displayName);
                         emailTextView.setText(email != null ? email : "N/A");
                         phoneTextView.setText(mobile != null ? mobile : "N/A");
                     } else {
