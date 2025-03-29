@@ -575,16 +575,6 @@ public class HomeFragment extends AddFragment {
 
             GeoPoint updatedLocation = moodEvent.getLocation();
 
-            if (switchLocation.isChecked()) {
-                if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    requestLocationPermission();
-                    return; // Exit early, wait for permission result
-                } else {
-                    updatedLocation = getUserLocation(); // Fetch new location
-                }
-            } else {
-                updatedLocation = null; // If switch is off, remove location
-            }
 
             if (isMoodValid(updatedMood)) {
                 moodEvent.setEmotionalState(updatedMood);
