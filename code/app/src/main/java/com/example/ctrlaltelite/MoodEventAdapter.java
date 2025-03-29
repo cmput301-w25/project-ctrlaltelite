@@ -129,10 +129,12 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                         // Retrieve the logged-in user's display name from SharedPreferences
                         SharedPreferences sharedPreferences = getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
                         String currentUsername = sharedPreferences.getString("display_name", "");  // Default to empty string if not found // Get the display name of the logged-in user
+
+                        String currentUserID = sharedPreferences.getString("user", "");
                         holder.displayName.setText(user.getDisplayName() + " is feeling");
 
                         holder.commentButton.setOnClickListener(v -> {
-                            showCommentsDialog(moodEvent.getDocumentId(), currentUsername); // Pass currentUsername here
+                            showCommentsDialog(moodEvent.getDocumentId(), currentUsername, currentUserID); // Pass currentUsername here
                         });
                     }
                 });
@@ -213,7 +215,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     }
 
 
-    private void showCommentsDialog(String moodEventId, String currentUsername) {
+    private void showCommentsDialog(String moodEventId, String currentUsername, String currentUserID) {
         // Inflate the dialog layout
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_comments, null);
 
@@ -255,7 +257,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 //                String currentUsername = users != null ? users.getDisplayName() : "Unknown User"; // Retrieve the display name
 
                 // Create a new CommentData object
-                CommentData newComment = new CommentData(newCommentText, currentUsername, Timestamp.now());
+                CommentData newComment = new CommentData(newCommentText, currentUsername, currentUserID, Timestamp.now());
 
                 // Add the comment to Firestore in the "comments" sub-collection
                 commentsRef.add(newComment)

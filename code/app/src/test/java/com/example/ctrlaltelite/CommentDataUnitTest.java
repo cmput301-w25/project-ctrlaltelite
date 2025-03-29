@@ -12,9 +12,10 @@ public class CommentDataUnitTest {
     public void testCommentDataCreation() {
         String commentText = "Nice mood!";
         String displayName = "Test User";
+        String username = "Test User";
         Timestamp timestamp = Timestamp.now();
 
-        CommentData comment = new CommentData(commentText, displayName, timestamp);
+        CommentData comment = new CommentData(commentText, displayName, username, timestamp);
 
         assertEquals(commentText, comment.getText());
         assertEquals(displayName, comment.getUsername());
@@ -23,7 +24,7 @@ public class CommentDataUnitTest {
 
     @Test
     public void testCommentTextNotNull() {
-        CommentData comment = new CommentData("Hello", "TestUser", Timestamp.now());
+        CommentData comment = new CommentData("Hello", "TestUser", "TestUser", Timestamp.now());
         assertNotNull(comment.getText());
     }
 }
