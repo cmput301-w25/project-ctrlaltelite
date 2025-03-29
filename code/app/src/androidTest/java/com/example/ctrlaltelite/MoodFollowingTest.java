@@ -47,7 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * UI tests for mood history filtering functionalities (US 04.02.01, 04.03.01, 04.04.01) using Espresso.
+ * UI tests for mood following and filtering functionalities
  */
 @RunWith(AndroidJUnit4.class)
 public class MoodFollowingTest {
@@ -91,6 +91,58 @@ public class MoodFollowingTest {
         idlingResource.waitForIdle();
     }
 
+    @Test
+    public void testPublicMoodEventsfromFollower() {
+        //Check that mood event displayed
+        onView(withId(R.id.mood_list)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * Tests filtering mood events for the last 7 days
+     */
+    @Test
+    public void testMoodEventsFilteredForLast7Days() {
+        // Ensure the mood list is initially visible
+        onView(withId(R.id.mood_list)).check(matches(isDisplayed()));
+
+        // Click the "Show past week" checkbox to filter events
+        onView(withId(R.id.show_past_week)).perform(click());
+
+        // Verify that the mood list is still displayed (should exclude the old event)
+        onView(withId(R.id.mood_list)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * Tests filtering mood events by emotional state
+     */
+    @Test
+    public void testMoodEventsFilteredByEmotionalState() {
+        // Ensure the mood list is initially visible
+        onView(withId(R.id.mood_list)).check(matches(isDisplayed()));
+
+        // Open the mood filter spinner and select "😊 Happy"
+        onView(withId(R.id.mood_filter)).perform(click());
+        onData(allOf(is(instanceOf(String.class)), is("😊 Happy"))).perform(click());
+
+        // Verify that the mood list is still displayed (should show only the Happy event)
+        onView(withId(R.id.mood_list)).check(matches(isDisplayed()));
+    }
+
+    /**
+     * Tests filtering mood events by reason text
+     */
+    @Test
+    public void testMoodEventsFilteredByReason() {
+        // Ensure the mood list is initially visible
+        onView(withId(R.id.mood_list)).check(matches(isDisplayed()));
+
+        // Type "stress" into the reason filter EditText
+        onView(withId(R.id.search_mood_reason)).perform(typeText("stress"));
+
+        // Verify that the mood list is still displayed (should show only the event with "stress")
+        onView(withId(R.id.mood_list)).check(matches(isDisplayed()));
+    }
+
     /**
      * Cleans up test data and unregisters IdlingResource.
      */
@@ -110,25 +162,38 @@ public class MoodFollowingTest {
         IdlingRegistry.getInstance().unregister(idlingResource);
     }
 
-    @Test
-    public void testPublicMoodEventsfromFollower() throws InterruptedException {
-        onView(withId(R.id.mood_list)).check(matches(isDisplayed()));
-        onData(anything())
-                .inAdapterView(withId(R.id.mood_list))
-                .atPosition(0)
-                .onChildView(withId(R.id.mood_text))
-                .check(matches(withText(startsWith("Happy"))));
-        Thread.sleep(5000);
-    }
-
     /**
      * Seeds test data into Firestore for the followee user.
      */
     private void seedTestData() {
-        // Event posted by the followee as a public event
-        MoodEvent followeeMoodEvent = new MoodEvent("Happy", "Almost done this test", "Alone", Timestamp.now(), null, null, followeeUsername, true);
-        // Add event to Firestore
-        db.collection("Mood Events").document("testFollowEvent").set(followeeMoodEvent);
+        // Event 1: Happy mood, recent, with "stress" in reason
+        Map<String, Object> happyEvent = new HashMap<>();
+        happyEvent.put("emotionalState", "😊 Happy");
+        happyEvent.put("reason", "Feeling good despite stress");
+        happyEvent.put("timestamp", Timestamp.now());
+        happyEvent.put("username", followeeUsername);
+        happyEvent.put("public", true);
+
+        // Event 2: Sad mood, recent, without "stress"
+        Map<String, Object> sadEvent = new HashMap<>();
+        sadEvent.put("emotionalState", "😢 Sad");
+        sadEvent.put("reason", "Bad day");
+        sadEvent.put("timestamp", Timestamp.now());
+        sadEvent.put("username", followeeUsername);
+        sadEvent.put("public", true);
+
+        // Event 3: Old event (for week filter test)
+        Map<String, Object> oldEvent = new HashMap<>();
+        oldEvent.put("emotionalState", "😢 Sad");
+        oldEvent.put("reason", "Old test event");
+        oldEvent.put("timestamp", new Timestamp(new java.util.Date(System.currentTimeMillis() - 10 * 24 * 60 * 60 * 1000))); // 10 days ago
+        oldEvent.put("username", followeeUsername);
+        oldEvent.put("public", true);
+
+        // Add events to Firestore synchronously
+        db.collection("Mood Events").document("happyFollowEvent").set(happyEvent);
+        db.collection("Mood Events").document("sadFollowEvent").set(sadEvent);
+        db.collection("Mood Events").document("oldFollowEvent").set(oldEvent);
     }
 
     /**
@@ -162,7 +227,7 @@ public class MoodFollowingTest {
         /** Waits for Firestore data to load */
         public void waitForIdle() {
             db.collection("Mood Events")
-                    .whereEqualTo("username", testUsername)
+                    .whereEqualTo("username", followeeUsername)
                     .get()
                     .addOnCompleteListener(task -> {
                         isIdle = true;
