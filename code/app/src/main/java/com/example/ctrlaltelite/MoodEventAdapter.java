@@ -51,6 +51,7 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
     private FirebaseStorage storage;
     private StorageReference storageRef;
     private FirebaseFirestore db;
+    private boolean savingInProgress = false;
 
     /**
      * Constructor for the MoodEventAdapter.
@@ -251,10 +252,9 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 
         submitCommentButton.setOnClickListener(v -> {
             String newCommentText = commentInput.getText().toString().trim();
-            if (!newCommentText.isEmpty()) {
-                // Get the current FirebaseUser object
-//                FirebaseUser users = FirebaseAuth.getInstance().getCurrentUser();
-//                String currentUsername = users != null ? users.getDisplayName() : "Unknown User"; // Retrieve the display name
+            if (!newCommentText.isEmpty() && !savingInProgress) {
+                savingInProgress = true;
+                submitCommentButton.setEnabled(false);
 
                 // Create a new CommentData object
                 CommentData newComment = new CommentData(newCommentText, currentUsername, currentUserID, Timestamp.now());
@@ -262,6 +262,9 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                 // Add the comment to Firestore in the "comments" sub-collection
                 commentsRef.add(newComment)
                         .addOnSuccessListener(documentReference -> {
+                            savingInProgress = false;
+                            submitCommentButton.setEnabled(true);
+
                             commentInput.setText(""); // Clear the input field
                             // Reload comments (this will call the onSuccess listener above)
                             commentsRef.orderBy("timestamp", Query.Direction.ASCENDING)
@@ -276,6 +279,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                                     });
                         })
                         .addOnFailureListener(e -> {
+                            savingInProgress = false;
+                            submitCommentButton.setEnabled(true);
                             // Handle failure
                         });
             }
