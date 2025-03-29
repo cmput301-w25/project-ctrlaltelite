@@ -128,6 +128,8 @@ public class AddFragment extends Fragment implements LocationListener {
 
     private LocationManager locationManager;
     private String Username;
+    private boolean savingInProgress = false;
+
 
 
 
@@ -335,7 +337,14 @@ public class AddFragment extends Fragment implements LocationListener {
 
     /** Sets up button click listeners. */
     private void setupButtons() {
-        buttonSave.setOnClickListener(v -> saveMoodEvent(username));
+        buttonSave.setOnClickListener(v -> {
+            if (!savingInProgress) {
+                savingInProgress = true;
+                buttonSave.setEnabled(false); // Disable the button to prevent double clicks
+                saveMoodEvent(username);
+            }
+        });
+
         buttonCancel.setOnClickListener(v -> {
             // Navigate to the home screen fragment using the parent activity's method
             navigateToHome();
@@ -541,12 +550,16 @@ public class AddFragment extends Fragment implements LocationListener {
                         Toast.makeText(getContext(), "Mood event saved!", LENGTH_SHORT).show();
                     }
                     if (isAdded()){
+                        savingInProgress = false;
+                        buttonSave.setEnabled(true);
                         navigateToHome();
                     }
                 })
                 .addOnFailureListener(e -> {
                     if (isAdded()){
                         Toast.makeText(getContext(), "Error saving mood event", LENGTH_SHORT).show();
+                        savingInProgress = false;
+                        buttonSave.setEnabled(true);
                     }
                 });
     }
