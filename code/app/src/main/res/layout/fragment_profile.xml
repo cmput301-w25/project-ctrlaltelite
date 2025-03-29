@@ -32,12 +32,21 @@
         android:gravity="center_horizontal">
 
         <TextView
+            android:id="@+id/text_display_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
             android:id="@+id/text_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Username"
+            android:text=""
             android:textSize="18sp"
-            android:textStyle="bold"
             android:layout_marginBottom="8dp"/>
 
         <TextView
@@ -57,11 +66,40 @@
             android:layout_marginBottom="20dp"/>
     </LinearLayout>
 
+    <!-- Followers and Following Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="20dp">
+
+        <Button
+            android:id="@+id/button_followers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Followers"
+            android:layout_marginEnd="20dp"
+            android:backgroundTint="#FFB6C1"
+            android:textColor="#000000"/>
+
+        <Button
+            android:id="@+id/button_following"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Following"
+            android:backgroundTint="#FFB6C1"
+            android:textColor="#000000"/>
+    </LinearLayout>
+
+
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"/>
+
+
 
     <!-- Logout Button -->
     <Button
