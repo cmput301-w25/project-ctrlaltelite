@@ -147,6 +147,7 @@ public class OtherUserProfileFragment extends Fragment {
 
                 if (usernameText.getText().equals("@" + currentUser.getUsername())) {
                     requestButton.setVisibility(INVISIBLE);
+                    chat.setVisibility(INVISIBLE);
                 }
 
                 else {
@@ -243,7 +244,10 @@ public class OtherUserProfileFragment extends Fragment {
             Intent intent = new Intent(getActivity(), ChatActivity.class);
 
             // Pass the clicked user's username or other data
-            intent.putExtra("username", searchedUser.getUsername());
+//            intent.putExtra("username", searchedUser.getUsername());
+
+            User model;
+//            AndroidUtil.passUserAsIntent(intent, model);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             getContext().startActivity(intent);
