@@ -237,8 +237,8 @@ public class OtherUserProfileFragment extends Fragment {
                     text_following_count.setText(String.valueOf(count));
 
                 });
-//
-//         Set a click listener for the chat button
+
+        //Set a click listener for the chat button
         chat.setOnClickListener(v -> {
             // Open the ChatActivity when the chat icon is clicked
             Intent intent = new Intent(getActivity(), ChatActivity.class);
@@ -246,17 +246,12 @@ public class OtherUserProfileFragment extends Fragment {
             // Pass the clicked user's username or other data
 //            intent.putExtra("username", searchedUser.getUsername());
 
-            User model;
 //            AndroidUtil.passUserAsIntent(intent, model);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
             getContext().startActivity(intent);
-            // Start the ChatActivity
-//            comstartActivity(intent);
+
         });
-
-
-
 
 
 
