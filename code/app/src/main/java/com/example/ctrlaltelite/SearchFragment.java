@@ -112,6 +112,7 @@ public class SearchFragment extends Fragment {
         userListView.setOnItemClickListener((parent, view1, position, id) -> {
             /** Handles item click events in the user list.
              * @param parent The AdapterView where the click happened
+             * @param parent The AdapterView where the click happened
              * @param view1 The view within the AdapterView that was clicked
              * @param position The position of the view in the adapter
              * @param id The row id of the item that was clicked */

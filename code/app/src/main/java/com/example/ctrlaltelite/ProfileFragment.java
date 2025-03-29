@@ -95,6 +95,47 @@ public class ProfileFragment extends AddFragment {
             startActivity(intent);
         });
 
+        Button buttonFollowers = view.findViewById(R.id.button_followers);
+        Button buttonFollowing = view.findViewById(R.id.button_following);
+
+// --- FOLLOWERS COUNT ---
+        db.collection("FollowRequests")
+                .whereEqualTo("Requestee's Username", username)
+                .whereEqualTo("Status", "Accepted")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    int count = querySnapshot.size();
+                    buttonFollowers.setText("Followers (" + count + ")");
+                });
+
+// --- FOLLOWING COUNT ---
+        db.collection("FollowRequests")
+                .whereEqualTo("Requester's Username", username)
+                .whereEqualTo("Status", "Accepted")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    int count = querySnapshot.size();
+                    buttonFollowing.setText("Following (" + count + ")");
+                });
+
+// --- Button Click Actions ---
+        buttonFollowers.setOnClickListener(v -> {
+            FollowersCountFragment fragment = new FollowersCountFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("username", username);  // Use the `username` you already fetched
+            fragment.setArguments(bundle);
+
+            ((MainActivity) getActivity()).fragmentRepl(fragment);
+        });
+
+        buttonFollowing.setOnClickListener(v -> {
+            FollowingCountFragment fragment = new FollowingCountFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("username", username);
+            fragment.setArguments(bundle);
+            ((MainActivity) getActivity()).fragmentRepl(fragment);
+        });
+
         return view;
     }
 }
