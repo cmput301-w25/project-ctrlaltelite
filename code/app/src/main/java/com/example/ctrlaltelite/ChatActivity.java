@@ -25,6 +25,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
@@ -91,11 +92,12 @@ public class ChatActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ImageView imageView;
 
+    ChatRecyclerAdapter adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
+        recyclerView = findViewById(R.id.chat_recycler_view);
         backBtn = findViewById(R.id.back_btn);
         otherUsername = findViewById(R.id.other_username);
         sendMessageBtn = findViewById(R.id.message_send_btn);
@@ -132,8 +134,44 @@ public class ChatActivity extends AppCompatActivity {
         }));
 
         getOrCreateChatroomModel(); // proceed to load chat
+        setupChatRecyclerView();
 
     }
+
+
+    void setupChatRecyclerView() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Firestore query to fetch messages in descending order by timestamp
+        Query query = db.collection("chatrooms")
+                .document(chatroomId)
+                .collection("chats")
+                .orderBy("timestamp", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<ChatMessageModel> options = new FirestoreRecyclerOptions.Builder<ChatMessageModel>()
+                .setQuery(query, ChatMessageModel.class)
+                .setLifecycleOwner(this)  // So you don’t need to manually start/stop adapter
+                .build();
+
+        adapter = new ChatRecyclerAdapter(options, this); // Pass context correctly
+
+        LinearLayoutManager manager = new LinearLayoutManager(this);
+        manager.setReverseLayout(true); // Most recent messages on top
+        recyclerView.setLayoutManager(manager);
+        recyclerView.setAdapter(adapter);
+
+        // Optional: auto-scroll when a new message appears
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                recyclerView.smoothScrollToPosition(0);
+            }
+        });
+    }
+
+
+
 
 
     private String generateChatroomId(String user1, String user2) {
