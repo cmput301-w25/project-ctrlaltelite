@@ -8,6 +8,7 @@ import org.junit.Test;
 
 public class CommentDataUnitTest {
 
+
     @Test
     public void testCommentDataCreation() {
         String commentText = "Nice mood!";
@@ -21,6 +22,8 @@ public class CommentDataUnitTest {
         assertEquals(displayName, comment.getUsername());
         assertEquals(timestamp, comment.getTimestamp());
     }
+
+
 
     @Test
     public void testCommentTextNotNull() {

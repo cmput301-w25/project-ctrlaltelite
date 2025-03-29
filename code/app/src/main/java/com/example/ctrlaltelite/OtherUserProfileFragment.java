@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.Calendar;
 
@@ -109,7 +110,7 @@ public class OtherUserProfileFragment extends Fragment {
         usernameText = view.findViewById(R.id.username);
         moodListView = view.findViewById(R.id.mood_list);
         text_followers_count = view.findViewById(R.id.text_followers_count);
-
+        Button chat = view.findViewById(R.id.chat);
         text_following_count = view.findViewById(R.id.text_following_count);
 
         moodAdapter = new MoodEventAdapter(requireContext(), moodEvents);
@@ -235,7 +236,20 @@ public class OtherUserProfileFragment extends Fragment {
                     text_following_count.setText(String.valueOf(count));
 
                 });
+//
+//         Set a click listener for the chat button
+        chat.setOnClickListener(v -> {
+            // Open the ChatActivity when the chat icon is clicked
+            Intent intent = new Intent(getActivity(), ChatActivity.class);
 
+            // Pass the clicked user's username or other data
+            intent.putExtra("username", searchedUser.getUsername());
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            getContext().startActivity(intent);
+            // Start the ChatActivity
+//            comstartActivity(intent);
+        });
 
 
 
