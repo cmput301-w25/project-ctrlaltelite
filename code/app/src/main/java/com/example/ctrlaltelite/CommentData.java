@@ -1,20 +1,23 @@
 package com.example.ctrlaltelite;
 
+import android.widget.TextView;
+
+import com.google.firebase.Timestamp;
 
 public class CommentData {
     private String text;
-    private String username;
-    private long timestamp;
+    private String username;           // Unique ID or login name
+    private String displayName;        // Full name or display name
+    private Timestamp timestamp;
 
-    // No-argument constructor required by Firestore
-    public CommentData() {
-        // Firestore needs a no-argument constructor for deserialization
-    }
+    // Required no-arg constructor
+    public CommentData() {}
 
-    // Constructor with parameters (for creating new comments)
-    public CommentData(String text, String username, long timestamp) {
+    // Updated constructor with both names
+    public CommentData(String text, String displayName, String username, Timestamp timestamp) {
         this.text = text;
         this.username = username;
+        this.displayName = displayName;
         this.timestamp = timestamp;
     }
 
@@ -35,11 +38,25 @@ public class CommentData {
         this.username = username;
     }
 
-    public long getTimestamp() {
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getFormattedTimestamp() {
+        if (timestamp == null) return "Unknown Date";
+        return new java.text.SimpleDateFormat("EEE, MMM d, yyyy hh:mm a", java.util.Locale.US)
+                .format(timestamp.toDate());
     }
 }

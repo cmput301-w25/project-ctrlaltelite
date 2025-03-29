@@ -108,12 +108,14 @@ public class MainActivity extends AppCompatActivity {
                             String displayName = document.getString("displayName");
                             String email = document.getString("email");
                             String mobile = document.getString("mobile");
+                            String username = document.getString("username");
 
 
                             // Storing the display name in SharedPreferences
                             SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPreferences.edit();
                             editor.putString("display_name", displayName);  // Save the logged-in user's display name
+                            editor.putString("user", username);
                             editor.apply();
 
 

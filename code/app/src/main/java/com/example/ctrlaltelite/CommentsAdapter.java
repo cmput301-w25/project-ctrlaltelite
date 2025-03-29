@@ -29,7 +29,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     public void onBindViewHolder(CommentViewHolder holder, int position) {
         CommentData comment = comments.get(position);
         holder.commentText.setText(comment.getText());
-        holder.username.setText(comment.getUsername());
+        holder.displayName.setText(comment.getDisplayName());
+//        holder.username.setText(comment.getUsername());
+        holder.username.setText("@" + comment.getUsername());
+        // Format and set the timestamp
+        holder.timestampText.setText(comment.getFormattedTimestamp());
+
+
     }
 
     @Override
@@ -43,13 +49,17 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     static class CommentViewHolder extends RecyclerView.ViewHolder {
+        TextView timestampText;
         TextView commentText;
         TextView username;
+        TextView displayName;
 
         public CommentViewHolder(View itemView) {
             super(itemView);
             commentText = itemView.findViewById(R.id.comment_text);
             username = itemView.findViewById(R.id.username);
+            displayName = itemView.findViewById(R.id.display_name);
+            timestampText = itemView.findViewById(R.id.time);
         }
     }
 }
