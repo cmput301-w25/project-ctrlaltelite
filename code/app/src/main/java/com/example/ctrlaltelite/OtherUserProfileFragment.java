@@ -244,7 +244,8 @@ public class OtherUserProfileFragment extends Fragment {
             Intent intent = new Intent(getActivity(), ChatActivity.class);
 
             // Pass the clicked user's username or other data
-//            intent.putExtra("username", searchedUser.getUsername());
+            intent.putExtra("displayName", searchedUser.getDisplayName());
+            intent.putExtra("username", searchedUser.getUsername());
 
 //            AndroidUtil.passUserAsIntent(intent, model);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
