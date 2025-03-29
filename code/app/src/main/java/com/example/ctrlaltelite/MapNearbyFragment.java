@@ -241,6 +241,9 @@ public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
         getFollowedUsers(currentGeoPoint);
     }
 
+
+
+
     /**
      * Fetches the list of usernames that 'Username' follows (with Status=Accepted).
      */
@@ -425,27 +428,25 @@ public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
      */
     private void showMoodEventDialog(MoodEvent moodEvent) {
         // Inflate a layout
-        View dialogView = LayoutInflater.from(getContext())
-                .inflate(R.layout.marker_dialog, null);
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.mood_event_item, null);
+        dialogView.setBackgroundColor(Color.TRANSPARENT);
+        TextView emotionalState = dialogView.findViewById(R.id.mood_text);
+        TextView displayNameView = dialogView.findViewById(R.id.display_name);
+        TextView reason = dialogView.findViewById(R.id.reason_text);
+        TextView socialSituation = dialogView.findViewById(R.id.social_situation_text);
+        TextView timestamp = dialogView.findViewById(R.id.timestamp_text);
+        ImageView image = dialogView.findViewById(R.id.mood_image);
+        ImageButton commentsButton = dialogView.findViewById(R.id.comments_button);
+        commentsButton.setVisibility(View.GONE);
 
-        ImageView imageView = dialogView.findViewById(R.id.event_image);
-        TextView detailsText = dialogView.findViewById(R.id.event_details);
 
-        // Build textual details
-        StringBuilder sb = new StringBuilder();
-        if (moodEvent.getEmotionalState() != null && !moodEvent.getEmotionalState().isEmpty()) {
-            sb.append("Emotional State: ").append(moodEvent.getEmotionalState()).append("\n");
-        }
-        if (moodEvent.getReason() != null && !moodEvent.getReason().isEmpty()) {
-            sb.append("Reason: ").append(moodEvent.getReason()).append("\n");
-        }
-        if (moodEvent.getSocialSituation() != null && !moodEvent.getSocialSituation().isEmpty()) {
-            sb.append("Social: ").append(moodEvent.getSocialSituation()).append("\n");
-        }
-        if (moodEvent.getTimestamp() != null) {
-            sb.append("Time: ").append(moodEvent.getFormattedTimestamp()).append("\n");
-        }
-        detailsText.setText(sb.toString().trim());
+
+        emotionalState.setText(moodEvent.getEmotionalState());
+        emotionalState.setTextColor(getColorForMood(moodEvent.getEmotionalState()));
+
+        reason.setText(moodEvent.getReason());
+        socialSituation.setText(moodEvent.getSocialSituation());
+        timestamp.setText(moodEvent.getFormattedTimestamp());
 
         if (moodEvent.getImgPath() != null && !moodEvent.getImgPath().isEmpty()) {
             StorageReference ref = FirebaseStorage.getInstance()
@@ -453,24 +454,64 @@ public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
                     .child(moodEvent.getImgPath());
 
             ref.getDownloadUrl().addOnSuccessListener(uri -> {
-                // Load Image
-                Glide.with(getContext())
-                        .load(uri)
-                        .into(imageView);
+                Glide.with(getContext()).load(uri).into(image);
             }).addOnFailureListener(e -> {
-                Toast.makeText(getContext(), "Failed to load image", Toast.LENGTH_SHORT).show();
-                imageView.setVisibility(GONE);
+                image.setVisibility(View.GONE);
             });
         } else {
-            imageView.setVisibility(GONE);
+            image.setVisibility(View.GONE);
         }
 
-        // Show the AlertDialog, with moodEvent.getUsername() as the title
-        new AlertDialog.Builder(requireContext())
-                .setTitle(moodEvent.getUsername() != null ? moodEvent.getUsername() : "Mood Event")
-                .setView(dialogView)
-                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
-                .show();
+
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .whereEqualTo("username", moodEvent.getUsername())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        // Get the first matched document
+                        String displayName = task.getResult()
+                                .getDocuments()
+                                .get(0)
+                                .getString("displayName");
+                        displayNameView.setText(displayName);
+
+                        new AlertDialog.Builder(requireContext())
+//                                .setTitle(displayName != null ? displayName : "Mood Event")
+                                .setView(dialogView)
+                                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                                .show();
+                    } else {
+                        Log.e("Firestore", "No matching user found or error: ", task.getException());
+                        new AlertDialog.Builder(requireContext())
+                                .setTitle("@" + moodEvent.getUsername())
+                                .setView(dialogView)
+                                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                                .show();
+                    }
+                });
+
+    }
+
+    /**
+     * Determines the text color for the mood text based on the mood type.
+     *
+     * @param mood The mood description.
+     * @return The corresponding color value.
+     */
+    private int getColorForMood(String mood) {
+        switch (mood) {
+            case "😊 Happy": return 0xFFFFC107; // Amber
+            case "😢 Sad": return 0xFF2196F3; // Blue
+            case "😲 Surprised": return 0xFFFF5722; // Orange
+            case "😡 Angry": return 0xFFD32F2F; // Red
+            case "🤢 Disgust": return 0xFF4CAF50; // Green
+            case "😕 Confusion": return 0xFF9C27B0; // Purple
+            case "😨 Fear": return 0xFF3F51B5;  // Indigo
+            case "😳 Shame": return 0xFFFF9800; // Orange
+            default: return 0xFF616161; // Default Gray
+        }
     }
 
 }
