@@ -1,5 +1,7 @@
 package com.example.ctrlaltelite;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -18,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.app.AlertDialog;
+import android.widget.Toast;
 
 
 import androidx.core.content.res.ResourcesCompat;
@@ -283,6 +286,8 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
                             submitCommentButton.setEnabled(true);
                             // Handle failure
                         });
+            } else {
+                Toast.makeText(getContext(), "Comments can not be empty", LENGTH_SHORT).show();
             }
         });
 
