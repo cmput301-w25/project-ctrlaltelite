@@ -92,14 +92,14 @@ public class CommentDialogTest {
         Map<String, Object> mood = new HashMap<>();
         mood.put("username", testCurrentUserUsername);
         mood.put("emotionalState", "😊 Happy");
-        mood.put("timestamp", Timestamp.now()); // MoodEvent still uses Timestamp
+        mood.put("timestamp", Timestamp.now()); 
         mood.put("documentId", testMoodEventId);
         db.collection("Mood Events").document(testMoodEventId).set(mood);
 
         Map<String, Object> comment = new HashMap<>();
         comment.put("text", "Initial comment");
         comment.put("username", "Other Test User");
-        comment.put("timestamp", Timestamp.now()); // ✅ Proper Firestore timestamp// Use Long for comments
+        comment.put("timestamp", Timestamp.now()); 
         db.collection("Mood Events").document(testMoodEventId)
                 .collection("comments").add(comment);
     }
