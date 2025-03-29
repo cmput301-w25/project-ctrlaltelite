@@ -21,23 +21,16 @@ public class TextualReasonUnitTest {
     }
 
     /**
-     * Checking to see if AddFragment invalidates a textual reason with too many words (4 or more)
-     */
-    @Test
-    public void testTextualReasonWithTooManyWords() {
-        String mockTextualReason = "I am very lonely";
-        boolean result = AddFragment.isTextualReasonValid(mockTextualReason);
-        assertFalse("Expected Textual Reason with 3 Words or Less", result);
-    }
-
-    /**
      * Checking to see if AddFragment invalidates a textual reason with too many characters (20 or more)
      */
     @Test
     public void testTextualReasonWithTooManyCharacter() {
-        String mockTextualReason = "Absolutely insurmountable loneliness";
+        String mockTextualReason = "Ridiculously Insurmountable Loneliness. I have spent dozens and dozens" +
+                "of hours on this crazy long project to the point where I am the total epitome of sheer loneliness. My daily routine consists of" +
+                "constant errors when I am unit testing that I want to pull my hair out. (I am pretty sure we are at 200 characters now but just in case hopefully now" +
+                "the world limit has been reached";
         boolean result = AddFragment.isTextualReasonValid(mockTextualReason);
-        assertFalse("Expected Textual Reason with 20 characters or Less", result);
+        assertFalse("Expected Textual Reason with 200 characters or Less", result);
     }
 
     /**

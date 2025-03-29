@@ -613,13 +613,7 @@ public class AddFragment extends Fragment implements LocationListener {
      * @return boolean value of whether or not the input textual reason is valid
      */
     public static boolean isTextualReasonValid(String textualReason) {
-        // Separator
-        String separator = " ";
-
-        // Separating the reason by spaces
-        String[] separationArray = textualReason.split(separator);
-
-        return !(textualReason.isEmpty() || separationArray.length >= 4 || textualReason.length() >= 20);
+        return !(textualReason.isEmpty() || textualReason.length() >= 200);
     }
 
     @Override

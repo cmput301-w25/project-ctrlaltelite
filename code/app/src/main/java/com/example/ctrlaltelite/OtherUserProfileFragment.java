@@ -227,7 +227,7 @@ public class OtherUserProfileFragment extends Fragment {
                 });
     }
 
-    private Task<Boolean> HasUserAlreadyRequested(String followerUsername, String followingUsername) {
+    public Task<Boolean> HasUserAlreadyRequested(String followerUsername, String followingUsername) {
         Log.d("OtherUserProfileFragment", "Checking to see if a request has already been made to " + followingUsername + " from " + followerUsername);
 
         return db.collection("FollowRequests")

@@ -6,6 +6,8 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.hasChildCount;
+import static androidx.test.espresso.matcher.ViewMatchers.hasMinimumChildCount;
 import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
@@ -304,6 +306,27 @@ public class FollowRequestsTest {
 
     }
 
+    /**
+     * UI test to confirm that when a user rejects a follow request, the request is removed from the follow requests list
+     * @throws InterruptedIOException
+     */
+    @Test
+    public void UserShouldBeAbleToRejectFollowRequest() throws InterruptedException {
+        onView(withId(R.id.username)).perform(replaceText("testUsername3"));
+        onView(withId(R.id.password)).perform(replaceText("testPassword3"));
+        onView(withId(R.id.button_login)).perform(click());
+        Thread.sleep(1000);
+
+        onView(withId(R.id.notif)).perform(click());
+        Thread.sleep(1000);
+
+        onView(withId(R.id.follow_request_list)).check(matches(hasChildCount(1)));
+
+        onView(withId(R.id.reject_button)).perform(click());
+        Thread.sleep(1000);
+
+        onView(withId(R.id.follow_request_list)).check(matches(hasChildCount(0)));
+    }
     /**
      * Cleans up the seeded documents from the Firestore emulator after each test.
      */

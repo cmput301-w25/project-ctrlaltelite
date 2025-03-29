@@ -222,7 +222,6 @@ public class MoodEventViewEditTest {
         // 2. Create a successful Task
         Task<Void> successTask = Tasks.forResult(null);
 
-        // 3. Stub delete() to return the Task
         when(mockDocRef.delete()).thenReturn(successTask);
 
         // Deleting the first mood event
