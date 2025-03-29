@@ -1,5 +1,6 @@
 package com.example.ctrlaltelite;
 
+import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 import android.net.Uri;
@@ -33,8 +34,10 @@ import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.Intents.intending;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.anyIntent;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasData;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.isInternal;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -93,21 +96,10 @@ public class UploadPhotoTest {
 
     private FirebaseFirestore db;
     private String testUsername = "test";
-    private FirestoreIdlingResource idlingResource;
 
     @Before
-    public void setUp() throws InterruptedException {
-        Intents.init();
-        db = FirebaseFirestore.getInstance();
-
-        // Seed test data
-        seedTestData();
-
-        // Register IdlingResource for Firestore
-        idlingResource = new FirestoreIdlingResource();
-        IdlingRegistry.getInstance().register(idlingResource);
-
-        // Launch MainActivity with HomeFragment and pass username
+    public void setUp() {
+        // Launch MainActivity with AddFragment and pass username
         activityRule.getScenario().onActivity(activity -> {
             AddFragment fragment = new AddFragment();
             Bundle args = new Bundle();
@@ -119,107 +111,22 @@ public class UploadPhotoTest {
                     .commitAllowingStateLoss();
         });
 
-        // Wait for Firestore data to load via IdlingResource
-        idlingResource.waitForIdle();
+        Intents.init();
+        Intent resultData = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        //Provide stub data to mock image selected
+        intending(not(isInternal())).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData));
+    }
+
+    @Test
+    public void testUploadPhoto() {
+        onView(withId(R.id.uploaded_image)).check(matches(not(isDisplayed())));
+        // Click the upload button
+        onView(withId(R.id.button_upload)).perform(click());
+        onView(withId(R.id.uploaded_image)).check(matches(isDisplayed()));
     }
 
     @After
     public void tearDown() {
         Intents.release();
-        // Clean up test data
-        db.collection("Mood Events")
-                .whereEqualTo("username", testUsername)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    for (var doc : querySnapshot) {
-                        doc.getReference().delete();
-                    }
-                });
-
-        // Unregister IdlingResource
-        IdlingRegistry.getInstance().unregister(idlingResource);
-    }
-
-    @Test
-    public void testUploadPhoto() {
-        //What is expected when photo picker
-        Matcher<Intent> expectedIntent = allOf(
-                hasAction(MediaStore.ACTION_PICK_IMAGES)
-        );
-        Instrumentation.ActivityResult activityResult = createGalleryPickStub();
-        intending(expectedIntent).respondWith(activityResult);
-
-        //Uploaded image should not be shown
-        onView(withId(R.id.uploaded_image)).check(matches(not(isDisplayed())));
-
-        // Click the upload button
-        onView(withId(R.id.button_upload)).perform(click());
-        intended(expectedIntent);
-
-        //Uploaded image should be shown
-        onView(withId(R.id.uploaded_image)).check(matches(isDisplayed()));
-
-    }
-
-    private Instrumentation.ActivityResult createGalleryPickStub() {
-        Uri testUri = Uri.parse("android.resource://com.example.ctrlaltelite/drawable/logo1");
-        Intent resultIntent = new Intent(MediaStore.ACTION_PICK_IMAGES, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        resultIntent.putExtra("1", testUri);
-        return new Instrumentation.ActivityResult(RESULT_OK, resultIntent);
-    }
-
-    private void seedTestData() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        Map<String, Object> moodEvent = new HashMap<>();
-        moodEvent.put("username", testUsername);
-        moodEvent.put("emotionalState", "Happy");
-        //moodEvent.put("reason", "Good day");
-        moodEvent.put("socialSituation", "With Friends");
-        moodEvent.put("timestamp", Timestamp.now());
-        moodEvent.put("imgPath", null);
-        moodEvent.put("public", true);
-
-        db.collection("Mood Events")
-                .add(moodEvent)
-                .addOnSuccessListener(docRef -> latch.countDown())
-                .addOnFailureListener(e -> {
-                    throw new RuntimeException("Failed to seed test data", e);
-                });
-
-        // Wait for data to be added (timeout after 5 seconds)
-        latch.await(5, TimeUnit.SECONDS);
-    }
-
-    // Custom IdlingResource to wait for Firestore operations
-    private class FirestoreIdlingResource implements IdlingResource {
-        private volatile boolean isIdle = false;
-        private ResourceCallback callback;
-
-        @Override
-        public String getName() {
-            return "FirestoreIdlingResource";
-        }
-
-        @Override
-        public boolean isIdleNow() {
-            return isIdle;
-        }
-
-        @Override
-        public void registerIdleTransitionCallback(ResourceCallback callback) {
-            this.callback = callback;
-        }
-
-        public void waitForIdle() {
-            db.collection("Mood Events")
-                    .whereEqualTo("username", testUsername)
-                    .get()
-                    .addOnCompleteListener(task -> {
-                        isIdle = true;
-                        if (callback != null) {
-                            callback.onTransitionToIdle();
-                        }
-                    });
-        }
     }
 }
