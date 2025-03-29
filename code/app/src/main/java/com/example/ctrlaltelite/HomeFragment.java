@@ -25,6 +25,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -430,14 +432,21 @@ public class HomeFragment extends AddFragment {
         Spinner socialSituationSpinner = dialogView.findViewById(R.id.edit_social_situation_spinner);
         Button saveButton = dialogView.findViewById(R.id.save_button);
         Button deleteButton = dialogView.findViewById(R.id.delete_button);
-        Switch switchLocation = dialogView.findViewById(R.id.edit_location_switch);
+        RadioGroup radioGroupVisibility = dialogView.findViewById(R.id.radioGroupVisibility);
+        RadioButton radioPublic = dialogView.findViewById(R.id.radioPublic);
+        RadioButton radioPrivate = dialogView.findViewById(R.id.radioPrivate);
 
-        // Enable toggle by default if location exists
-        if (moodEvent.getLocation() != null) {
-            switchLocation.setChecked(true);
+        if (moodEvent.isPublic()) {
+            radioPublic.setChecked(true);
         } else {
-            switchLocation.setChecked(false);
+            radioPrivate.setChecked(true);
         }
+
+        // Disable both to make them non-interactive
+        radioPublic.setEnabled(false);
+        radioPrivate.setEnabled(false);
+
+
 
         // Make upload button and image preview visible
         buttonUpload.setVisibility(View.VISIBLE);

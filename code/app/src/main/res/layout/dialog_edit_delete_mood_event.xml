@@ -99,13 +99,45 @@
         android:scaleType="centerCrop"
         android:layout_marginBottom="16dp" />
 
-    <Switch
-        android:id="@+id/edit_location_switch"
-        android:padding="10dp"
+    <TextView
+        android:id="@+id/visibility_prompt"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Keep track of users' geolocation"
-        android:layout_marginBottom="16dp" />
+        android:text="Visibility:"
+        android:textColor="#9C27B0"
+        android:fontFamily="@font/font3"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="12dp"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupVisibility"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:textStyle="bold"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
+
+        <RadioButton
+            android:id="@+id/radioPublic"
+            android:layout_width="match_parent"
+            android:layout_marginRight="50dp"
+            android:fontFamily="@font/font3"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:text="Public"
+            android:checked="true"/>
+
+        <RadioButton
+            android:id="@+id/radioPrivate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font3"
+            android:textStyle="bold"
+            android:text="Private" />
+    </RadioGroup>
 
     <LinearLayout
         android:layout_width="match_parent"
