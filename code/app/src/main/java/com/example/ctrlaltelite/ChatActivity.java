@@ -98,6 +98,8 @@ public class ChatActivity extends AppCompatActivity {
 
         backBtn = findViewById(R.id.back_btn);
         otherUsername = findViewById(R.id.other_username);
+        sendMessageBtn = findViewById(R.id.message_send_btn);
+        messageInput = findViewById(R.id.chat_message_input); // Replace with actual ID
 
         String displayNameofOther = getIntent().getStringExtra("displayName");
         String OtherUserUserName = getIntent().getStringExtra("username");
@@ -121,6 +123,13 @@ public class ChatActivity extends AppCompatActivity {
         chatroomId = generateChatroomId(currentUserID, otherUsernameId);
 
         backBtn.setOnClickListener((v) -> onBackPressed());
+
+        sendMessageBtn.setOnClickListener((v -> {
+            String message = messageInput.getText().toString().trim();
+            if(message.isEmpty())
+                return;
+            sendMessageToUser(message);
+        }));
 
         getOrCreateChatroomModel(); // proceed to load chat
 
@@ -178,6 +187,59 @@ public class ChatActivity extends AppCompatActivity {
                         }
                     } else {
                         Log.e("Chat", "Failed to fetch chatroom", task.getException());
+                    }
+                });
+    }
+
+
+    void sendMessageToUser(String message) {
+        // Get current user's info from SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
+        String currentUserId = sharedPreferences.getString("user", "");
+        String otherUsernameId = getIntent().getStringExtra("username");
+
+        if (chatroomId == null || currentUserId.isEmpty()) {
+            Toast.makeText(this, "User info or chatroom is missing", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Update Chatroom metadata
+        ChatroomModel chatroomModel = new ChatroomModel(
+                chatroomId,
+                Arrays.asList(currentUserId, otherUsernameId), // Assuming the other user's ID is passed via intent
+                Timestamp.now(),
+                message
+        );
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Update the chatroom metadata in Firestore
+        db.collection("chatrooms")
+                .document(chatroomId)
+                .set(chatroomModel)
+                .addOnSuccessListener(unused -> Log.d("Chat", "Chatroom updated"))
+                .addOnFailureListener(e -> Log.e("Chat", "Failed to update chatroom", e));
+
+        // Create the message object
+        ChatMessageModel chatMessage = new ChatMessageModel(
+                message,
+                currentUserId,
+                Timestamp.now()
+        );
+
+        Log.d("Chat", "chatroomId: " + chatroomId);
+        // Save the message in the "chats" subcollection
+        db.collection("chatrooms")
+                .document(chatroomId)
+                .collection("chats")
+                .add(chatMessage)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        messageInput.setText("");
+                        // You can later implement this if needed
+                        // sendNotification(message);
+                    } else {
+                        Toast.makeText(this, "Failed to send message", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
