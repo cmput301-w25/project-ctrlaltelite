@@ -68,8 +68,15 @@ public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
     /** Username of the logged-in user */
     private String Username;
     private GoogleMap googleMap;
+    private FirebaseFirestore db;
     private static final String TAG = "MapNearbyFragment";
     private int MAX_DISTANCE = 5000;    //MAX DISTANCE IN METRES
+    //Hash Map to store latest mood event per user
+    private Map<String, MoodEvent> latestMood = new HashMap<>();
+    /** Provide a public getter so we can assert marker contents in tests. */
+    public Map<String, MoodEvent> getMarkerMap() {
+        return latestMood;
+    }
 
     public MapNearbyFragment() {
         // Required empty public constructor
@@ -82,7 +89,9 @@ public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+        db = FirebaseFirestore.getInstance();
     }
 
     /**
@@ -236,7 +245,6 @@ public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
      * Fetches the list of usernames that 'Username' follows (with Status=Accepted).
      */
     private void getFollowedUsers(GeoPoint currentGeoPoint){
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("FollowRequests")
                 .whereEqualTo("Requester's Username",Username)
                 .whereEqualTo("Status","Accepted")
@@ -262,13 +270,10 @@ public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
     /**
      * Given a list of followed usernames, fetch their mood events and place markers.
      */
-    private void showMoodEventMap(List<String> followed, GeoPoint currentGeoPoint){
+    void showMoodEventMap(List<String> followed, GeoPoint currentGeoPoint){
         //Query Firebase for Mood Events with locations
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Mood Events").whereIn("username",followed).whereEqualTo("public", true).get().addOnCompleteListener(task -> {
             if (task.isSuccessful()){
-                //Hash Map to store latest mood event per user
-                Map<String, MoodEvent> latestMood = new HashMap<>();
                 //Loop Through each mood event
                 for (QueryDocumentSnapshot documentSnapshot: task.getResult()) {
                     try {
@@ -467,4 +472,5 @@ public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                 .show();
     }
+
 }
