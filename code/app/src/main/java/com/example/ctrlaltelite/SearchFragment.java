@@ -156,17 +156,19 @@ public class SearchFragment extends Fragment {
                             String username = document.getString("username");
                             String email = document.getString("email");
                             String mobile = document.getString("mobile");
-                            String displayname = document.getString("displayName");
-                            User user = new User(displayname, username, null); // changed display name as name, no profilePhotoUrl yet
+                            String displayName = document.getString("displayName");
+                            User user = new User(displayName, username, null); // DisplayName as name, no profilePhotoUrl yet
                             user.setEmail(email);
                             user.setMobile(mobile);
-                            user.setDisplayName(displayname);
+                            user.setDisplayName(displayName);
                             if (username.equals(currentUserUsername)) {
                                 currentUser = user;
                             }
 
-                            String usernameLower = username.toLowerCase();
-                            if (query.isEmpty() || usernameLower.contains(query)) {
+                            // Convert to lowercase for case-insensitive matching
+                            String usernameLower = username != null ? username.toLowerCase() : "";
+                            String displayNameLower = displayName != null ? displayName.toLowerCase() : "";
+                            if (query.isEmpty() || usernameLower.contains(query) || displayNameLower.contains(query)) { //checking both username and display name
                                 userList.add(user);
                             }
                         }
