@@ -101,10 +101,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
-
-        getFCMToken();
-
         loadShownFollowRequests();
 
 
@@ -332,45 +328,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
-//    private void showFollowRequestPopup(String requesterDisplayName) {
-//        LayoutInflater inflater = LayoutInflater.from(this);
-//        View popupView = inflater.inflate(R.layout.follow_request_popup, null);
-//
-//        TextView messageText = popupView.findViewById(R.id.popup_message);
-//        Button viewButton = popupView.findViewById(R.id.popup_action);
-//        messageText.setText(requesterDisplayName + " sent you a follow request");
-//        messageText.setTextColor(Color.BLACK);
-//        messageText.setTextSize(16);
-//        messageText.setPadding(16, 16, 16, 16);
-//
-//        // Add it to the top container
-//        ViewGroup container = findViewById(R.id.popup_container);
-//        container.addView(popupView);
-//        popupView.setVisibility(View.VISIBLE);
-//
-//        // Auto-dismiss after 5 seconds
-//        popupView.postDelayed(() -> container.removeView(popupView), 5000);
-//        Log.d("PopupDebug", "Popup should show for: " + requesterDisplayName);
-//
-//        // Handle "View" button
-//        viewButton.setOnClickListener(v -> {
-//            container.removeView(popupView);
-//            fragmentRepl(new ViewFollowRequestsFragment(username));
-//        });
-//    }
-
-    void getFCMToken(){
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
-                String token = task.getResult();
-                Log.i("My token", token);
-
-            }
-        });
-    }
 
 
     /**
