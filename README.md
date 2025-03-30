@@ -20,7 +20,7 @@ Sentio is a user-friendly Android app designed to help friends and family stay c
 
 ## Key Features
 
-- ALL USER STORIES
+- ALL USER STORIES covered
 - Mood Event Posting – Log how you're feeling through mood events. Pick an emotion, add an optional reason or social context, and let the timestamp capture the moment.
 - Mood History Feed - Scroll through your personal mood history in reverse chronological order to reflect on your emotional journey.
 - Public & Private Sharing - You’re in control. Share your mood publicly so friends can support you—or keep it private just for yourself.
