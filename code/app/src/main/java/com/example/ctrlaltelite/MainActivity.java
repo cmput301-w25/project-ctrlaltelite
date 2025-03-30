@@ -3,11 +3,15 @@ package com.example.ctrlaltelite;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,14 +31,19 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 /**
  * The {@code MainActivity} serves as the entry point of the application and manages
@@ -53,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
-
+    private Set<String> shownFollowRequestIds;
+    private String requestId;
 
 
     /**
@@ -89,6 +99,36 @@ public class MainActivity extends AppCompatActivity {
         if (bundle != null) {
             username = bundle.getString("username");
         }
+
+
+
+
+        getFCMToken();
+
+        loadShownFollowRequests();
+
+
+
+        FirebaseFirestore.getInstance()
+                .collection("FollowRequests")
+                .whereEqualTo("Requestee's Username", username)
+                .whereEqualTo("Status", "Pending")
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null || snapshots == null) return;
+
+                    for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                        if (dc.getType() == DocumentChange.Type.ADDED) {
+                            String requesterDisplayName = dc.getDocument().getString("Requester's Display Name");
+                            String requestId = dc.getDocument().getId();
+
+                            if (!shownFollowRequestIds.contains(requestId)) {
+                                saveShownFollowRequest(requestId); // Persistently save it
+                                showFollowRequestPopup(requesterDisplayName);
+                            }
+
+                        }
+                    }
+                });
 
 
 
@@ -250,6 +290,87 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void loadShownFollowRequests() {
+        SharedPreferences prefs = getSharedPreferences("shown_requests_prefs", MODE_PRIVATE);
+        Set<String> savedIds = prefs.getStringSet("shown_ids", new HashSet<>());
+        shownFollowRequestIds = new HashSet<>(savedIds); // Copy to avoid mutation issues
+    }
+
+
+    private void saveShownFollowRequest(String requestId) {
+        shownFollowRequestIds.add(requestId);
+        SharedPreferences prefs = getSharedPreferences("shown_requests_prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putStringSet("shown_ids", shownFollowRequestIds);
+        editor.apply();
+    }
+
+
+
+    private void showFollowRequestPopup(String requesterDisplayName) {
+        View rootView = findViewById(android.R.id.content); // Root view of your activity
+
+        // First, create the Snackbar and assign it to a variable
+        Snackbar snackbar = Snackbar.make(rootView, requesterDisplayName + " sent you a follow request", Snackbar.LENGTH_LONG)
+                .setAction("View", v -> {
+                    // Navigate to your Follow Request Fragment
+                    fragmentRepl(new ViewFollowRequestsFragment(username));
+                });
+
+        // Then, move it to the top
+        View snackbarView = snackbar.getView();
+        snackbarView.setBackgroundColor(Color.parseColor("#e0ccd1"));
+        TextView textView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+        textView.setTextColor(Color.BLACK); // or any color you like
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) snackbarView.getLayoutParams();
+        params.setMargins(16, 100, 16, 0); // Top margin to push it down a little from the top
+        snackbarView.setLayoutParams(params);
+        snackbarView.setTranslationY(-rootView.getHeight() + 400);
+
+        // Finally, show it
+        snackbar.show();
+    }
+
+
+
+
+
+//    private void showFollowRequestPopup(String requesterDisplayName) {
+//        LayoutInflater inflater = LayoutInflater.from(this);
+//        View popupView = inflater.inflate(R.layout.follow_request_popup, null);
+//
+//        TextView messageText = popupView.findViewById(R.id.popup_message);
+//        Button viewButton = popupView.findViewById(R.id.popup_action);
+//        messageText.setText(requesterDisplayName + " sent you a follow request");
+//        messageText.setTextColor(Color.BLACK);
+//        messageText.setTextSize(16);
+//        messageText.setPadding(16, 16, 16, 16);
+//
+//        // Add it to the top container
+//        ViewGroup container = findViewById(R.id.popup_container);
+//        container.addView(popupView);
+//        popupView.setVisibility(View.VISIBLE);
+//
+//        // Auto-dismiss after 5 seconds
+//        popupView.postDelayed(() -> container.removeView(popupView), 5000);
+//        Log.d("PopupDebug", "Popup should show for: " + requesterDisplayName);
+//
+//        // Handle "View" button
+//        viewButton.setOnClickListener(v -> {
+//            container.removeView(popupView);
+//            fragmentRepl(new ViewFollowRequestsFragment(username));
+//        });
+//    }
+
+    void getFCMToken(){
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                String token = task.getResult();
+                Log.i("My token", token);
+
+            }
+        });
+    }
 
 
     /**

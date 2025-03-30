@@ -64,7 +64,7 @@
             android:layout_marginBottom="10dp"
             android:layout_toLeftOf="@id/message_send_btn"
             android:background="@drawable/rounder_corner_bg"
-            android:elevation="4dp"
+            android:elevation="3dp"
             android:hint="Message"
             android:padding="10dp"
             android:id="@+id/chat_message_input"/>
