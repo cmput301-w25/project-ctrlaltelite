@@ -1,53 +1,48 @@
 package com.example.ctrlaltelite;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
+import static com.example.ctrlaltelite.R.*;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.ListView;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.PieChart;
-import com.github.mikephil.charting.data.BarData;
-import com.github.mikephil.charting.data.BarDataSet;
-import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-
-//// created with guidance from ChatGPT (OpenAI), March 30, 2025
 public class StatsFragment extends Fragment {
 
     private PieChart moodPieChart;
 
-
+    //// Lines 42 to 109 created with guidance from ChatGPT (OpenAI), March 30, 2025
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_stats, container, false);
         moodPieChart = view.findViewById(R.id.moodPieChart);
-
-
         loadFirestoreData();
 
         return view;
@@ -111,14 +106,50 @@ public class StatsFragment extends Fragment {
                     moodPieChart.getDescription().setEnabled(false);
                     moodPieChart.invalidate();
 
+                    moodPieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                        @Override
+                        public void onValueSelected(Entry e, Highlight h) {
+                            // Inflate the dialog layout
+                            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_stats_events, null);
+
+                            // Initialize RecyclerView for displaying comments
+                            ListView listView = dialogView.findViewById(id.mood_list_1);
+                            List<MoodEvent> moodEvents = new ArrayList<>();
+                            MoodEventAdapter adapter = new MoodEventAdapter(getContext(), moodEvents);
+                            listView.setAdapter(adapter);
+
+                            //Find mood events with that mood
+                            moodEventsRef
+                                    .whereEqualTo("username", currentUsername)
+                                    .whereGreaterThanOrEqualTo("timestamp", thirtyDaysAgo)
+                                    .orderBy("timestamp", Query.Direction.ASCENDING)
+                                    .get()
+                                    .addOnSuccessListener(queryDocumentSnapshots -> {
+                                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                                            if ((doc.getString("emotionalState").equals((((PieEntry) e).getLabel())))) {
+                                                MoodEvent moodEvent = doc.toObject(MoodEvent.class);
+                                                moodEvent.setDocumentId(doc.getId()); // Ensure docId is set
+                                                moodEvents.add(moodEvent);
+                                            }
+                                        }
+                                        //Sort mood events
+                                        moodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
+
+                                        // Create and show the dialog
+                                        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                                                .setView(dialogView)
+                                                .create();
+                                        dialog.show();
+                                    });
+
+                        }
+                        @Override
+                        public void onNothingSelected() {}
+                        });
                     Log.d("StatsFragment", "Last 30 days mood data: " + moodCounts.toString());
                 })
                 .addOnFailureListener(e -> {
                     Log.e("StatsFragment", "Error loading mood data", e);
                 });
-
-
     }
-
-
 }
