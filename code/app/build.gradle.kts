@@ -2,21 +2,27 @@ plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
 }
+
 android {
     namespace = "com.example.ctrlaltelite"
     compileSdk = 35
+
     defaultConfig {
         applicationId = "com.example.ctrlaltelite"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
         lint {
             baseline = file("lint-baseline.xml")
             abortOnError = false
         }
     }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -26,11 +32,13 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
+
 dependencies {
     implementation ("com.firebaseui:firebase-ui-firestore:8.0.2")
     implementation("com.airbnb.android:lottie:6.3.0")
@@ -40,17 +48,6 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.fragment:fragment:1.6.2")
-
-    
-          
-            
-    
-
-          
-          Expand Down
-    
-    
-  
     implementation(libs.core)
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:core:1.5.0")
@@ -80,4 +77,6 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
     implementation("com.google.android.gms:play-services-maps:19.1.0")
     implementation ("com.airbnb.android:lottie:6.6.3")
+
+
 }
