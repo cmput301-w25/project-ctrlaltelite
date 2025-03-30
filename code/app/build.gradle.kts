@@ -41,6 +41,7 @@ android {
 
 dependencies {
     implementation ("com.firebaseui:firebase-ui-firestore:8.0.2")
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("com.airbnb.android:lottie:6.3.0")
     implementation(libs.espresso.intents)
     implementation(libs.play.services.location)

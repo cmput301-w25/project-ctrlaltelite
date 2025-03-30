@@ -163,6 +163,13 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
+                if (itemid == R.id.stats) {
+                    // Redirect to Login Screen
+                    Intent intent = new Intent(MainActivity.this, Login.class);
+                    fragmentRepl(new StatsFragment());
+
+                }
+
                 //whenever a method is called from here the side drawer will close
                 drawerLayout.close();
                 return false;
