@@ -31,7 +31,7 @@ Sentio is a user-friendly Android app designed to help friends and family stay c
 - Geolocation Attachment - Optionally attach your current location when posting a mood. See your emotions plotted on a map and check out your friends’ emotional journeys too.
 - Offline Functionality - Create, update, or delete mood events even while offline. Everything syncs automatically when you’re back online.
 - Add Photos - Add an image to your mood post for a more vivid and meaningful experience (don’t worry, there’s a file size limit to keep things smooth).
-- Color-Coded Mood Expressions - Emotional states are shown consistently with familiar emojis and colors—on your feed, maps, and more—for quick, clear mood recognition.
+- Color-Coded Mood Expressions - Emotional states are shown consistently with familiar emojis and colors — on your feed, maps, and more — for quick, clear mood recognition.
 - Chat in Real Time - Message partcipants directly with real-time chat. Stay connected, talk through your day, and share how you're really feeling.
 
 ## Setup Instructions
