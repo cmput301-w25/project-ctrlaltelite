@@ -3,11 +3,15 @@ package com.example.ctrlaltelite;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,14 +31,19 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 
 /**
  * The {@code MainActivity} serves as the entry point of the application and manages
@@ -53,7 +62,8 @@ public class MainActivity extends AppCompatActivity {
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
-
+    private Set<String> shownFollowRequestIds;
+    private String requestId;
 
 
     /**
@@ -89,6 +99,32 @@ public class MainActivity extends AppCompatActivity {
         if (bundle != null) {
             username = bundle.getString("username");
         }
+
+
+        loadShownFollowRequests();
+
+
+
+        FirebaseFirestore.getInstance()
+                .collection("FollowRequests")
+                .whereEqualTo("Requestee's Username", username)
+                .whereEqualTo("Status", "Pending")
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null || snapshots == null) return;
+
+                    for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                        if (dc.getType() == DocumentChange.Type.ADDED) {
+                            String requesterDisplayName = dc.getDocument().getString("Requester's Display Name");
+                            String requestId = dc.getDocument().getId();
+
+                            if (!shownFollowRequestIds.contains(requestId)) {
+                                saveShownFollowRequest(requestId); // Persistently save it
+                                showFollowRequestPopup(requesterDisplayName);
+                            }
+
+                        }
+                    }
+                });
 
 
 
@@ -247,6 +283,48 @@ public class MainActivity extends AppCompatActivity {
 
     public void openDrawer() {
         drawerLayout.openDrawer(GravityCompat.START);
+    }
+
+
+    private void loadShownFollowRequests() {
+        SharedPreferences prefs = getSharedPreferences("shown_requests_prefs", MODE_PRIVATE);
+        Set<String> savedIds = prefs.getStringSet("shown_ids", new HashSet<>());
+        shownFollowRequestIds = new HashSet<>(savedIds); // Copy to avoid mutation issues
+    }
+
+
+    private void saveShownFollowRequest(String requestId) {
+        shownFollowRequestIds.add(requestId);
+        SharedPreferences prefs = getSharedPreferences("shown_requests_prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putStringSet("shown_ids", shownFollowRequestIds);
+        editor.apply();
+    }
+
+
+
+    private void showFollowRequestPopup(String requesterDisplayName) {
+        View rootView = findViewById(android.R.id.content); // Root view of your activity
+
+        // First, create the Snackbar and assign it to a variable
+        Snackbar snackbar = Snackbar.make(rootView, requesterDisplayName + " sent you a follow request", Snackbar.LENGTH_LONG)
+                .setAction("View", v -> {
+                    // Navigate to your Follow Request Fragment
+                    fragmentRepl(new ViewFollowRequestsFragment(username));
+                });
+
+        // Then, move it to the top
+        View snackbarView = snackbar.getView();
+        snackbarView.setBackgroundColor(Color.parseColor("#e0ccd1"));
+        TextView textView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+        textView.setTextColor(Color.BLACK); // or any color you like
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) snackbarView.getLayoutParams();
+        params.setMargins(16, 100, 16, 0); // Top margin to push it down a little from the top
+        snackbarView.setLayoutParams(params);
+        snackbarView.setTranslationY(-rootView.getHeight() + 400);
+
+        // Finally, show it
+        snackbar.show();
     }
 
 
