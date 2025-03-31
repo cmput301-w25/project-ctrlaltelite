@@ -37,7 +37,7 @@ public class ChatFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        Query query = db.collection("hatrooms")
+        Query query = db.collection("chatrooms")
                 .whereArrayContains("userIds", currentUserId)
                 .orderBy("lastMessageTimestamp", Query.Direction.DESCENDING);
 
