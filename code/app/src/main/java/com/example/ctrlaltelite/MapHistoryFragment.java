@@ -20,13 +20,19 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.SpannableString;
+import android.text.TextWatcher;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -65,9 +71,11 @@ import com.google.firebase.storage.StorageReference;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
 
@@ -77,21 +85,50 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     private String Username;
     private GoogleMap googleMap;
     private FirebaseFirestore db;
+    private String moodFilter = "Mood";
     private static final String TAG = "MapHistoryFragment";
     private int MAX_DISTANCE = 5000;    //MAX DISTANCE IN METRES
     //Hash Map to store latest mood event per user
-    private Map<String, MoodEvent> latestMood = new HashMap<>();
+    //private Map<String, MoodEvent> latestMood = new HashMap<>();
+    private MoodEvent latestMoodEvent;  // Store the single latest event
+    // Filter variables as class fields
+    private boolean weekFilter = false; // Default: all time
+    private String reasonFilter = "";   // Default: no search
+
+    /**
+     * Public setter methods for filters (optional, if you want to set them programmatically)
+     */
+    public void setMoodFilter(String filter) {
+        this.moodFilter = filter;
+    }
+
+    public void setWeekFilter(boolean filter) {
+        this.weekFilter = filter;
+    }
+
+    public void setReasonFilter(String filter) {
+        this.reasonFilter = filter;
+    }
+
+    /**
+     * Provide a public getter for the latest mood event (replacing getMarkerMap)
+     */
+    public MoodEvent getLatestMoodEvent() {
+        return latestMoodEvent;
+    }
 
     /**
      * Provide a public getter so we can assert marker contents in tests.
      */
+    /*
     public Map<String, MoodEvent> getMarkerMap() {
         return latestMood;
     }
-
+    */
     public MapHistoryFragment() {
         // Required empty public constructor
     }
+
 
     /**
      * Called when the fragment is first created.
@@ -116,25 +153,47 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_map_nearby, container, false);
+        View view = inflater.inflate(R.layout.fragment_map_history, container, false);
 
+        // Example UI setup
+        Spinner moodFilterSpinner = view.findViewById(R.id.mood_filter_history);
+        CheckBox weekFilterCheckBox = view.findViewById(R.id.show_past_week_history);
+        EditText reasonFilterEditText = view.findViewById(R.id.search_mood_reason_history);
 
-        // Get a reference to the MainActivity so we can call openDrawer()
-        MainActivity mainActivity = (MainActivity) getActivity();
+        // Mood filter spinner setup
+        List<String> moodOptions = Arrays.asList(getResources().getStringArray(R.array.mood_options));
+        ArrayAdapter<String> moodAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, moodOptions);
+        moodFilterSpinner.setAdapter(moodAdapter);
+        moodFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                moodFilter = moodOptions.get(position);
+                showMoodEventMap(Username, getUserLocation()); // Refresh map
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
+        // Week filter checkbox
+        weekFilterCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            weekFilter = isChecked;
+            showMoodEventMap(Username, getUserLocation()); // Refresh map
+        });
 
-        // Retrieve username from Bundle
-        Bundle args = getArguments();
-        if (args != null) {
-            Username = args.getString("username");
-            Log.d("MoodHistoryFragment", "Fetching mood events for Username: " + Username);
-        }
-        if (Username == null) {
-            Toast.makeText(getContext(), "No user logged in", Toast.LENGTH_SHORT).show();
-            return view;
-        }
+        // Reason filter edit text
+        reasonFilterEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                reasonFilter = s.toString().trim();
+                showMoodEventMap(Username, getUserLocation()); // Refresh map
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
-
+        // ... (rest of your onCreateView code)
         return view;
     }
 
@@ -256,105 +315,108 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         });
 
         // Load the markers from all followed users.
-        getFollowedUsers(currentGeoPoint);
+        showMoodEventMap(Username,currentGeoPoint);
     }
 
 
     /**
-     * Fetches the list of usernames that 'Username' follows (with Status=Accepted).
+     * Given a username and current location, fetches mood events for that user only,
+     * applies filters, and places markers on the map for the latest event.
      */
-    private void getFollowedUsers(GeoPoint currentGeoPoint) {
-        db.collection("FollowRequests")
-                .whereEqualTo("Requester's Username", Username)
-                .whereEqualTo("Status", "Accepted")
+    void showMoodEventMap(String username, GeoPoint currentGeoPoint) {
+        // Query Firebase for Mood Events for the specific user only
+        db.collection("Mood Events")
+                .whereEqualTo("username", username) // Only fetch events for this user
+                .whereEqualTo("public", true)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<String> followedUsers = new ArrayList<>();
-                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                        String followed = documentSnapshot.getString("Requestee's Username");
-                        if (followed != null) {
-                            followedUsers.add(followed);
-                        }
-                    }
-                    if (followedUsers.isEmpty()) {
-                        Toast.makeText(getContext(), "You Don't Follow Anyone", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    showMoodEventMap(followedUsers, currentGeoPoint);
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Could not get follow requests", Toast.LENGTH_SHORT).show();
-                });
-    }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<MoodEvent> allMoodEvents = new ArrayList<>();
+                        latestMoodEvent = null; // Reset the latest event
 
-    /**
-     * Given a list of followed usernames, fetch their mood events and place markers.
-     */
-    void showMoodEventMap(List<String> followed, GeoPoint currentGeoPoint) {
-        //Query Firebase for Mood Events with locations
-        db.collection("Mood Events").whereIn("username", followed).whereEqualTo("public", true).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                //Loop Through each mood event
-                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                    try {
-                        MoodEvent moodEvent = documentSnapshot.toObject(MoodEvent.class);
-                        String user = moodEvent.getUsername();
+                        // Populate allMoodEvents and find the latest event
+                        for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                            try {
+                                MoodEvent moodEvent = documentSnapshot.toObject(MoodEvent.class);
+                                allMoodEvents.add(moodEvent); // Add to full list for filtering
 
-                        if (!latestMood.containsKey(user)) {
-                            latestMood.put(user, moodEvent);
-                        } else {
-                            MoodEvent previousMood = latestMood.get(user);
-                            if (moodEvent.getTimestamp() != null) {
-                                assert previousMood != null;
-                                if (previousMood.getTimestamp() != null) {
-                                    if (moodEvent.getTimestamp().toDate().getTime() > previousMood.getTimestamp().toDate().getTime()) {
-                                        latestMood.put(user, moodEvent);
+                                // Determine the latest mood event (before filtering)
+                                if (latestMoodEvent == null) {
+                                    latestMoodEvent = moodEvent;
+                                } else if (moodEvent.getTimestamp() != null && latestMoodEvent.getTimestamp() != null) {
+                                    if (moodEvent.getTimestamp().toDate().getTime() > latestMoodEvent.getTimestamp().toDate().getTime()) {
+                                        latestMoodEvent = moodEvent;
                                     }
                                 }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error processing document: " + documentSnapshot.getId(), e);
                             }
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error getting document: " + documentSnapshot.getId(), e);
-                    }
-                }
-                LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
-                for (MoodEvent moodEvent : latestMood.values()) {
-                    try {
-                        if (moodEvent.getLocation() != null) {
-                            double latitude = moodEvent.getLocation().getLatitude();
-                            double longitude = moodEvent.getLocation().getLongitude();
-                            LatLng moodLocation = new LatLng(latitude, longitude);
 
-                            //Calculate distance
-                            float[] results = new float[1];
-                            Location.distanceBetween(currentLatLng.latitude, currentLatLng.longitude, moodLocation.latitude, moodLocation.longitude, results);
-                            float distance = results[0];
-                            if (distance <= MAX_DISTANCE) {
-                                //Extract Emoji from mood Event
-                                String[] moodDesc = moodEvent.getEmotionalState().split(" ");
-                                String emoji = new String();
-                                if (moodDesc.length > 0) {
-                                    emoji = moodDesc[0];
-                                } else {
-                                    emoji = "";
-                                }
-                                //Change marker to the Mood Event Emoji
+                        // Apply filters similar to HomeFragment's applyFilters
+                        List<MoodEvent> filteredMoodEvents = new ArrayList<>(allMoodEvents);
+
+                        // Mood filter
+                        if (!moodFilter.equals("Mood")) {
+                            filteredMoodEvents = filteredMoodEvents.stream()
+                                    .filter(event -> event.getEmotionalState().trim().equals(moodFilter.trim()))
+                                    .collect(Collectors.toList());
+                        }
+
+                        // Week filter
+                        if (weekFilter) {
+                            Calendar oneWeekAgo = Calendar.getInstance();
+                            oneWeekAgo.add(Calendar.DAY_OF_YEAR, -7);
+                            long oneWeekAgoMillis = oneWeekAgo.getTimeInMillis();
+                            filteredMoodEvents = filteredMoodEvents.stream()
+                                    .filter(event -> event.getTimestamp().toDate().getTime() >= oneWeekAgoMillis)
+                                    .collect(Collectors.toList());
+                        }
+
+                        // Reason filter
+                        if (!reasonFilter.isEmpty()) {
+                            filteredMoodEvents = filteredMoodEvents.stream()
+                                    .filter(event -> Arrays.asList(event.getReason().toLowerCase().split("\\s+"))
+                                            .contains(reasonFilter.toLowerCase()))
+                                    .collect(Collectors.toList());
+                        }
+
+                        // Update latestMoodEvent based on filtered results
+                        latestMoodEvent = null;
+                        for (MoodEvent event : filteredMoodEvents) {
+                            if (latestMoodEvent == null) {
+                                latestMoodEvent = event;
+                            } else if (event.getTimestamp().toDate().getTime() > latestMoodEvent.getTimestamp().toDate().getTime()) {
+                                latestMoodEvent = event;
+                            }
+                        }
+
+                        // Place marker on the map for the latest event, if it exists
+                        if (latestMoodEvent != null && latestMoodEvent.getLocation() != null) {
+                            try {
+                                double latitude = latestMoodEvent.getLocation().getLatitude();
+                                double longitude = latestMoodEvent.getLocation().getLongitude();
+                                LatLng moodLocation = new LatLng(latitude, longitude);
+
+                                // Extract Emoji from mood Event
+                                String[] moodDesc = latestMoodEvent.getEmotionalState().split(" ");
+                                String emoji = moodDesc.length > 0 ? moodDesc[0] : "";
+
+                                // Change marker to the Mood Event Emoji
                                 MarkerOptions markerOptions = new MarkerOptions()
                                         .position(moodLocation)
                                         .icon(getMarkerIcon(emoji));
 
-                                Marker markers = googleMap.addMarker(markerOptions);
-                                markers.setTag(moodEvent);
+                                Marker marker = googleMap.addMarker(markerOptions);
+                                marker.setTag(latestMoodEvent);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error adding marker for mood event", e);
                             }
                         }
-                    } catch (Exception e) {
-                        Log.e(TAG, "Error getting Mood from hash map", e);
+                    } else {
+                        Log.e(TAG, "Error getting Mood Events", task.getException());
                     }
-                }
-            } else {
-                Log.e(TAG, "Error getting Mood Events", task.getException());
-            }
-        });
+                });
     }
 
     /**
@@ -586,5 +648,8 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
             default: return 0xFF616161; // Default Gray
         }
     }
+
+
+
 
 }

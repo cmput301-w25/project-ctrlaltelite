@@ -116,7 +116,7 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_map_nearby, container, false);
+        View view = inflater.inflate(R.layout.fragment_map_following, container, false);
 
 
         // Get a reference to the MainActivity so we can call openDrawer()
@@ -147,7 +147,7 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
         super.onViewCreated(view, savedInstanceState);
         // Attempt to get the SupportMapFragment from the child FragmentManager
         SupportMapFragment mapFragment = (SupportMapFragment)
-                getChildFragmentManager().findFragmentById(R.id.id_map_nearby);
+                getChildFragmentManager().findFragmentById(R.id.id_map_following);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         } else {
@@ -288,7 +288,7 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
     }
 
     /**
-     * Given a list of followed usernames, fetch their mood events and place markers.
+     * Given a list of followed usernames, based on their filters chosen, fetch their mood events and place markers.
      */
     void showMoodEventMap(List<String> followed, GeoPoint currentGeoPoint) {
         //Query Firebase for Mood Events with locations
@@ -321,31 +321,24 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
                 for (MoodEvent moodEvent : latestMood.values()) {
                     try {
                         if (moodEvent.getLocation() != null) {
-                            double latitude = moodEvent.getLocation().getLatitude();
-                            double longitude = moodEvent.getLocation().getLongitude();
-                            LatLng moodLocation = new LatLng(latitude, longitude);
-
-                            //Calculate distance
-                            float[] results = new float[1];
-                            Location.distanceBetween(currentLatLng.latitude, currentLatLng.longitude, moodLocation.latitude, moodLocation.longitude, results);
-                            float distance = results[0];
-                            if (distance <= MAX_DISTANCE) {
-                                //Extract Emoji from mood Event
-                                String[] moodDesc = moodEvent.getEmotionalState().split(" ");
-                                String emoji = new String();
-                                if (moodDesc.length > 0) {
-                                    emoji = moodDesc[0];
-                                } else {
-                                    emoji = "";
-                                }
-                                //Change marker to the Mood Event Emoji
-                                MarkerOptions markerOptions = new MarkerOptions()
-                                        .position(moodLocation)
-                                        .icon(getMarkerIcon(emoji));
-
-                                Marker markers = googleMap.addMarker(markerOptions);
-                                markers.setTag(moodEvent);
+                        double latitude = moodEvent.getLocation().getLatitude();
+                        double longitude = moodEvent.getLocation().getLongitude();
+                        LatLng moodLocation = new LatLng(latitude, longitude);
+                            //Extract Emoji from mood Event
+                            String[] moodDesc = moodEvent.getEmotionalState().split(" ");
+                            String emoji = new String();
+                            if (moodDesc.length > 0) {
+                                emoji = moodDesc[0];
+                            } else {
+                                emoji = "";
                             }
+                            //Change marker to the Mood Event Emoji
+                            MarkerOptions markerOptions = new MarkerOptions()
+                                    .position(moodLocation)
+                                    .icon(getMarkerIcon(emoji));
+
+                            Marker markers = googleMap.addMarker(markerOptions);
+                            markers.setTag(moodEvent);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error getting Mood from hash map", e);
