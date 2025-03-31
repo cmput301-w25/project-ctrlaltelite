@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="mood_options">
-        <item>😐 Select Emotional State</item>
+        <item>Mood</item>
         <item>😊 Happy</item>
         <item>😢 Sad</item>
         <item>😲 Surprised</item>
