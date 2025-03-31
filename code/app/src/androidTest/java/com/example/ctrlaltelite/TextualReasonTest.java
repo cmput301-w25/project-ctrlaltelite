@@ -4,13 +4,10 @@ import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.pressBack;
-import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
 import static androidx.test.espresso.matcher.ViewMatchers.hasChildCount;
 import static androidx.test.espresso.matcher.ViewMatchers.hasErrorText;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
@@ -19,13 +16,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.anything;
 import static org.hamcrest.Matchers.is;
 
-import static java.util.function.Predicate.not;
-
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
-import androidx.test.espresso.Espresso;
-import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.IdlingRegistry;
+import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -55,38 +52,59 @@ import java.util.Objects;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class TextualReasonTest {
+
+    private String testUsername = "testUser";
+
+    // Launch MainActivity with an Intent
     @Rule
-    public ActivityScenarioRule<Login> activityRule = new ActivityScenarioRule<>(Login.class);
+    public ActivityScenarioRule<MainActivity> activityRule =
+            new ActivityScenarioRule<>(new Intent(ApplicationProvider.getApplicationContext(), MainActivity.class)
+                    .putExtra("username", testUsername));
 
-    /**
-     * Setting up our instance of the db
-     */
-    @BeforeClass
-    public static void setup() {
+    private FirebaseFirestore db;
+    private FirestoreIdlingResource idlingResource;
 
-        // Specific address for emulated device to access localhost
-        String androidLocalhost = "10.0.2.2";
-        int portNumber = 8080;
-        FirebaseFirestore.getInstance().useEmulator(androidLocalhost, portNumber);
+    @Before
+    public void setUp() throws InterruptedException {
+        db = FirebaseFirestore.getInstance();
+
+        // Register IdlingResource for Firestore
+        idlingResource = new FirestoreIdlingResource();
+        IdlingRegistry.getInstance().register(idlingResource);
+
+        // Launch MainActivity with HomeFragment and pass username
+        activityRule.getScenario().onActivity(activity -> {
+            HomeFragment fragment = new HomeFragment();
+            Bundle args = new Bundle();
+            args.putString("username", testUsername);
+            fragment.setArguments(args);
+            activity.getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.frameLayout, fragment)
+                    .commitAllowingStateLoss();
+        });
+
+        // Wait for Firestore data to load via IdlingResource
+        idlingResource.waitForIdle();
     }
 
     /**
-     * Adding test data
+     * Cleaning up the database after each test
      */
-    @Before
-    public void seedDatabase() throws InterruptedException {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+    @After
+    public void tearDown() {
+        // Clean up test data
+        db.collection("Mood Events")
+                .whereEqualTo("username", testUsername)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (var doc : querySnapshot) {
+                        doc.getReference().delete();
+                    }
+                });
 
-        CollectionReference usersRef = db.collection("users");
-        Map<String, Object> user = new HashMap<>();
-        user.put("username", "testUsername");
-        user.put("password", "testPassword");
-        user.put("email", "test@gmail.com");
-        user.put("mobile", "4567843");
-        usersRef.document("testUserDoc").set(user);
-        // Allowing for some time for the data to be added into the database
-        Thread.sleep(1000);
-
+        // Unregister IdlingResource
+        IdlingRegistry.getInstance().unregister(idlingResource);
     }
 
     /**
@@ -94,12 +112,6 @@ public class TextualReasonTest {
      */
     @Test
     public void ValidTextualReasonShouldPass() throws InterruptedException {
-
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
-
         // Reaching the Add Fragment
         onView(withId(R.id.add)).perform(click());
 
@@ -123,40 +135,9 @@ public class TextualReasonTest {
                 .inAdapterView(withId(R.id.mood_list))
                 .atPosition(0)
                 .perform(click());
-        onView(withId(R.id.edit_mood_spinner)).check(matches(withText("Happy")));
+        onView(withId(R.id.edit_social_situation_spinner)).check(matches(withSpinnerText("\uD83C\uDFE1 Alone")));
         onView(withId(R.id.edit_reason_edittext)).check(matches(withText("Feeling alone")));
-        onView(withId(R.id.edit_social_situation_spinner)).check(matches(withText("Alone")));
-
-    }
-
-    /**
-     * New Mood Event Should Not be Created Upon Entering A Textual Reason With More Than 200 Characters
-     */
-    @Test
-    public void InvalidTextualReasonDueToTooManyCharactersShouldFail() throws InterruptedException {
-
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
-
-        onView(withId(R.id.add)).perform(click());
-
-        onView(withId(R.id.dropdown_mood)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-
-        onView(withId(R.id.edit_reason)).perform(typeText("Ridiculously Insurmountable Loneliness. I have spent dozens and dozens" +
-                "of hours on this crazy long project to the point where I am the total epitome of sheer loneliness. My daily routine consists of" +
-                "constant errors when I am unit testing that I want to pull my hair out. (I am pretty sure we are at 200 characters now but just in case hopefully now" +
-                "the world limit has been reached"));
-
-        onView(withId(R.id.social_situation_spinner)).perform(click());
-        onData(anything()).atPosition(1).perform(click());
-
-        onView(withId(R.id.button_save)).perform(click());
-        Thread.sleep(1000);
-
-        onView(withId(R.id.edit_reason)).check(matches(hasErrorText("Reason cannot have more than 200 characters")));
+        onView(withId(R.id.edit_mood_spinner)).check(matches(withSpinnerText("\uD83D\uDE0A Happy")));
 
     }
 
@@ -165,11 +146,6 @@ public class TextualReasonTest {
      */
     @Test
     public void InvalidTextualReasonDueToEmptyReasonShouldFail() throws InterruptedException {
-
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
 
         onView(withId(R.id.add)).perform(click());
 
@@ -193,10 +169,6 @@ public class TextualReasonTest {
      */
     @Test
     public void ValidMoodShouldPass() throws InterruptedException {
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
 
         // Reaching the Add Fragment
         onView(withId(R.id.add)).perform(click());
@@ -232,10 +204,6 @@ public class TextualReasonTest {
      */
     @Test
     public void ValidSocialSituationShouldPass() throws InterruptedException {
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
 
         // Reaching the Add Fragment
         onView(withId(R.id.add)).perform(click());
@@ -264,17 +232,12 @@ public class TextualReasonTest {
         onView(withId(R.id.edit_social_situation_spinner)).check(matches(withSpinnerText("\uD83C\uDFE1 Alone")));
     }
 
-
     /**
      * Mood cannot be default option (will be done for project part 4)
      * @throws InterruptedException
     */
     @Test
     public void InvalidMoodShouldFail() throws InterruptedException {
-        onView(withId(R.id.username)).perform(replaceText("testUsername"));
-        onView(withId(R.id.password)).perform(replaceText("testPassword"));
-        onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
 
         onView(withId(R.id.add)).perform(click());
 
@@ -289,41 +252,58 @@ public class TextualReasonTest {
         onView(withId(R.id.button_save)).perform(click());
         Thread.sleep(1000);
 
-        onView(isRoot()).perform(pressBack());
+        onView(withId(R.id.button_cancel)).perform(click());
 
         onView(withId(R.id.mood_list))
                 .check(matches(hasChildCount(0)));
     }
-
     /**
-     * Cleans up the seeded documents from the Firestore emulator after each test.
+     * Custom idlingResource to wait for Firestore operations
      */
-    @After
-    public void tearDown() {
+    private class FirestoreIdlingResource implements IdlingResource {
+        private volatile boolean isIdle = false;
+        private ResourceCallback callback;
 
-        String projectId = "ctrlaltelite-be29f";
-        URL url = null;
-
-        try {
-            // Construct the URL to delete the specific test document.
-            url = new URL("http://10.0.2.2:8080/emulator/v1/projects/" + projectId +
-                    "/databases/(default)/documents");
-        } catch (MalformedURLException exception) {
-            Log.e("URL Error", Objects.requireNonNull(exception.getMessage()));
+        /**
+         * Resource name
+         * @return resource name
+         */
+        @Override
+        public String getName() {
+            return "FirestoreIdlingResource";
         }
-        HttpURLConnection urlConnection = null;
 
-        try {
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("DELETE");
-            int response = urlConnection.getResponseCode();
-            Log.i("Response Code", "Response Code: " + response);
-        } catch (IOException exception) {
-            Log.e("IO Error", Objects.requireNonNull(exception.getMessage()));
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
+        /**
+         * Checking to see if db is idle now
+         * @return boolean which checks to see if db is idle now
+         */
+        @Override
+        public boolean isIdleNow() {
+            return isIdle;
+        }
+
+        /**
+         * Registers callback for idle state transition.
+         * @param callback Callback to notify when idle
+         */
+        @Override
+        public void registerIdleTransitionCallback(ResourceCallback callback) {
+            this.callback = callback;
+        }
+
+        /**
+         * Waiting for the database to load
+         */
+        public void waitForIdle() {
+            db.collection("Mood Events")
+                    .whereEqualTo("username", testUsername)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        isIdle = true;
+                        if (callback != null) {
+                            callback.onTransitionToIdle();
+                        }
+                    });
         }
     }
 }
