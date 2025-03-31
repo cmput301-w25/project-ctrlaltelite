@@ -10,6 +10,8 @@ public class ChatMessageModel {
     private String senderId;
     private Timestamp timestamp;
 
+    private boolean isRead;
+
     /**
      * Empty constructor
      */
@@ -26,6 +28,7 @@ public class ChatMessageModel {
         this.message = message;
         this.senderId = senderId;
         this.timestamp = timestamp;
+        this.isRead = false;
     }
 
     /**
@@ -74,5 +77,22 @@ public class ChatMessageModel {
      */
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+
+    /**
+     * Getter for isRead
+     * @return ttrue if the message has been read, false otherwise
+     */
+    public boolean isRead() {
+        return isRead;
+    }
+
+    /**
+     * Setter for isRead
+     * @param read - true if message is read, false if unread
+     */
+    public void setRead(boolean read) {
+        isRead = read;
     }
 }

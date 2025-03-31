@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HomeFragment"
-    android:background="@color/white">
+    android:background="@color/white"
+    tools:ignore="ExtraText">
 
 
 
@@ -128,4 +129,6 @@
         app:layout_constraintBottom_toBottomOf="parent" >
 
     </ListView>
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

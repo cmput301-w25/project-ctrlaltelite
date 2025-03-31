@@ -262,8 +262,9 @@ public class ChatActivity extends AppCompatActivity {
                 chatroomId,
                 Arrays.asList(currentUserId, otherUsernameId), // Assuming the other user's ID is passed via intent
                 Timestamp.now(),
-                message
+                currentUserId
         );
+        chatroomModel.setLastMessage(message);
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 

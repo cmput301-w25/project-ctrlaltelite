@@ -1,11 +1,12 @@
 package com.example.ctrlaltelite;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 /**
  * Represents a user with basic profile information like display name, username, etc.
  */
-public class User {
+public class User implements Serializable {
     private String displayName;
     private String username;
     private String email;
