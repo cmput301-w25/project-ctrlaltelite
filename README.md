@@ -56,4 +56,4 @@ Sentio is a user-friendly Android app designed to help friends and family stay c
 - [Wiki Link](https://github.com/cmput301-w25/project-ctrlaltelite/wiki)
 - [Scrum Board](https://github.com/orgs/cmput301-w25/projects/58/views/1?layout=board)
 - [UI Mockups](https://github.com/cmput301-w25/project-ctrlaltelite/wiki/User-Interface-Mockup-and-Storyboard-Sequence)
-- [UML](https://github.com/cmput301-w25/project-ctrlaltelite/wiki/UML-(as-of-February-9th,-2025))
+- [UML](https://github.com/cmput301-w25/project-ctrlaltelite/wiki/UML-(as-of-March-31st,-2025))
