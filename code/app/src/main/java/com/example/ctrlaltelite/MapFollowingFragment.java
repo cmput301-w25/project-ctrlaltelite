@@ -70,23 +70,46 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * A Fragment that displays a map with markers representing the latest public mood events of users
+ * followed by the logged-in user. Supports filtering by mood, time (past week), and reason.
+ */
 public class MapFollowingFragment extends Fragment implements OnMapReadyCallback {
 
+    /** The username of the logged-in user, used to fetch followed users' mood events. */
     private String Username;
+
+    /** The Google Map instance used to display mood event markers. */
     private GoogleMap googleMap;
+
+    /** Firestore database instance for retrieving mood events and follow relationships. */
     private FirebaseFirestore db;
+
+    /** Logging tag for this fragment. */
     private static final String TAG = "MapFollowingFragment";
+
+    /** Map storing the latest mood event for each followed user. */
     private Map<String, MoodEvent> latestMood = new HashMap<>();
 
-    // Filter variables
-    private String moodFilter = "Mood"; // Default: no filter
-    private boolean weekFilter = false; // Default: all time
-    private String reasonFilter = "";   // Default: no search
+    /** Filter for mood type, defaults to "Mood" (no filter). */
+    private String moodFilter = "Mood";
 
+    /** Flag to filter events to the past week only, defaults to false (all time). */
+    private boolean weekFilter = false;
+
+    /** Filter for event reasons, defaults to empty string (no filter). */
+    private String reasonFilter = "";
+
+    /**
+     * Gets the map of usernames to their latest mood events.
+     *
+     * @return A Map where keys are usernames and values are their latest MoodEvent objects.
+     */
     public Map<String, MoodEvent> getMarkerMap() {
         return latestMood;
     }
 
+    /** Required empty public constructor for Fragment instantiation. */
     public MapFollowingFragment() {
         // Required empty public constructor
     }
@@ -190,6 +213,11 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Retrieves the user's current location using GPS.
+     *
+     * @return A GeoPoint representing the user's location, or null if unavailable or permission denied.
+     */
     protected GeoPoint getUserLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(getContext(), "Location permission not granted", Toast.LENGTH_SHORT).show();
@@ -228,6 +256,9 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Sets up the map after ensuring location permissions are granted.
+     */
     private void proceedWithMapSetup() {
         GeoPoint currentGeoPoint = getUserLocation();
         if (currentGeoPoint == null) {
@@ -255,6 +286,11 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
         getFollowedUsers(currentGeoPoint);
     }
 
+    /**
+     * Fetches the list of users followed by the logged-in user and triggers map population.
+     *
+     * @param currentGeoPoint The user's current location for map centering fallback.
+     */
     private void getFollowedUsers(GeoPoint currentGeoPoint) {
         db.collection("FollowRequests")
                 .whereEqualTo("Requester's Username", Username)
@@ -279,6 +315,12 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
                 });
     }
 
+    /**
+     * Displays the latest public mood events of followed users on the map, applying filters.
+     *
+     * @param followed List of usernames of followed users.
+     * @param currentGeoPoint The user's current location for fallback centering.
+     */
     void showMoodEventMap(List<String> followed, GeoPoint currentGeoPoint) {
         googleMap.clear();
         latestMood.clear();
@@ -414,6 +456,9 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
                 });
     }
 
+    /**
+     * Requests location permission from the user if not already granted.
+     */
     protected void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -456,6 +501,12 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
         }
     }
 
+    /**
+     * Creates a bitmap icon for a map marker based on an emoji.
+     *
+     * @param emoji The emoji to use as the marker icon.
+     * @return A BitmapDescriptor for the marker.
+     */
     private BitmapDescriptor getMarkerIcon(String emoji) {
         TextView textView = new TextView(getContext());
         textView.setText(emoji);
@@ -474,6 +525,13 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
+    /**
+     * Converts latitude and longitude coordinates to a human-readable address.
+     *
+     * @param latitude The latitude of the location.
+     * @param longitude The longitude of the location.
+     * @return The address string, or null if geocoding fails.
+     */
     private String getAddressFromCoordinates(double latitude, double longitude) {
         Geocoder geocoder = new Geocoder(getContext());
         try {
@@ -487,6 +545,11 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
         return null;
     }
 
+    /**
+     * Displays a dialog with details of a mood event when a marker is clicked.
+     *
+     * @param moodEvent The MoodEvent to display.
+     */
     private void showMoodEventDialog(MoodEvent moodEvent) {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.mood_event_item, null);
         dialogView.setBackgroundColor(Color.TRANSPARENT);
@@ -562,6 +625,12 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
                 });
     }
 
+    /**
+     * Returns a color code for a given mood to use in the dialog display.
+     *
+     * @param mood The mood string (e.g., "😊 Happy").
+     * @return An integer color code (ARGB format).
+     */
     private int getColorForMood(String mood) {
         switch (mood) {
             case "😊 Happy": return 0xFFFFC107; // Amber

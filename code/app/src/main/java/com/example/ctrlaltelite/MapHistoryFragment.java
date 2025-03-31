@@ -75,33 +75,74 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+/**
+ * A Fragment that displays a map with markers representing the user's mood events.
+ * Supports filtering by mood, time (past week), and reason, and shows both public and private events
+ * for the logged-in user.
+ */
 public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
 
+    /** The username of the logged-in user, used to fetch their mood events. */
     private String Username;
+
+    /** The Google Map instance used to display mood event markers. */
     private GoogleMap googleMap;
+
+    /** Firestore database instance for retrieving mood events. */
     private FirebaseFirestore db;
+
+    /** Filter for mood type, defaults to "Mood" (no filter). */
     private String moodFilter = "Mood";
+
+    /** Logging tag for this fragment. */
     private static final String TAG = "MapHistoryFragment";
-    private MoodEvent latestMoodEvent; // Still useful for centering when no filters are active
+
+    /** The most recent mood event, used for default map centering when no filters are active. */
+    private MoodEvent latestMoodEvent;
+
+    /** Flag to filter events to the past week only. */
     private boolean weekFilter = false;
+
+    /** Filter for event reasons, must be a single word. */
     private String reasonFilter = "";
 
+    /**
+     * Sets the mood filter to be applied to displayed events.
+     *
+     * @param filter The mood type to filter by (e.g., "😊 Happy").
+     */
     public void setMoodFilter(String filter) {
         this.moodFilter = filter;
     }
 
+    /**
+     * Sets the week filter to limit events to the past week.
+     *
+     * @param filter True to enable the week filter, false otherwise.
+     */
     public void setWeekFilter(boolean filter) {
         this.weekFilter = filter;
     }
 
+    /**
+     * Sets the reason filter to be applied to displayed events.
+     *
+     * @param filter The single-word reason to filter by.
+     */
     public void setReasonFilter(String filter) {
         this.reasonFilter = filter;
     }
 
+    /**
+     * Gets the most recent mood event.
+     *
+     * @return The latest MoodEvent, or null if none exists.
+     */
     public MoodEvent getLatestMoodEvent() {
         return latestMoodEvent;
     }
 
+    /** Required empty public constructor for Fragment instantiation. */
     public MapHistoryFragment() {
         // Required empty public constructor
     }
@@ -132,7 +173,7 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         CheckBox weekFilterCheckBox = view.findViewById(R.id.show_past_week_history);
         EditText reasonFilterEditText = view.findViewById(R.id.search_mood_reason_history);
 
-        // Mood filter spinner setup (unchanged)
+        // Mood filter spinner setup
         List<String> moodOptions = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.mood_options)));
         if (!moodOptions.isEmpty() && moodOptions.get(0).equals("😐 Select Emotional State")) {
             moodOptions.set(0, "Mood");
@@ -215,6 +256,11 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Retrieves the user's current location using GPS.
+     *
+     * @return A GeoPoint representing the user's location, or null if unavailable or permission denied.
+     */
     protected GeoPoint getUserLocation() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(getContext(), "Location permission not granted", Toast.LENGTH_SHORT).show();
@@ -253,6 +299,9 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Sets up the map after ensuring location permissions are granted.
+     */
     private void proceedWithMapSetup() {
         GeoPoint currentGeoPoint = getUserLocation();
         if (currentGeoPoint == null) {
@@ -280,6 +329,12 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         showMoodEventMap(Username, currentGeoPoint);
     }
 
+    /**
+     * Displays mood events for the specified user on the map, applying filters as needed.
+     *
+     * @param username The username whose mood events to display.
+     * @param currentGeoPoint The user's current location for fallback centering.
+     */
     void showMoodEventMap(String username, GeoPoint currentGeoPoint) {
         googleMap.clear();
         Log.d(TAG, "Fetching mood events for user: " + username);
@@ -414,6 +469,9 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                 });
     }
 
+    /**
+     * Requests location permission from the user if not already granted.
+     */
     protected void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -456,6 +514,12 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Creates a bitmap icon for a map marker based on an emoji.
+     *
+     * @param emoji The emoji to use as the marker icon.
+     * @return A BitmapDescriptor for the marker.
+     */
     private BitmapDescriptor getMarkerIcon(String emoji) {
         TextView textView = new TextView(getContext());
         textView.setText(emoji);
@@ -474,6 +538,13 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
+    /**
+     * Converts latitude and longitude coordinates to a human-readable address.
+     *
+     * @param latitude The latitude of the location.
+     * @param longitude The longitude of the location.
+     * @return The address string, or null if geocoding fails.
+     */
     private String getAddressFromCoordinates(double latitude, double longitude) {
         Geocoder geocoder = new Geocoder(getContext());
         try {
@@ -487,6 +558,11 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         return null;
     }
 
+    /**
+     * Displays a dialog with details of a mood event when a marker is clicked.
+     *
+     * @param moodEvent The MoodEvent to display.
+     */
     private void showMoodEventDialog(MoodEvent moodEvent) {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.mood_event_item, null);
         dialogView.setBackgroundColor(Color.TRANSPARENT);
@@ -562,6 +638,12 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                 });
     }
 
+    /**
+     * Returns a color code for a given mood to use in the dialog display.
+     *
+     * @param mood The mood string (e.g., "😊 Happy").
+     * @return An integer color code (ARGB format).
+     */
     private int getColorForMood(String mood) {
         switch (mood) {
             case "😊 Happy": return 0xFFFFC107; // Amber
