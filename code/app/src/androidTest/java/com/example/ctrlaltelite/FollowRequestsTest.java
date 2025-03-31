@@ -140,7 +140,7 @@ public class FollowRequestsTest {
         onView(withId(R.id.username)).perform(replaceText("testUsername1"));
         onView(withId(R.id.password)).perform(replaceText("testPassword1"));
         onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(5000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.search)).perform(click());
         onView(withId(R.id.user_list)).check(matches(isDisplayed()));
@@ -157,12 +157,12 @@ public class FollowRequestsTest {
                         isClickable(),
                         isEnabled()
                 )));
-        Thread.sleep(5000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.follow_button)).check(matches(withText(containsString("ollow"))));
         onView(withId(R.id.follow_button)).perform(click());
 
-        Thread.sleep(5000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.follow_button)).check(matches(withText(containsString("equested"))));
 
@@ -196,13 +196,13 @@ public class FollowRequestsTest {
                         isEnabled()
                 )));
 
-        Thread.sleep(5000);
+        Thread.sleep(1000);
         onView(withId(R.id.follow_button)).check(matches(withText(containsString("equested"))));
 
         // Follow Button should now do nothing
         onView(withId(R.id.follow_button)).perform(click());
 
-        Thread.sleep(5000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.follow_button)).check(matches(withText(containsString("equested"))));
     }
@@ -235,20 +235,20 @@ public class FollowRequestsTest {
                         isEnabled()
                 )));
 
-        Thread.sleep(5000);
+        Thread.sleep(1000);
         onView(withId(R.id.follow_button)).check(matches(withText(containsString("ollowing"))));
 
         // Follow Button should now do nothing
         onView(withId(R.id.follow_button)).perform(click());
 
-        Thread.sleep(5000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.follow_button)).check(matches(withText(containsString("ollowing"))));
 
     }
     /**
      * UI test to confirm that when a user accepts a follow request, the other user who requested to follow
-        them can see the "following" button
+     them can see the "following" button
      * @throws InterruptedIOException
      */
     @Test
@@ -294,13 +294,13 @@ public class FollowRequestsTest {
                         isEnabled()
                 )));
 
-        Thread.sleep(5000);
+        Thread.sleep(1000);
         onView(withId(R.id.follow_button)).check(matches(withText(containsString("ollowing"))));
 
         // Follow Button should now do nothing
         onView(withId(R.id.follow_button)).perform(click());
 
-        Thread.sleep(5000);
+        Thread.sleep(1000);
 
         onView(withId(R.id.follow_button)).check(matches(withText(containsString("ollowing"))));
 
