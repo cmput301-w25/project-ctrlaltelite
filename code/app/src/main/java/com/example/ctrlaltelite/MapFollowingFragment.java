@@ -65,13 +65,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * A Fragment that displays a map with markers representing the latest public mood events of users
+ * A Fragment that displays a map with markers representing all public mood events of users
  * followed by the logged-in user. Supports filtering by mood, time (past week), and reason.
  */
 public class MapFollowingFragment extends Fragment implements OnMapReadyCallback {
@@ -88,9 +86,6 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
     /** Logging tag for this fragment. */
     private static final String TAG = "MapFollowingFragment";
 
-    /** Map storing the latest mood event for each followed user. */
-    private Map<String, MoodEvent> latestMood = new HashMap<>();
-
     /** Filter for mood type, defaults to "Mood" (no filter). */
     private String moodFilter = "Mood";
 
@@ -99,15 +94,6 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
 
     /** Filter for event reasons, defaults to empty string (no filter). */
     private String reasonFilter = "";
-
-    /**
-     * Gets the map of usernames to their latest mood events.
-     *
-     * @return A Map where keys are usernames and values are their latest MoodEvent objects.
-     */
-    public Map<String, MoodEvent> getMarkerMap() {
-        return latestMood;
-    }
 
     /** Required empty public constructor for Fragment instantiation. */
     public MapFollowingFragment() {
@@ -141,31 +127,23 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
         CheckBox weekFilterCheckBox = view.findViewById(R.id.show_past_week_following);
         EditText reasonFilterEditText = view.findViewById(R.id.search_mood_reason_following);
 
-        // Get mood options from resources
-        List<String> moodFilterOptions = new ArrayList<>();
-        moodFilterOptions.add("Mood");  // Default text only for the filter
-        moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 9)); // Skip "Select Emotional State"
-        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions,0);
+        // Mood filter spinner setup
+        List<String> moodOptions = Arrays.asList(getResources().getStringArray(R.array.mood_options));
+        ArrayAdapter<String> moodAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, moodOptions);
         moodFilterSpinner.setAdapter(moodAdapter);
-
-        //spinner for which mood all displayed mood events should have
         moodFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                moodFilter = moodFilterOptions.get(position);
+                moodFilter = moodOptions.get(position);
                 Log.d(TAG, "Mood filter updated: " + moodFilter);
                 GeoPoint userLocation = getUserLocation();
                 if (userLocation != null) {
-                    getFollowedUsers(userLocation);
+                    getFollowedUsers(userLocation); // Refresh map
                 }
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
-
-
 
         // Week filter checkbox
         weekFilterCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -324,14 +302,13 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
     }
 
     /**
-     * Displays the latest public mood events of followed users on the map, applying filters.
+     * Displays all public mood events of followed users on the map, applying filters.
      *
      * @param followed List of usernames of followed users.
      * @param currentGeoPoint The user's current location for fallback centering.
      */
     void showMoodEventMap(List<String> followed, GeoPoint currentGeoPoint) {
         googleMap.clear();
-        latestMood.clear();
         Log.d(TAG, "Fetching mood events for followed users: " + followed);
 
         db.collection("Mood Events")
@@ -358,9 +335,8 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
                             return;
                         }
 
-                        // Apply filters similar to HomeFragment's applyFilters
+                        // Apply filters
                         List<MoodEvent> filteredMoodEvents = new ArrayList<>(allMoodEvents);
-
                         boolean anyFilterActive = false;
 
                         if (!moodFilter.equals("Mood")) {
@@ -391,31 +367,16 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
                             Log.d(TAG, "After reason filter: " + filteredMoodEvents.size() + " events");
                         }
 
-                        // Populate latestMood with the latest event per user from filtered results
-                        for (MoodEvent moodEvent : filteredMoodEvents) {
-                            String user = moodEvent.getUsername();
-                            if (!latestMood.containsKey(user)) {
-                                latestMood.put(user, moodEvent);
-                            } else {
-                                MoodEvent previousMood = latestMood.get(user);
-                                if (moodEvent.getTimestamp() != null && previousMood != null && previousMood.getTimestamp() != null) {
-                                    if (moodEvent.getTimestamp().toDate().getTime() > previousMood.getTimestamp().toDate().getTime()) {
-                                        latestMood.put(user, moodEvent);
-                                    }
-                                }
-                            }
-                        }
-
-                        if (latestMood.isEmpty()) {
+                        if (filteredMoodEvents.isEmpty()) {
                             Toast.makeText(getContext(), "No mood events match the current filters", Toast.LENGTH_SHORT).show();
                             LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
                             return;
                         }
 
-                        // Place markers for the latest filtered events
+                        // Place markers for all filtered events
                         MoodEvent latestFilteredEvent = null;
-                        for (MoodEvent moodEvent : latestMood.values()) {
+                        for (MoodEvent moodEvent : filteredMoodEvents) {
                             if (moodEvent.getLocation() != null) {
                                 try {
                                     double latitude = moodEvent.getLocation().getLatitude();
@@ -433,7 +394,7 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
                                     marker.setTag(moodEvent);
                                     Log.d(TAG, "Added marker for " + moodEvent.getUsername() + ": " + moodEvent.getEmotionalState() + " at " + moodLocation);
 
-                                    // Determine the latest event with a location
+                                    // Track the latest event for centering
                                     if (latestFilteredEvent == null || (moodEvent.getTimestamp() != null && latestFilteredEvent.getTimestamp() != null &&
                                             moodEvent.getTimestamp().toDate().getTime() > latestFilteredEvent.getTimestamp().toDate().getTime())) {
                                         latestFilteredEvent = moodEvent;
@@ -450,7 +411,6 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latestEventLatLng, 15));
                             Log.d(TAG, "Centered map on latest filtered event: " + latestFilteredEvent.getEmotionalState() + " at " + latestEventLatLng);
                         } else {
-                            // Default: center on user's current location when no filters are active
                             LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
                             Log.d(TAG, "Centered map on user's location: " + currentLatLng);
