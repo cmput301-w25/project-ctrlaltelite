@@ -6,16 +6,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MapHistoryFragment">
 
-    <FrameLayout
-        android:id="@+id/frameLayoutHistory"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-    </FrameLayout>
-
-
     <EditText
         android:id="@+id/search_mood_reason_history"
         android:layout_width="0dp"
@@ -31,8 +21,7 @@
         android:paddingBottom="8dp"
         app:layout_constraintEnd_toStartOf="@+id/mood_filter_history"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/frameLayoutHistory" />
-
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Spinner
         android:id="@+id/mood_filter_history"
@@ -45,7 +34,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/search_mood_reason_history"
         app:layout_constraintTop_toTopOf="@+id/search_mood_reason_history" />
-
 
     <CheckBox
         android:id="@+id/show_past_week_history"
@@ -66,6 +54,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
