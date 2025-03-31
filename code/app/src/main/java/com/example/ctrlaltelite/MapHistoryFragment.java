@@ -77,7 +77,7 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     private String Username;
     private GoogleMap googleMap;
     private FirebaseFirestore db;
-    private static final String TAG = "MapNearbyFragment";
+    private static final String TAG = "MapHistoryFragment";
     private int MAX_DISTANCE = 5000;    //MAX DISTANCE IN METRES
     //Hash Map to store latest mood event per user
     private Map<String, MoodEvent> latestMood = new HashMap<>();
@@ -147,11 +147,11 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState);
         // Attempt to get the SupportMapFragment from the child FragmentManager
         SupportMapFragment mapFragment = (SupportMapFragment)
-                getChildFragmentManager().findFragmentById(R.id.id_map_nearby);
+                getChildFragmentManager().findFragmentById(R.id.id_map_history);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         } else {
-            Log.e(TAG, "MapNearbyFragment is null.");
+            Log.e(TAG, "MapHistroyFragment is null.");
         }
     }
 

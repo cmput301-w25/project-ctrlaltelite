@@ -4,12 +4,67 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".MapNearbyFragment">
+    tools:context=".MapHistoryFragment">
+
+    <FrameLayout
+        android:id="@+id/frameLayoutHistory"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+    </FrameLayout>
+
+
+    <EditText
+        android:id="@+id/search_mood_reason_history"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="13dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rounded_edittext_background"
+        android:hint="🔍 Search by mood reason"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintEnd_toStartOf="@+id/mood_filter_history"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayoutHistory" />
+
+
+    <Spinner
+        android:id="@+id/mood_filter_history"
+        android:layout_width="112dp"
+        android:layout_height="wrap_content"
+        android:hint="Sort by emotional state"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/search_mood_reason_history"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/search_mood_reason_history"
+        app:layout_constraintTop_toTopOf="@+id/search_mood_reason_history" />
+
+
+    <CheckBox
+        android:id="@+id/show_past_week_history"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:text="Show mood events from past week"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_mood_reason_history" />
 
     <!-- Map Fragment -->
     <fragment
         android:id="@+id/id_map_history"
         android:name="com.google.android.gms.maps.SupportMapFragment"
+        app:layout_constraintTop_toBottomOf="@+id/show_past_week_history"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
