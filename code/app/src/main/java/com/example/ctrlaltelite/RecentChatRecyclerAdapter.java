@@ -74,7 +74,8 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<Chatroom
 
                         holder.itemView.setOnClickListener(v -> {
                             Intent intent = new Intent(context, ChatActivity.class);
-                            intent.putExtra("chat_user", otherUser); // Make sure your User class is Serializable or Parcelable
+                            intent.putExtra("chat_user", otherUser);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // ✅ Set flags before starting
                             context.startActivity(intent);
                         });
                     }
