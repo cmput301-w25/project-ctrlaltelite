@@ -371,7 +371,7 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
                         }
 
                         if (filteredMoodEvents.isEmpty()) {
-                            Toast.makeText(getContext(), "No mood events match the current filters", Toast.LENGTH_SHORT).show();
+
                             LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
                             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
                             return;
