@@ -2,6 +2,7 @@ package com.example.ctrlaltelite;
 
 import static android.view.View.GONE;
 
+import java.util.regex.Pattern;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -53,15 +54,13 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.Firebase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -72,9 +71,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
@@ -84,7 +82,7 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     private FirebaseFirestore db;
     private String moodFilter = "Mood";
     private static final String TAG = "MapHistoryFragment";
-    private MoodEvent latestMoodEvent;
+    private MoodEvent latestMoodEvent; // Still useful for centering when no filters are active
     private boolean weekFilter = false;
     private String reasonFilter = "";
 
@@ -134,9 +132,8 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         CheckBox weekFilterCheckBox = view.findViewById(R.id.show_past_week_history);
         EditText reasonFilterEditText = view.findViewById(R.id.search_mood_reason_history);
 
-        // Mood filter spinner setup
+        // Mood filter spinner setup (unchanged)
         List<String> moodOptions = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.mood_options)));
-        // Ensure the first item is "Mood" (this assumes the array has been updated in resources)
         if (!moodOptions.isEmpty() && moodOptions.get(0).equals("😐 Select Emotional State")) {
             moodOptions.set(0, "Mood");
         }
@@ -166,18 +163,27 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        // Enforce single-word input for reason filter
         reasonFilterEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                reasonFilter = s.toString().trim();
-                Log.d(TAG, "Reason filter updated: " + reasonFilter);
-                GeoPoint userLocation = getUserLocation();
-                if (userLocation != null) {
-                    showMoodEventMap(Username, userLocation);
+                String input = s.toString().trim();
+                if (input.contains(" ")) {
+                    reasonFilterEditText.setError("Please enter a single word");
+                    reasonFilter = "";
+                } else {
+                    reasonFilter = input;
+                    Log.d(TAG, "Reason filter updated: " + reasonFilter);
+                    GeoPoint userLocation = getUserLocation();
+                    if (userLocation != null) {
+                        showMoodEventMap(Username, userLocation);
+                    }
                 }
             }
+
             @Override
             public void afterTextChanged(Editable s) {}
         });
@@ -291,18 +297,14 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                         for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                             try {
                                 MoodEvent moodEvent = documentSnapshot.toObject(MoodEvent.class);
-                                // Only add events that have a location
                                 if (moodEvent.getLocation() != null) {
                                     allMoodEvents.add(moodEvent);
                                     Log.d(TAG, "Fetched mood event with location: " + moodEvent.getEmotionalState() + " at " + moodEvent.getFormattedTimestamp());
 
-                                    // Determine the latest mood event (among those with location)
-                                    if (latestMoodEvent == null) {
+                                    // Update latestMoodEvent for default centering
+                                    if (latestMoodEvent == null || (moodEvent.getTimestamp() != null && latestMoodEvent.getTimestamp() != null &&
+                                            moodEvent.getTimestamp().toDate().getTime() > latestMoodEvent.getTimestamp().toDate().getTime())) {
                                         latestMoodEvent = moodEvent;
-                                    } else if (moodEvent.getTimestamp() != null && latestMoodEvent.getTimestamp() != null) {
-                                        if (moodEvent.getTimestamp().toDate().getTime() > latestMoodEvent.getTimestamp().toDate().getTime()) {
-                                            latestMoodEvent = moodEvent;
-                                        }
                                     }
                                 }
                             } catch (Exception e) {
@@ -313,98 +315,102 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                         Log.d(TAG, "Total mood events with location fetched: " + allMoodEvents.size());
                         if (allMoodEvents.isEmpty()) {
                             Toast.makeText(getContext(), "No public mood events with location found for this user", Toast.LENGTH_SHORT).show();
+                            LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
                             return;
                         }
 
-                        // Apply filters independently
-                        List<MoodEvent> filteredMoodEvents = new ArrayList<>();
+                        // Apply filters sequentially (AND condition)
+                        List<MoodEvent> filteredMoodEvents = new ArrayList<>(allMoodEvents);
                         boolean anyFilterActive = false;
 
-                        // Mood filter
                         if (!moodFilter.equals("Mood")) {
                             anyFilterActive = true;
-                            List<MoodEvent> moodMatches = allMoodEvents.stream()
+                            filteredMoodEvents = filteredMoodEvents.stream()
                                     .filter(event -> event.getEmotionalState() != null && event.getEmotionalState().trim().equals(moodFilter.trim()))
                                     .collect(Collectors.toList());
-                            filteredMoodEvents.addAll(moodMatches);
-                            Log.d(TAG, "Mood filter matches: " + moodMatches.size() + " events");
                         }
 
-                        // Week filter
                         if (weekFilter) {
                             anyFilterActive = true;
                             Calendar oneWeekAgo = Calendar.getInstance();
                             oneWeekAgo.add(Calendar.DAY_OF_YEAR, -7);
                             long oneWeekAgoMillis = oneWeekAgo.getTimeInMillis();
-                            List<MoodEvent> weekMatches = allMoodEvents.stream()
+                            filteredMoodEvents = filteredMoodEvents.stream()
                                     .filter(event -> event.getTimestamp() != null && event.getTimestamp().toDate().getTime() >= oneWeekAgoMillis)
                                     .collect(Collectors.toList());
-                            for (MoodEvent event : weekMatches) {
-                                if (!filteredMoodEvents.contains(event)) {
-                                    filteredMoodEvents.add(event);
-                                }
-                            }
-                            Log.d(TAG, "Week filter matches: " + weekMatches.size() + " events");
                         }
 
-                        // Reason filter
                         if (!reasonFilter.isEmpty()) {
                             anyFilterActive = true;
-                            List<MoodEvent> reasonMatches = allMoodEvents.stream()
-                                    .filter(event -> event.getReason() != null && Arrays.asList(event.getReason().toLowerCase().split("\\s+"))
-                                            .contains(reasonFilter.toLowerCase()))
+                            String pattern = "\\b" + Pattern.quote(reasonFilter.toLowerCase()) + "\\b";
+                            filteredMoodEvents = filteredMoodEvents.stream()
+                                    .filter(event -> event.getReason() != null &&
+                                            Pattern.compile(pattern).matcher(event.getReason().toLowerCase()).find())
                                     .collect(Collectors.toList());
-                            for (MoodEvent event : reasonMatches) {
-                                if (!filteredMoodEvents.contains(event)) {
-                                    filteredMoodEvents.add(event);
-                                }
-                            }
-                            Log.d(TAG, "Reason filter matches: " + reasonMatches.size() + " events");
-                        }
-
-                        // If no filters are active, use all events with a location
-                        if (!anyFilterActive) {
-                            filteredMoodEvents = new ArrayList<>(allMoodEvents);
-                            Log.d(TAG, "No filters active, using all events with location: " + filteredMoodEvents.size());
                         }
 
                         Log.d(TAG, "Total events after filtering: " + filteredMoodEvents.size());
 
-                        // Place markers for all filtered events
-                        if (!filteredMoodEvents.isEmpty()) {
-                            for (MoodEvent moodEvent : filteredMoodEvents) {
-                                // Location check is already ensured in allMoodEvents
-                                try {
-                                    double latitude = moodEvent.getLocation().getLatitude();
-                                    double longitude = moodEvent.getLocation().getLongitude();
-                                    LatLng moodLocation = new LatLng(latitude, longitude);
+                        if (filteredMoodEvents.isEmpty()) {
+                            Toast.makeText(getContext(), "No mood events match the current filters", Toast.LENGTH_SHORT).show();
+                            LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+                            return;
+                        }
 
-                                    String[] moodDesc = moodEvent.getEmotionalState().split(" ");
-                                    String emoji = moodDesc.length > 0 ? moodDesc[0] : "";
-
-                                    MarkerOptions markerOptions = new MarkerOptions()
-                                            .position(moodLocation)
-                                            .icon(getMarkerIcon(emoji));
-
-                                    Marker marker = googleMap.addMarker(markerOptions);
-                                    marker.setTag(moodEvent);
-                                    Log.d(TAG, "Added marker for mood: " + moodEvent.getEmotionalState() + " at " + moodLocation);
-                                } catch (Exception e) {
-                                    Log.e(TAG, "Error adding marker for mood event", e);
+                        // Find the latest filtered event if any filters are active
+                        MoodEvent latestFilteredEvent = null;
+                        if (anyFilterActive) {
+                            for (MoodEvent event : filteredMoodEvents) {
+                                if (latestFilteredEvent == null || (event.getTimestamp() != null && latestFilteredEvent.getTimestamp() != null &&
+                                        event.getTimestamp().toDate().getTime() > latestFilteredEvent.getTimestamp().toDate().getTime())) {
+                                    latestFilteredEvent = event;
                                 }
                             }
-                            // Center on the latest event if available
-                            if (latestMoodEvent != null && latestMoodEvent.getLocation() != null) {
-                                LatLng latestLocation = new LatLng(latestMoodEvent.getLocation().getLatitude(), latestMoodEvent.getLocation().getLongitude());
-                                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latestLocation, 15));
+                        }
+
+                        // Place markers for all filtered events
+                        for (MoodEvent moodEvent : filteredMoodEvents) {
+                            try {
+                                double latitude = moodEvent.getLocation().getLatitude();
+                                double longitude = moodEvent.getLocation().getLongitude();
+                                LatLng moodLocation = new LatLng(latitude, longitude);
+
+                                String[] moodDesc = moodEvent.getEmotionalState().split(" ");
+                                String emoji = moodDesc.length > 0 ? moodDesc[0] : "";
+
+                                MarkerOptions markerOptions = new MarkerOptions()
+                                        .position(moodLocation)
+                                        .icon(getMarkerIcon(emoji));
+
+                                Marker marker = googleMap.addMarker(markerOptions);
+                                marker.setTag(moodEvent);
+                                Log.d(TAG, "Added marker for mood: " + moodEvent.getEmotionalState() + " at " + moodLocation);
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error adding marker for mood event", e);
                             }
+                        }
+
+                        // Center the map
+                        if (anyFilterActive && latestFilteredEvent != null && latestFilteredEvent.getLocation() != null) {
+                            LatLng latestFilteredLatLng = new LatLng(latestFilteredEvent.getLocation().getLatitude(), latestFilteredEvent.getLocation().getLongitude());
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latestFilteredLatLng, 15));
+                            Log.d(TAG, "Centered on latest filtered event: " + latestFilteredEvent.getEmotionalState() + " at " + latestFilteredLatLng);
+                        } else if (latestMoodEvent != null && latestMoodEvent.getLocation() != null) {
+                            LatLng latestLatLng = new LatLng(latestMoodEvent.getLocation().getLatitude(), latestMoodEvent.getLocation().getLongitude());
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latestLatLng, 15));
+                            Log.d(TAG, "Centered on latest overall event: " + latestMoodEvent.getEmotionalState() + " at " + latestLatLng);
                         } else {
-                            Toast.makeText(getContext(), "No mood events match the current filters", Toast.LENGTH_SHORT).show();
-                            Log.d(TAG, "No events after filtering");
+                            LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
+                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
+                            Log.d(TAG, "Centered on user location: " + currentLatLng);
                         }
                     } else {
                         Log.e(TAG, "Error getting Mood Events", task.getException());
                         Toast.makeText(getContext(), "Error fetching mood events", Toast.LENGTH_SHORT).show();
+                        LatLng currentLatLng = new LatLng(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude());
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15));
                     }
                 });
     }
