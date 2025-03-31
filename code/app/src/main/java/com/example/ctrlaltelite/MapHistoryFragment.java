@@ -286,7 +286,6 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
 
         db.collection("Mood Events")
                 .whereEqualTo("username", username)
-                .whereEqualTo("public", true)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
