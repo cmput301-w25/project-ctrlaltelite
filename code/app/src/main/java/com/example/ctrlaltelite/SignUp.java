@@ -205,6 +205,15 @@ public class SignUp extends AppCompatActivity {
         tvLoginPrompt.setText(spannableString);
         tvLoginPrompt.setMovementMethod(LinkMovementMethod.getInstance());
     }
+
+    /**
+     * Checking to see if signup data is valid (helpful for unit testing)
+     * @param username - signup username input
+     * @param email - signup email input
+     * @param mobile - signup mobile number email input
+     * @param password - signup password input
+     * @return - whether or not input is valid
+     */
     public static boolean isSignUpDataValid(String username, String email, String mobile, String password) {
         if (username == null || username.trim().isEmpty()) {
             return false;

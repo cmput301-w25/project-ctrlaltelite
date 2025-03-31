@@ -35,6 +35,11 @@ public class HistoryFiltersUnitTest {
     private List<MoodEvent> moodEvents;
     private List<MoodEvent> allMoodEvents;
 
+    /**
+     * Setting up the mock database
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
         MockitoAnnotations.openMocks(this);
@@ -65,6 +70,13 @@ public class HistoryFiltersUnitTest {
         allMoodEvents.add(oldSad);
     }
 
+    /**
+     * Method for setting fields of the HomeFragment
+     * @param fieldName name of field in the HomeFragment
+     * @param value - what our field value will be now
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     private void setPrivateField(String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
         Field field = HomeFragment.class.getDeclaredField(fieldName);
         field.setAccessible(true);
@@ -72,6 +84,14 @@ public class HistoryFiltersUnitTest {
         field.setAccessible(false);
     }
 
+    /**
+     * Getter for fields of the field fragment
+     * @param fieldName - the field whose value we want to obtain
+     * @return the obtain parameter
+     * @param <T>
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     @SuppressWarnings("unchecked")
     private <T> T getPrivateField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Field field = HomeFragment.class.getDeclaredField(fieldName);
@@ -81,6 +101,11 @@ public class HistoryFiltersUnitTest {
         return value;
     }
 
+    /**
+     * Getting the date from some number of days ago
+     * @param days - how far back we want to go
+     * @return
+     */
     private Date getDaysAgo(int days) {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -days);

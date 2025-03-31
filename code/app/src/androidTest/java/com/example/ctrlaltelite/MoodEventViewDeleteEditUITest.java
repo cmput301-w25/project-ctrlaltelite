@@ -74,6 +74,9 @@ public class MoodEventViewDeleteEditUITest {
         idlingResource.waitForIdle();
     }
 
+    /**
+     * Cleaning up the database after each test
+     */
     @After
     public void tearDown() {
         // Clean up test data
@@ -188,26 +191,43 @@ public class MoodEventViewDeleteEditUITest {
         latch.await(5, TimeUnit.SECONDS);
     }
 
-    // Custom IdlingResource to wait for Firestore operations
+    /**
+     * Custom idlingResource to wait for Firestore operations
+     */
     private class FirestoreIdlingResource implements IdlingResource {
         private volatile boolean isIdle = false;
         private ResourceCallback callback;
 
+        /**
+         * Resource name
+         * @return resource name
+         */
         @Override
         public String getName() {
             return "FirestoreIdlingResource";
         }
 
+        /**
+         * Checking to see if db is idle now
+         * @return boolean which checks to see if db is idle now
+         */
         @Override
         public boolean isIdleNow() {
             return isIdle;
         }
 
+        /**
+         * Registers callback for idle state transition.
+         * @param callback Callback to notify when idle
+         */
         @Override
         public void registerIdleTransitionCallback(ResourceCallback callback) {
             this.callback = callback;
         }
 
+        /**
+         * Waiting for the database to load
+         */
         public void waitForIdle() {
             db.collection("Mood Events")
                     .whereEqualTo("username", testUsername)

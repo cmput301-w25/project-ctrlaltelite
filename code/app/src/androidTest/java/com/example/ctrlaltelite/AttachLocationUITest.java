@@ -21,6 +21,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 //// Test created with guidance from ChatGPT (OpenAI), March 28, 2025
+
+/**
+ * Tests for attaching location
+ */
 @RunWith(AndroidJUnit4.class)
 public class AttachLocationUITest {
 
@@ -28,6 +32,9 @@ public class AttachLocationUITest {
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
+    /**
+     * Navigating to the add fragment
+     */
     @Before
     public void navigateToAddFragment() {
         activityRule.getScenario().onActivity(activity -> {
@@ -44,6 +51,9 @@ public class AttachLocationUITest {
     }
 
     //// Test created with guidance from ChatGPT (OpenAI), March 28, 2025
+    /**
+     * Testing the switch location functionality
+     */
     @Test
     public void testEnableLocationToggle() {
         // Click the toggle

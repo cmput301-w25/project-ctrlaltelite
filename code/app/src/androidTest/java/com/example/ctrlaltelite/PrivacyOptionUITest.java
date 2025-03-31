@@ -29,6 +29,9 @@ public class PrivacyOptionUITest {
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
+    /**
+     * Navigating to the add fragment
+     */
     @Before
     public void navigateToAddFragment() {
         activityRule.getScenario().onActivity(activity -> {
@@ -45,6 +48,9 @@ public class PrivacyOptionUITest {
     }
 
     //// Test created with guidance from ChatGPT (OpenAI), March 28, 2025
+    /**
+     * Confirm whether public option was correctly selected
+     */
     @Test
     public void testPublicOptionSelected() {
         onView(withId(R.id.radioPublic)).perform(click());
@@ -52,6 +58,9 @@ public class PrivacyOptionUITest {
     }
 
     //// Test created with guidance from ChatGPT (OpenAI), March 28, 2025
+    /**
+     * Confirm whether private option was correctly selected
+     */
     @Test
     public void testPrivateOptionSelected() {
         onView(withId(R.id.radioPrivate)).perform(click());

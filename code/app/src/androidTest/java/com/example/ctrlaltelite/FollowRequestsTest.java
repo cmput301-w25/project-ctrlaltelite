@@ -140,8 +140,7 @@ public class FollowRequestsTest {
         onView(withId(R.id.username)).perform(replaceText("testUsername1"));
         onView(withId(R.id.password)).perform(replaceText("testPassword1"));
         onView(withId(R.id.button_login)).perform(click());
-        Thread.sleep(1000);
-
+        Thread.sleep(5000);
 
         onView(withId(R.id.search)).perform(click());
         onView(withId(R.id.user_list)).check(matches(isDisplayed()));
@@ -277,6 +276,7 @@ public class FollowRequestsTest {
         onView(withId(R.id.username)).perform(replaceText("testUsername1"));
         onView(withId(R.id.password)).perform(replaceText("testPassword1"));
         onView(withId(R.id.button_login)).perform(click());
+        Thread.sleep(1000);
 
         onView(withId(R.id.search)).perform(click());
         onView(withId(R.id.user_list)).check(matches(isDisplayed()));

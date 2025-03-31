@@ -68,6 +68,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.Calendar;
 
+/**
+ * Code for when viewing another user's profile
+ */
 public class OtherUserProfileFragment extends Fragment {
 
     private FirebaseFirestore db;
@@ -78,15 +81,21 @@ public class OtherUserProfileFragment extends Fragment {
     private User currentUser;
     private User searchedUser;
 
-    private List<FollowRequest> followRequestList = new ArrayList<>();
-
-    private User desiredUser;
-
+    /**
+     * Construcutor
+     * @param currentUser the user using the app
+     * @param searchedUser the user who's profile is being viewed
+     */
     public OtherUserProfileFragment(User currentUser, User searchedUser) {
         this.currentUser = currentUser;
         this.searchedUser = searchedUser;
     }
 
+    /**
+     * Getting an instance of the db
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +107,19 @@ public class OtherUserProfileFragment extends Fragment {
      * ChatGPT was used to help debug issues, improve code reliability,.
      *
      * Assistance provided as of March 2025.
+     */
+
+    /**
+     * Inflating the UI for viewing another user's profile
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
      */
     @Nullable
     @Override
@@ -135,6 +157,7 @@ public class OtherUserProfileFragment extends Fragment {
 //        });
 
         Bundle args = getArguments();
+
         if (args != null) {
             String displayName = args.getString("displayName");
             String clickedUsername = args.getString("clickedUsername");
@@ -155,21 +178,31 @@ public class OtherUserProfileFragment extends Fragment {
                     requestButton.setText("Loading");
                     Task<Boolean> checkingIfUserAlreadyAccepted = HasUserAlreadyAccepted(currentUser.getUsername(), searchedUser.getUsername());
                     final boolean[] hasOtherUserAlreadyAccepted = new boolean[1];
+                    /**
+                     * While the Task<Boolean> has been completed that determines if a user has already accepted or requested, we do our functionality of the follow
+                                requesting system here.
+                     */
                     checkingIfUserAlreadyAccepted.addOnCompleteListener(task -> {
 
                         if (task.isSuccessful()) {
                             hasOtherUserAlreadyAccepted[0] = task.getResult();
+
                             if (!hasOtherUserAlreadyAccepted[0]) {
 
                                 Task<Boolean> checkingIfUserAlreadyRequested = HasUserAlreadyRequested(currentUser.getUsername(), searchedUser.getUsername());
                                 final boolean[] hasUserAlreadyRequested = new boolean[1];
                                 checkingIfUserAlreadyRequested.addOnCompleteListener(task1 -> {
+
                                     if (task1.isSuccessful()) {
                                         hasUserAlreadyRequested[0] = task1.getResult();
 
                                         if (!hasUserAlreadyRequested[0]) {
 
                                             requestButton.setText("Follow");
+
+                                            /**
+                                             * Functionality for when the user presses the request button
+                                             */
                                             requestButton.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View view) {
@@ -189,6 +222,9 @@ public class OtherUserProfileFragment extends Fragment {
                                         }
                                         else {
                                             requestButton.setText("Requested");
+                                            /**
+                                             * Functionality for when the user has requested to follow a user they already requested to follow
+                                             */
                                             requestButton.setOnClickListener(new View.OnClickListener() {
                                                 @Override
                                                 public void onClick(View view) {
@@ -254,15 +290,13 @@ public class OtherUserProfileFragment extends Fragment {
 
         });
 
-
-
         return view;
     }
 
-
-
-
-
+    /**
+     * Fetching mood events for a user
+     * @param username - username of the user we want to retrieve mood events from
+     */
     private void fetchMoodEvents(String username) {
         Log.d("OtherUserProfileFragment", "Fetching mood events for username: " + username);
         db.collection("Mood Events")
@@ -285,6 +319,12 @@ public class OtherUserProfileFragment extends Fragment {
                 });
     }
 
+    /**
+     * Checking to see if a follow request has already been made
+     * @param followerUsername - user name of the person requesting
+     * @param followingUsername - user name of the person who is being requested to
+     * @return a Task<Boolean> which will be handled in the follow requesting functionality
+     */
     public Task<Boolean> HasUserAlreadyRequested(String followerUsername, String followingUsername) {
         Log.d("OtherUserProfileFragment", "Checking to see if a request has already been made to " + followingUsername + " from " + followerUsername);
 
@@ -295,16 +335,22 @@ public class OtherUserProfileFragment extends Fragment {
                 .get()
                 .continueWith(task -> {
                     if (task.isSuccessful()) {
-                        // Check if any documents match the query
                         return !task.getResult().isEmpty();
                     } else {
-                        // Handle errors
+
+                        // Handle any specific errors (shouldn't happen though)
                         Toast.makeText(getContext(), "Error obtaining desired document", Toast.LENGTH_SHORT).show();
-                        return false; // Assume no request exists in case of error
+                        return false;
                     }
                 });
     }
 
+    /**
+     * Checking to see if a user is following another user
+     * @param followerUsername username of user who is doing the following
+     * @param followingUsername username of user who is being followed
+     * @return a Task<Boolean> which will be handled in the follow requesting functionality
+     */
     private Task<Boolean> HasUserAlreadyAccepted(String followerUsername, String followingUsername) {
         Log.d("OtherUserProfileFragment", "Checking to see if a request to " + followingUsername + " from " + followerUsername + " has been accepted");
 
@@ -315,16 +361,19 @@ public class OtherUserProfileFragment extends Fragment {
                 .get()
                 .continueWith(task -> {
                     if (task.isSuccessful()) {
-                        // Check if any documents match the query
                         return !task.getResult().isEmpty();
                     } else {
-                        // Handle errors
+                        // Handle any specific errors (should not happen though)
                         Toast.makeText(getContext(), "Error obtaining desired document", Toast.LENGTH_SHORT).show();
-                        return false; // Assume no request exists in case of error
+                        return false;
                     }
                 });
     }
 
+    /**
+     * Saving a follow request to the firestore db
+     * @param followRequest - the follow request we want to save
+     */
     protected void saveToFirestore(FollowRequest followRequest) {
         String currentUserUsername = followRequest.getRequesterUserName();
         String searchedUserUsername = followRequest.getRequestedUserName();

@@ -40,6 +40,10 @@ public class SearchFragment extends Fragment {
     private String currentUserUsername;
     private User currentUser;
 
+    /**
+     * Constructor
+     * @param currentUserUsername - the username of the user using the app
+     */
     public SearchFragment(String currentUserUsername) {
         this.currentUserUsername = currentUserUsername;
     }
@@ -129,6 +133,9 @@ public class SearchFragment extends Fragment {
 
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
 
+        /**
+         * Functionality when we click on the notification bell
+         */
         notifButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

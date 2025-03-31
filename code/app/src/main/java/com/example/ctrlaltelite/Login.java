@@ -142,6 +142,13 @@ public class Login extends AppCompatActivity {
         tvSignUpPrompt.setText(spannableString);
         tvSignUpPrompt.setMovementMethod(LinkMovementMethod.getInstance());
     }
+
+    /**
+     * Checking if username and password meet requirements (helpful for unit testing)
+     * @param username - login username input
+     * @param password - login password input
+     * @return boolean whether or not input is valid
+     */
     public static boolean isInputValid(String username, String password) {
         return username != null && !username.trim().isEmpty() &&
                 password != null && !password.trim().isEmpty();

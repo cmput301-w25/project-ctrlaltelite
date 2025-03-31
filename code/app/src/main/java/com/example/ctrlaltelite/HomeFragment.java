@@ -234,18 +234,40 @@ public class HomeFragment extends AddFragment {
 
         // Reason filter
         reasonFilterEditText.addTextChangedListener(new TextWatcher() {
+            /**
+             * Do nothing before text has changed
+             * @param s
+             * @param start
+             * @param count
+             * @param after
+             */
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            /**
+             * Applying filters when text has changed
+             * @param s
+             * @param start
+             * @param before
+             * @param count
+             */
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 reasonFilter = s.toString().trim().toLowerCase();
                 applyFilters(); // Apply filters immediately on text change
             }
+
+            /**
+             * Do nothing after text has changed
+             * @param s
+             */
             @Override
             public void afterTextChanged(Editable s) {}
         });
 
-        // Set short click listener for editing
+        /**
+         * Short click listener for editing
+         */
         listView.setOnItemClickListener((parent, view1, position, id) -> {
             MoodEvent moodEvent = moodEvents.get(position);
             showDeleteEditMoodDialog(moodEvent, position);
@@ -253,6 +275,10 @@ public class HomeFragment extends AddFragment {
 
         //Pressing on the notification button
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
+
+        /**
+         * When the notification bell is pressed
+         */
         notifButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -328,13 +354,14 @@ public class HomeFragment extends AddFragment {
         adapter.notifyDataSetChanged(); // Notify adapter of changes to the existing list
     }
 
+    /**
+     * Sorting mood events by time stamps
+     */
     public void toggleSort() {
         if (moodEvents == null || moodEvents.isEmpty()) return;
         moodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
         adapter.notifyDataSetChanged();
     }
-
-
 
     /**
      * Listens for real-time updates to the mood events associated with the current user in Firestore.
