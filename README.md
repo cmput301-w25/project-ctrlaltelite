@@ -36,9 +36,21 @@ Sentio is a user-friendly Android app designed to help friends and family stay c
 
 ## Setup Instructions
 
-1. [Step 1]
-2. [Step 2]
-3. [Step 3]
+1. Install Android Studio (version 4.0+).
+2. Ensure you have the Java Development Kit (JDK) installed (Java 8+).
+3. Cloning the Repo:
+   First, Clone the project repository using Git
+   Second, Navigate into the project directory
+   Opening the Project in Android Studio
+
+4. Launch Android Studio and select "Open an existing project"
+5. Browse to your cloned repository folder and open it.
+6. Sync & Build
+7. Allow Android Studio to automatically sync the Gradle files.
+8. Once the sync is complete, build the project using the Build option from the menu.
+9. Running the App: 
+   Connect an Android device or start an emulator from Android Studio.
+   Run the app by clicking the RUN button, and select your target device.
 
 ## Documentation
 
