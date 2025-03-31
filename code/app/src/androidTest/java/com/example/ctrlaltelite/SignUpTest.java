@@ -197,6 +197,10 @@ public class SignUpTest {
         onView(withId(R.id.SDisplayName)).check(matches(hasErrorText("Display name cannot be empty!")));
     }
 
+    /**
+     * Checking to see if a non 10 digit mobile number will be invalidated
+     * @throws InterruptedException
+     */
     @Test
     public void nonTenDigitMobileNumberShouldBeInvalidated() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
@@ -208,6 +212,11 @@ public class SignUpTest {
         Thread.sleep(1000);
         onView(withId(R.id.SMobile)).check(matches(hasErrorText("Phone number must be 10 digits long")));
     }
+
+    /**
+     * Check to see if an invalid email will thrown an error
+     * @throws InterruptedException
+     */
 
     @Test
     public void InvalidEmailShowsError() throws InterruptedException {
@@ -221,6 +230,10 @@ public class SignUpTest {
         onView(withId(R.id.SEmail)).check(matches(hasErrorText("Please enter a valid email address")));
     }
 
+    /**
+     * Check to see if an invalid password will throw an error
+     * @throws InterruptedException
+     */
     @Test
     public void InvalidPasswordShowsError() throws InterruptedException {
         onView(withId(R.id.SUsername)).perform(replaceText("TestU"));
@@ -236,6 +249,9 @@ public class SignUpTest {
                 "- Minimum 8 characters")));
     }
 
+    /**
+     * Cleaning up database after each test
+     */
     @After
     public void tearDown() {
         String projectId = "ctrlaltelite-be29f";

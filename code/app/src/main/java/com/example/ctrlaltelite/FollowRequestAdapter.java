@@ -20,16 +20,31 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter for follow requests
+ */
 public class FollowRequestAdapter extends ArrayAdapter<FollowRequest> {
 
     private FirebaseFirestore db;
     List<FollowRequest> followRequestsList = new ArrayList<>();
 
+    /**
+     * Constructor
+     * @param context
+     * @param followRequests - list of follow requests
+     */
     public FollowRequestAdapter(@NonNull Context context, @NonNull List<FollowRequest> followRequests) {
         super(context, 0, followRequests);
         this.followRequestsList = followRequests;
     }
 
+    /**
+     * Setting up the adapter
+     * @param position
+     * @param convertView
+     * @param parent
+     * @return view with adapater inflating the follow request item XML
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -52,6 +67,11 @@ public class FollowRequestAdapter extends ArrayAdapter<FollowRequest> {
         Button rejectButton = convertView.findViewById(R.id.reject_button);
 
         acceptButton.setOnClickListener(new View.OnClickListener() {
+
+            /**
+             * When user clicks the accept button
+             * @param v
+             */
             @Override
             public void onClick(View v) {
                 onAcceptButton(followRequest);
@@ -59,6 +79,10 @@ public class FollowRequestAdapter extends ArrayAdapter<FollowRequest> {
         });
 
         rejectButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             *  when user presses the reject button
+             * @param v
+             */
             @Override
             public void onClick(View v) {
                 onRejectButton(followRequest);
@@ -68,6 +92,10 @@ public class FollowRequestAdapter extends ArrayAdapter<FollowRequest> {
         return convertView;
     }
 
+    /**
+     * Functionality when accepting requests
+     * @param followRequest
+     */
     private void onAcceptButton(FollowRequest followRequest) {
         if (!followRequestsList.isEmpty()) {
             followRequestsList.remove(followRequest);
@@ -77,6 +105,10 @@ public class FollowRequestAdapter extends ArrayAdapter<FollowRequest> {
         }
     }
 
+    /**
+     * Functionality when rejecting requests
+     * @param followRequest
+     */
     private void onRejectButton(FollowRequest followRequest) {
         if (!followRequestsList.isEmpty()) {
             followRequestsList.remove(followRequest);
@@ -86,6 +118,11 @@ public class FollowRequestAdapter extends ArrayAdapter<FollowRequest> {
         }
     }
 
+    /**
+     * Making updates to firestore after a status update to a follow request
+     * @param followRequest - the follow request whose status has been changed
+     * @param rejectOrAccept - the two possible cases
+     */
     private void updateFollowRequestInFirestore(FollowRequest followRequest, int rejectOrAccept) {
         String docId = followRequest.getDocumentId();
         if (docId == null) {

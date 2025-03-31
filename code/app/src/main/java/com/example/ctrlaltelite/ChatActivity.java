@@ -81,6 +81,9 @@ import java.util.Arrays;
 //import okhttp3.RequestBody;
 //import okhttp3.Response;
 
+/**
+ * Functionality for chatting with other users directly (direct messaging)
+ */
 public class ChatActivity extends AppCompatActivity {
 
     String chatroomId;
@@ -91,8 +94,12 @@ public class ChatActivity extends AppCompatActivity {
     TextView otherUsername;
     RecyclerView recyclerView;
     ImageView imageView;
-
     ChatRecyclerAdapter adapter;
+
+    /**
+     * Functionality to create the chat activity
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,7 +145,9 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-
+    /**
+     * Setting up the chat recycler view
+     */
     void setupChatRecyclerView() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -170,10 +179,12 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-
-
-
-
+    /**
+     * Generating a chatroom ID between two users that are chatting
+     * @param user1
+     * @param user2
+     * @return a string which becomes the ID
+     */
     private String generateChatroomId(String user1, String user2) {
         if (user1.compareTo(user2) < 0) {
             return user1 + "_" + user2;
@@ -182,7 +193,9 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * A getter for the chatroom model, or creating one if it does not exist yet
+     */
     void getOrCreateChatroomModel() {
         // Get user info from SharedPreferences (current user)
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
@@ -229,7 +242,10 @@ public class ChatActivity extends AppCompatActivity {
                 });
     }
 
-
+    /**
+     * Functionality for sending messages directly to another user
+     * @param message - the message the user wants to send
+     */
     void sendMessageToUser(String message) {
         // Get current user's info from SharedPreferences
         SharedPreferences sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE);
@@ -281,9 +297,6 @@ public class ChatActivity extends AppCompatActivity {
                     }
                 });
     }
-
-
-
 }
 
 

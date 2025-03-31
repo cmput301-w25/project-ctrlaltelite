@@ -19,6 +19,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Functionality of fragment for following count of the user
+ */
 public class FollowingCountFragment extends Fragment {
     private FirebaseFirestore db;
     private ListView followingListView;
@@ -32,8 +35,23 @@ public class FollowingCountFragment extends Fragment {
      * Assistance provided as of March 2025.
      */
 
+    /**
+     * Empty constructor
+     */
     public FollowingCountFragment() {}
 
+    /**
+     * Inflate the following count fragment
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return our inflated view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,

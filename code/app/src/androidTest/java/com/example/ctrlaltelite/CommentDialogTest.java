@@ -32,6 +32,9 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.Matchers.anything;
 
+/**
+ * Tests for commenting
+ */
 @RunWith(AndroidJUnit4.class)
 public class CommentDialogTest {
 
@@ -44,6 +47,9 @@ public class CommentDialogTest {
     private String testMoodEventId = "testMoodEvent";
     private FirestoreIdlingResource idlingResource;
 
+    /**
+     * setting up the database
+     */
     @Before
     public void setUp() {
         db = FirebaseFirestore.getInstance();
@@ -67,6 +73,9 @@ public class CommentDialogTest {
         });
     }
 
+    /**
+     * Tearing down the database
+     */
     @After
     public void tearDown() {
         // Delete comments manually
@@ -83,6 +92,9 @@ public class CommentDialogTest {
         IdlingRegistry.getInstance().unregister(idlingResource);
     }
 
+    /**
+     * Seeding test data
+     */
     private void seedTestData() {
         Map<String, Object> user = new HashMap<>();
         user.put("displayName", "Current Test User");
@@ -104,6 +116,10 @@ public class CommentDialogTest {
                 .collection("comments").add(comment);
     }
 
+    /**
+     * Testing the submitting comments functionality
+     * @throws InterruptedException
+     */
     @Test
     public void testOpenCommentDialogAndSubmit() throws InterruptedException {
 
@@ -124,25 +140,43 @@ public class CommentDialogTest {
 
     }
 
+    /**
+     * Class to handle some actions of the setup
+     */
     private class FirestoreIdlingResource implements IdlingResource {
         private volatile boolean isIdle = false;
         private ResourceCallback callback;
 
+        /**
+         * Getting the name of the FireStoreIdlingResource
+         * @return the name of the FireStoreIdlingResource
+         */
         @Override
         public String getName() {
             return "FirestoreIdlingResource";
         }
 
+        /**
+         * Checking to see if the db is idle now
+         * @return
+         */
         @Override
         public boolean isIdleNow() {
             return isIdle;
         }
 
+        /**
+         * Registers callback for idle state transition.
+         * @param callback Callback to notify when idle
+         */
         @Override
         public void registerIdleTransitionCallback(ResourceCallback callback) {
             this.callback = callback;
         }
 
+        /**
+         * Waiting for the database to load
+         */
         public void waitForIdle() {
             FirebaseFirestore.getInstance()
                     .collection("Mood Events")

@@ -90,11 +90,6 @@ public class MainActivity extends AppCompatActivity {
             username = bundle.getString("username");
         }
 
-
-
-
-
-
         if (username != null && !username.isEmpty()) {
             db.collection("users")
                     .whereEqualTo("username", username)
@@ -138,10 +133,12 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "Username not provided", Toast.LENGTH_SHORT).show();
         }
 
-
-
-
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            /**
+             * When a navigation button is selected
+             * @param item The selected item
+             * @return if the navigation event is handled successfully
+             */
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
@@ -176,10 +173,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-
-
-
         View decoreView = getWindow().getDecorView();
         decoreView.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
             @NonNull
@@ -194,8 +187,6 @@ public class MainActivity extends AppCompatActivity {
                 return insets.consumeSystemWindowInsets();
             }
         });
-
-
         fragmentRepl(new HomeFragment());
 
 
@@ -252,11 +243,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Open side navigation drawer
+     */
     public void openDrawer() {
         drawerLayout.openDrawer(GravityCompat.START);
     }
-
-
 
 
     /**

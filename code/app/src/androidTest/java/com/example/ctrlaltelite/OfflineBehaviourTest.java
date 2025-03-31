@@ -63,6 +63,10 @@ public class OfflineBehaviourTest {
         }
     }
 
+    /**
+     * Cleaning up database after each test
+     * @throws InterruptedException
+     */
     @After
     public void tearDown() throws InterruptedException {
         // Delete mood events for the test user ("TestOfflineUser") from Firestore.

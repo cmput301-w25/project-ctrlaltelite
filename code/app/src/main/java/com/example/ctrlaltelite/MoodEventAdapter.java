@@ -213,8 +213,6 @@ public class MoodEventAdapter extends ArrayAdapter<MoodEvent> {
 //            showCommentsDialog(moodEventId);
 //        });
 
-
-
         return convertView;
     }
 

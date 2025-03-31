@@ -19,6 +19,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fragment for the count of followers a user has
+ */
 public class FollowersCountFragment extends Fragment {
     private FirebaseFirestore db;
     private ListView followersListView;
@@ -31,9 +34,17 @@ public class FollowersCountFragment extends Fragment {
      *
      * Assistance provided as of March 2025.
      */
+
+    /**
+     * Empty constructor
+     */
     public FollowersCountFragment() {}
 
     @Nullable
+
+    /**
+     * Inflating the followers count fragment
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {

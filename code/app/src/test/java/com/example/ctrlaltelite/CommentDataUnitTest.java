@@ -6,9 +6,14 @@ import com.google.firebase.Timestamp;
 
 import org.junit.Test;
 
+/**
+ * Unit Testing for commenting on mood evenets
+ */
 public class CommentDataUnitTest {
 
-
+    /**
+     * Checking to see if comment was created correctly
+     */
     @Test
     public void testCommentDataCreation() {
         String commentText = "Nice mood!";
@@ -23,8 +28,9 @@ public class CommentDataUnitTest {
         assertEquals(timestamp, comment.getTimestamp());
     }
 
-
-
+    /**
+     * Checking to confirm that a comment is not null
+     */
     @Test
     public void testCommentTextNotNull() {
         CommentData comment = new CommentData("Hello", "TestUser", "TestUser", Timestamp.now());
