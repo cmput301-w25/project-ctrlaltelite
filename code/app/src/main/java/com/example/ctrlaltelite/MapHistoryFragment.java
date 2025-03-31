@@ -173,27 +173,30 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         CheckBox weekFilterCheckBox = view.findViewById(R.id.show_past_week_history);
         EditText reasonFilterEditText = view.findViewById(R.id.search_mood_reason_history);
 
-        // Mood filter spinner setup
-        List<String> moodOptions = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.mood_options)));
-        if (!moodOptions.isEmpty() && moodOptions.get(0).equals("😐 Select Emotional State")) {
-            moodOptions.set(0, "Mood");
-        }
-        ArrayAdapter<String> moodAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, moodOptions);
-        moodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Get mood options from resources
+        List<String> moodFilterOptions = new ArrayList<>();
+        moodFilterOptions.add("Mood");  // Default text only for the filter
+        moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 9)); // Skip "Select Emotional State"
+        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions,0);
         moodFilterSpinner.setAdapter(moodAdapter);
+
+        //spinner for which mood all displayed mood events should have
         moodFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                moodFilter = moodOptions.get(position);
-                Log.d(TAG, "Mood filter updated: " + moodFilter);
+                moodFilter = moodFilterOptions.get(position);
                 GeoPoint userLocation = getUserLocation();
                 if (userLocation != null) {
                     showMoodEventMap(Username, userLocation);
                 }
             }
+
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
+
+
 
         weekFilterCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             weekFilter = isChecked;
