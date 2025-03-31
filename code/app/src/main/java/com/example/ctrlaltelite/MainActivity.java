@@ -161,9 +161,14 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 if (itemid == R.id.stats) {
-                    // Redirect to Login Screen
-                    Intent intent = new Intent(MainActivity.this, Login.class);
+//                    Intent intent = new Intent(MainActivity.this, Login.class);
                     fragmentRepl(new StatsFragment());
+
+                }
+
+                if (itemid == R.id.chat) {
+//                    Intent intent = new Intent(MainActivity.this, Login.class);
+                    fragmentRepl(new ChatFragment());
 
                 }
 

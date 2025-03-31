@@ -31,13 +31,13 @@ public class ChatFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyler_view);
         db = FirebaseFirestore.getInstance();
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
-        String currentUserID = sharedPreferences.getString("user", "");
+        currentUserId = sharedPreferences.getString("user", "");
         setupRecyclerView();
         return view;
     }
 
     private void setupRecyclerView() {
-        Query query = db.collection("Chatrooms")
+        Query query = db.collection("hatrooms")
                 .whereArrayContains("userIds", currentUserId)
                 .orderBy("lastMessageTimestamp", Query.Direction.DESCENDING);
 

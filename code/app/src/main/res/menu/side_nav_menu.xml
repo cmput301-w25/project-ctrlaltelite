@@ -26,6 +26,17 @@
     <group
         android:id="@+id/group3">
         <item
+            android:icon="@drawable/chat"
+            android:id="@+id/chat"
+            android:title="Chat"/>
+
+
+
+    </group>
+
+    <group
+        android:id="@+id/group4">
+        <item
             android:icon="@drawable/logout"
             android:id="@+id/logout"
             android:title="Logout"/>
