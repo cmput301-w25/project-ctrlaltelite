@@ -20,6 +20,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Code for the functionality when viewing follow requests
+ */
 public class ViewFollowRequestsFragment extends Fragment {
     private FirebaseFirestore db;
     private FollowRequestAdapter followRequestAdapter;
@@ -27,16 +30,37 @@ public class ViewFollowRequestsFragment extends Fragment {
 
     private String username;
 
+    /**
+     * Constructor
+     * @param username - username of user who is viewing their follow requests
+     */
     public ViewFollowRequestsFragment(String username) {
         this.username = username;
     }
 
+    /**
+     * Setting up the db
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
     }
 
+    /**
+     * Inflating the UI for viewing follow requests
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return the inflated view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -61,6 +85,10 @@ public class ViewFollowRequestsFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Fetching all the follow requests of a user
+     * @param username - username of user who's follow requests we will retrieve
+     */
     private void fetchFollowRequests(String username) {
         Log.d("OtherUserProfileFragment", "Fetching follow requests for username: " + username);
         db.collection("FollowRequests")

@@ -65,6 +65,11 @@ public class MoodEventViewEditTest {
 
     private HomeFragment fragment;
 
+    /**
+     * Setting up mocked database
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
         MockitoAnnotations.openMocks(this);
@@ -90,6 +95,13 @@ public class MoodEventViewEditTest {
         when(mockDocRef.set(any())).thenReturn(mockTask);
     }
 
+    /**
+     * Setting a field value from the HomeFragment
+     * @param fieldName - field who's value we want to set
+     * @param value - the value itself
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     private void setPrivateField(String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
         Field field = HomeFragment.class.getDeclaredField(fieldName);
         field.setAccessible(true);
@@ -97,6 +109,13 @@ public class MoodEventViewEditTest {
         field.setAccessible(false);
     }
 
+    /**
+     * Getting the field value of HomeFragment
+     * @param fieldName - the field whose value we want to obtain
+     * @return the obtained value
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     private Object getPrivateField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Field field = HomeFragment.class.getDeclaredField(fieldName);
         field.setAccessible(true);

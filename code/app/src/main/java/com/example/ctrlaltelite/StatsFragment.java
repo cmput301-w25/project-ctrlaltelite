@@ -34,6 +34,10 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+/**
+ * Code for the mood insights functionality
+ */
 public class StatsFragment extends Fragment {
 
     private PieChart moodPieChart;
@@ -48,6 +52,9 @@ public class StatsFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Getting the mood events for the pie chart
+     */
     private void loadFirestoreData() {
         SharedPreferences sharedPreferences = getContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE);
         String currentUsername = sharedPreferences.getString("user", "");
@@ -107,6 +114,12 @@ public class StatsFragment extends Fragment {
                     moodPieChart.invalidate();
 
                     moodPieChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+                        /**
+                         * Functionality for when a value is selected
+                         * @param e The selected Entry
+                         * @param h The corresponding highlight object that contains information
+                         *          about the highlighted position such as dataSetIndex, ...
+                         */
                         @Override
                         public void onValueSelected(Entry e, Highlight h) {
                             // Inflate the dialog layout
@@ -143,6 +156,10 @@ public class StatsFragment extends Fragment {
                                     });
 
                         }
+
+                        /**
+                         * Do nothing when nothing is selected
+                         */
                         @Override
                         public void onNothingSelected() {}
                         });

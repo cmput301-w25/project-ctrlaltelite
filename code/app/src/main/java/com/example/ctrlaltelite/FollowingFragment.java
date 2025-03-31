@@ -222,6 +222,9 @@ public class FollowingFragment extends Fragment {
         adapter.notifyDataSetChanged(); // Notify adapter of changes to the existing list
     }
 
+    /**
+     * Sorting the mood events by its time
+     */
     public void toggleSort() {
         if (filteredEvents == null || filteredEvents.isEmpty()) return;
         filteredEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));

@@ -14,15 +14,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
+/**
+ * Creating the Adapter for Chat Recycler
+ */
 public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageModel, ChatRecyclerAdapter.ChatModelViewHolder> {
 
     private final Context context;
 
+    /**
+     * Constructor for the Adapter
+     * @param options
+     * @param context
+     */
     public ChatRecyclerAdapter(@NonNull FirestoreRecyclerOptions<ChatMessageModel> options, Context context) {
         super(options);
         this.context = context;
     }
 
+    /**
+     *
+     * @param holder
+     * @param position
+     * @param model the model object containing the data that should be used to populate the view.
+     */
     @Override
     protected void onBindViewHolder(@NonNull ChatModelViewHolder holder, int position, @NonNull ChatMessageModel model) {
         // Get current user ID from SharedPreferences (not FirebaseAuth)
@@ -42,6 +56,13 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
         }
     }
 
+    /**
+     * Creating our chat model view holder
+     * @param parent   The ViewGroup into which the new View will be added after it is bound to
+     *                 an adapter position.
+     * @param viewType The view type of the new View.
+     * @return a ChatModelViewHolder
+     */
     @NonNull
     @Override
     public ChatModelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -49,6 +70,9 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
         return new ChatModelViewHolder(view);
     }
 
+    /**
+     * Creating a child class of ViewHolder
+     */
     static class ChatModelViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayout leftChatLayout, rightChatLayout;

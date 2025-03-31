@@ -50,6 +50,10 @@ public class MapNearbyFragmentUnitTest {
 
     private MapNearbyFragment fragment;
 
+    /**
+     * Setting up mocked database
+     * @throws Exception
+     */
     @Before
     public void setUp() throws Exception {
         // Initialize the Mockito @Mock fields

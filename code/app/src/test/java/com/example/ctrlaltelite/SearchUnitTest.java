@@ -47,6 +47,11 @@ public class SearchUnitTest {
     private SearchFragment fragment;
     private List<User> userList;
 
+    /**
+     * Setting up mocked database
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
         MockitoAnnotations.openMocks(this);
@@ -68,6 +73,13 @@ public class SearchUnitTest {
         });
     }
 
+    /**
+     * Setting a field value from the SearchFragment
+     * @param fieldName - field who's value we want to set
+     * @param value - the value itself
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     private void setPrivateField(String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
         Field field = SearchFragment.class.getDeclaredField(fieldName);
         field.setAccessible(true);
@@ -75,6 +87,13 @@ public class SearchUnitTest {
         field.setAccessible(false);
     }
 
+    /**
+     * Getting the field value of SearchFragment
+     * @param fieldName - the field whose value we want to obtain
+     * @return the obtained value
+     * @throws NoSuchFieldException
+     * @throws IllegalAccessException
+     */
     private Object getPrivateField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Field field = SearchFragment.class.getDeclaredField(fieldName);
         field.setAccessible(true);

@@ -69,6 +69,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Code for the functionality of NearBy Map Fragment
+ */
 public class MapNearbyFragment extends Fragment implements OnMapReadyCallback {
 
     /**

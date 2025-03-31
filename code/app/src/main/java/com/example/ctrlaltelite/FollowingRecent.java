@@ -59,6 +59,18 @@ public class FollowingRecent extends Fragment {
         storageRef = storage.getReference();
     }
 
+    /**
+     * Inflating the UI for the following recent fragment
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstance If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return the inflated view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,@Nullable Bundle savedInstance) {
@@ -89,7 +101,10 @@ public class FollowingRecent extends Fragment {
         return view;
     }
 
-
+    /**
+     * Obtaining all the followers of the user
+     * @param username - username of the user whom we will obtain all its followers
+     */
     public void fetchFollowedUsers(String username) {
         Log.d("FollowingRecentFragment", "Obtaining all followed user");
         db.collection("FollowRequests")
@@ -111,6 +126,10 @@ public class FollowingRecent extends Fragment {
                 });
     }
 
+    /**
+     * Fetching all the mood events of the user
+     * @param Username of the user in question
+     */
     public void fetchAllMoodEvents(String Username) {
         Log.d("FollowingRecentFragment", "Fetching all mood events from all followed user");
         allMoodEvents.clear();
@@ -144,9 +163,11 @@ public class FollowingRecent extends Fragment {
 
     }
 
-
-    // This function was generated with the assistance of OpenAI's ChatGPT (2025).
-
+    /**
+     * Checking for duplicate mood events
+     * @param moodEvent
+     * @return boolean if a mood event has been duplicated
+     */
     private boolean isDuplicateMoodEvent(MoodEvent moodEvent) {
         // Check if the moodEvent already exists in the list based on its document ID
         for (MoodEvent existingEvent : allMoodEvents) {
@@ -157,7 +178,9 @@ public class FollowingRecent extends Fragment {
         return false; // No duplicate
     }
 
-
+    /**
+     * Class to update recent mood events
+     */
     private void updateRecentMoodEvents() {
         recentMoodEvents.clear();
         if (allMoodEvents.size() > 3) {
@@ -171,8 +194,10 @@ public class FollowingRecent extends Fragment {
         followingRecentAdapter.notifyDataSetChanged();
     }
 
-
-        public void toggleSort() {
+    /**
+     * Sorting all mood events by their timestamps
+     */
+    public void toggleSort() {
         if (allMoodEvents == null || allMoodEvents.isEmpty()) return;
         allMoodEvents.sort((a, b) -> Long.compare(b.getTimestamp().toDate().getTime(), a.getTimestamp().toDate().getTime()));
     }

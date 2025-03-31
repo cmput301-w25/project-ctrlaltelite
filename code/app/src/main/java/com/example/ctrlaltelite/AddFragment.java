@@ -80,9 +80,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-// Import the MoodEvent class
-
-
 /**
  * Fragment for adding a mood event.
  * Users can select a mood, provide a reason and a trigger, upload an image, specify a social situation, and choose to attach their location.
@@ -129,9 +126,6 @@ public class AddFragment extends Fragment implements LocationListener {
     private LocationManager locationManager;
     private String Username;
     private boolean savingInProgress = false;
-
-
-
 
     /**
      * Initializes fragment and registers media pickers.
@@ -198,12 +192,8 @@ public class AddFragment extends Fragment implements LocationListener {
 
         RadioGroup radioGroupVisibility = view.findViewById(R.id.radioGroupVisibility);
 
-
-
         // Get a reference to the MainActivity so we can call openDrawer()
         MainActivity mainActivity = (MainActivity) getActivity();
-
-
 
         // Retrieve username from Bundle
         Bundle args = getArguments();
@@ -216,14 +206,11 @@ public class AddFragment extends Fragment implements LocationListener {
             return view;
         }
 
-
         if (buttonDrawerToggle != null && mainActivity != null) {
             buttonDrawerToggle.setOnClickListener(v -> {
                 mainActivity.openDrawer();
             });
         }
-
-
 
         if (getArguments() != null) {
             username = getArguments().getString("username");
@@ -263,8 +250,6 @@ public class AddFragment extends Fragment implements LocationListener {
 
 
         // This will store the visibility choice (true for public, false for private)
-
-
         // Listener to capture selection changes
         radioGroupVisibility.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -278,8 +263,6 @@ public class AddFragment extends Fragment implements LocationListener {
                 }
             }
         });
-
-
 
         //Pressing on the notification button
 
@@ -387,6 +370,9 @@ public class AddFragment extends Fragment implements LocationListener {
         }
     }
 
+    /**
+     * Ask the user if they want to share their location
+     */
     protected void requestLocationPermission() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -409,6 +395,15 @@ public class AddFragment extends Fragment implements LocationListener {
     }
 
 
+    /**
+     * Functionality when location permission is granted
+     * @param requestCode The request code passed in {@link #requestPermissions(String[], int)}.
+     * @param permissions The requested permissions. Never null.
+     * @param grantResults The grant results for the corresponding permissions
+     *     which is either {@link android.content.pm.PackageManager#PERMISSION_GRANTED}
+     *     or {@link android.content.pm.PackageManager#PERMISSION_DENIED}. Never null.
+     *
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -472,12 +467,6 @@ public class AddFragment extends Fragment implements LocationListener {
         // Obtaining the textual reason from the user
         String reason = editReason.getText().toString().trim();
 
-        // Separator
-        String separator = " ";
-
-        // Separating the reason by spaces
-        String[] separationArray = reason.split(separator);
-
         if (!(isTextualReasonValid(reason))) {
 
             // Ensure either text reason or image is provided
@@ -492,16 +481,11 @@ public class AddFragment extends Fragment implements LocationListener {
                 editReason.setError("Reason cannot have more than 200 characters");
                 Toast.makeText(getContext(), "Reason cannot have more than 200 characters", LENGTH_SHORT).show();
                 return;
-            } //else if (separationArray.length >= 4) {
-                //editReason.setError("Reason cannot be more than 3 words");
-                //Toast.makeText(getContext(), "Reason cannot be more than 3 words", LENGTH_SHORT).show();
-                //return;
-            //}
+            }
         }
 
         boolean isLocationEnabled = switchLocation.isChecked();
         // Get the current user ID from Firebase Authentication
-        //String userId = mAuth.getCurrentUser() != null ? mAuth.getCurrentUser().getUid() : null;
 
         String userId = username;
         if (userId == null) {
@@ -629,6 +613,10 @@ public class AddFragment extends Fragment implements LocationListener {
         return !(textualReason.isEmpty() || textualReason.length() >= 200);
     }
 
+    /**
+     * Functionality when the user changes locations
+     * @param location - the new location
+     */
     @Override
     public void onLocationChanged(@NonNull Location location) {
         double latitude = location.getLatitude();

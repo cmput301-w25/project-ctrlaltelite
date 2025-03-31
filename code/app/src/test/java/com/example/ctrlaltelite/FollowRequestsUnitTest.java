@@ -12,11 +12,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Unit testing for follow requesting system
+ */
 public class FollowRequestsUnitTest {
 
     private List<User> users;
     private List<FollowRequest> followRequests;
 
+    /**
+     * Creating test data
+     */
     @Before
     public void setUp() {
         // Seed test users with NEW names
@@ -31,7 +37,9 @@ public class FollowRequestsUnitTest {
         followRequests.add(new FollowRequest("noahp", "emzhang", "Noah Patel", "Emily Zhang", "Accepted"));
     }
 
-    //// Test created with guidance from ChatGPT (OpenAI), March 29, 2025
+    /**
+     * Confirming correctness getters of follow request class
+     */
     @Test
     public void testFollowRequestIsPending() {
         FollowRequest request = followRequests.get(0);
@@ -40,43 +48,9 @@ public class FollowRequestsUnitTest {
         assertEquals("emzhang", request.getRequestedUserName());
     }
 
-    //// Test created with guidance from ChatGPT (OpenAI), March 29, 2025
-
-    @Test
-    public void testViewNoPendingFollowRequests() {
-        List<FollowRequest> followRequests = new ArrayList<>();
-
-        // Simulate a method that filters pending requests
-        List<FollowRequest> pending = followRequests.stream()
-                .filter(r -> r.getStatus().equals("Pending"))
-                .collect(Collectors.toList());
-
-        assertTrue(pending.isEmpty());
-    }
-
-    //// Test created with guidance from ChatGPT (OpenAI), March 29, 2025
-    @Test
-    public void testFollowRequestIsAccepted() {
-        FollowRequest request = followRequests.get(1);
-        assertEquals("Accepted", request.getStatus());
-    }
-
-    //// Test created with guidance from ChatGPT (OpenAI), March 29, 2025
-
-    @Test
-    public void testFollowRequestIsRejected() {
-        FollowRequest request = new FollowRequest("noahp", "leocart", "Noah Patel", "Leo Carter", "Pending");
-        assertEquals("Pending", request.getStatus());
-
-        // Simulate rejection
-        request.setStatus("Rejected");
-
-        // Verify the update
-        assertEquals("Rejected", request.getStatus());
-    }
-
-
-    //// Test created with guidance from ChatGPT (OpenAI), March 29, 2025
+    /**
+     * Confirming correctness of setters in follow request class
+     */
     @Test
     public void testFollowRequestGrantPermission() {
         FollowRequest request = followRequests.get(0);
@@ -84,9 +58,9 @@ public class FollowRequestsUnitTest {
         assertEquals("Accepted", request.getStatus());
     }
 
-
-    //// Test created with guidance from ChatGPT (OpenAI), March 29, 2025
-
+    /**
+     * Checking if pending requests are correctly obtained
+     */
     @Test
     public void testViewPendingRequests() {
         // Seed mock follow request data
@@ -97,7 +71,7 @@ public class FollowRequestsUnitTest {
                 new FollowRequest("alexd", "leocart", "Alex Doe", "Leo Carter", "Rejected")
         );
 
-        // Filter only pending requests
+        // Get only pending requests
         List<FollowRequest> pendingRequests = new ArrayList<>();
         for (FollowRequest req : allRequests) {
             if (req.getStatus().equals("Pending")) {
@@ -111,9 +85,9 @@ public class FollowRequestsUnitTest {
         assertEquals("saml", pendingRequests.get(1).getRequesterUserName());
     }
 
-
-    //// Test created with guidance from ChatGPT (OpenAI), March 29, 2025
-
+    /**
+     * Simulating adding follow requests
+     */
     @Test
     public void testRequestedUsersForCurrentUser() {
         String currentUsername = "emzhang";

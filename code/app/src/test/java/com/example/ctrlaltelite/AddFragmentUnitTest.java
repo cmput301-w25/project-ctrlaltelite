@@ -92,14 +92,6 @@ public class AddFragmentUnitTest {
         // Mock Switch behavior
         when(mockSwitchLocation.isChecked()).thenReturn(false);
 
-        /*
-        // Mock Toast to prevent RuntimeException
-        try (MockedStatic<Toast> toastMock = mockStatic(Toast.class)) {
-            Toast mockToast = mock(Toast.class);
-            when(Toast.makeText(any(), anyString(), anyInt())).thenReturn(mockToast);
-        }
-
-         */
     }
 
     /**
@@ -122,29 +114,4 @@ public class AddFragmentUnitTest {
         // Verify error toast message
         verify(mockFirestore, never()).collection(anyString());
     }
-
-
-    /**
-     * Tests saving a mood event with only an uploaded image.
-     */
-    /*
-    @Test
-    public void testSaveMoodEvent_WithImage_Success() {
-        // Mock UI state
-        when(mockEditableReason.toString()).thenReturn(""); // No reason
-        addFragment.imageRef = mock(Uri.class); // Image provided
-
-        // Mock mood, trigger, and social situation selection
-        when(mockDropdownMood.getSelectedItemPosition()).thenReturn(1);
-        when(mockDropdownMood.getSelectedItem()).thenReturn("Happy");
-        when(mockEditableTrigger.toString()).thenReturn("Mock Trigger");
-        when(mockEditSocialSituation.getSelectedItemPosition()).thenReturn(1);
-        when(mockEditSocialSituation.getSelectedItem()).thenReturn("Alone");
-
-        addFragment.saveMoodEvent("testUser");
-
-        // Verify Firestore save attempt
-        verify(mockFirestore, times(1)).collection("Mood Events");
-    }
-    */
 }

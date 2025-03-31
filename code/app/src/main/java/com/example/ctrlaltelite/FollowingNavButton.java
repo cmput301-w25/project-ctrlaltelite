@@ -28,7 +28,9 @@ import android.widget.Toast;
 
 import java.util.Objects;
 
-
+/**
+ * Fragment for the following navigation button
+ */
 public class FollowingNavButton extends Fragment {
 
     private String Username;
@@ -36,6 +38,18 @@ public class FollowingNavButton extends Fragment {
     TabLayout tabLayout;
     ViewPager2 viewPager2;
 
+    /**
+     * Inflates the UI for the following navigation button
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return the inflated view
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -72,6 +86,10 @@ public class FollowingNavButton extends Fragment {
         //Pressing on the notification button
         LottieAnimationView notifButton = view.findViewById(R.id.notif); // Ensure it's LottieAnimationView
         notifButton.setOnClickListener(new View.OnClickListener() {
+            /**
+             * Functionality for clicking the notif button
+             * @param view
+             */
             @Override
             public void onClick(View view) {
                 if (Username != null) { // Ensure Username is retrieved before navigating
@@ -93,18 +111,36 @@ public class FollowingNavButton extends Fragment {
 
 
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
+            /**
+             * Functionality for when a tab is selected
+             * @param tab The tab that was selected
+             */
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager2.setCurrentItem(tab.getPosition());
             }
 
+            /**
+             * Functionality for when a tab is unselected
+             * @param tab The tab that was unselected
+             */
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {}
 
+            /**
+             * Functionality for when a tab is reselected
+             * @param tab The tab that was reselected.
+             */
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+
+            /**
+             * Functionality for when a page is selected
+             * @param position Position index of the new selected page.
+             */
             @Override
             public void onPageSelected(int position) {
                 tabLayout.selectTab(tabLayout.getTabAt(position));

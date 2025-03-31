@@ -97,6 +97,9 @@ public class UploadPhotoTest {
     private FirebaseFirestore db;
     private String testUsername = "test";
 
+    /**
+     * Setting up the db for testing
+     */
     @Before
     public void setUp() {
         // Launch MainActivity with AddFragment and pass username
@@ -117,6 +120,9 @@ public class UploadPhotoTest {
         intending(not(isInternal())).respondWith(new Instrumentation.ActivityResult(Activity.RESULT_OK, resultData));
     }
 
+    /**
+     * Testing the upload photo functionality
+     */
     @Test
     public void testUploadPhoto() {
         onView(withId(R.id.uploaded_image)).check(matches(not(isDisplayed())));
@@ -125,6 +131,9 @@ public class UploadPhotoTest {
 //        onView(withId(R.id.uploaded_image)).check(matches(isDisplayed()));
     }
 
+    /**
+     * Cleaning up database
+     */
     @After
     public void tearDown() {
         Intents.release();
