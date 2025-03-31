@@ -127,14 +127,17 @@ public class MapFollowingFragment extends Fragment implements OnMapReadyCallback
         CheckBox weekFilterCheckBox = view.findViewById(R.id.show_past_week_following);
         EditText reasonFilterEditText = view.findViewById(R.id.search_mood_reason_following);
 
-        // Mood filter spinner setup
-        List<String> moodOptions = Arrays.asList(getResources().getStringArray(R.array.mood_options));
-        ArrayAdapter<String> moodAdapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, moodOptions);
+        // Get mood options from resources
+        List<String> moodFilterOptions = new ArrayList<>();
+        moodFilterOptions.add("Mood");  // Default text only for the filter
+        moodFilterOptions.addAll(Arrays.asList(getResources().getStringArray(R.array.mood_options)).subList(1, 9)); // Skip "Select Emotional State"
+        CustomSpinnerAdapter moodAdapter = new CustomSpinnerAdapter(requireContext(), moodFilterOptions,0);
         moodFilterSpinner.setAdapter(moodAdapter);
+
         moodFilterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                moodFilter = moodOptions.get(position);
+                moodFilter = moodFilterOptions.get(position);
                 Log.d(TAG, "Mood filter updated: " + moodFilter);
                 GeoPoint userLocation = getUserLocation();
                 if (userLocation != null) {
